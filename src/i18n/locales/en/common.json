@@ -1,24 +1,91 @@
 ﻿{
+  "app": {
+    "name": "Meditation Guide",
+    "description": "Theravada Buddhist Meditation Web App",
+    "tagline": "Your Journey to Inner Peace"
+  },
+  "home": {
+    "hero": {
+      "title": "Your Journey to",
+      "subtitle": "Inner Peace",
+      "description": "Discover the ancient wisdom of Theravada Buddhist meditation. Track your progress, explore guided sessions, and cultivate mindfulness with our comprehensive meditation platform.",
+      "start_journey": "Start Your Journey",
+      "sign_in": "Sign In"
+    },
+    "stats": {
+      "meditation_types": "Meditation Types",
+      "available": "Available",
+      "free": "Free"
+    },
+    "features": {
+      "title": "Everything you need for your meditation practice",
+      "subtitle": "Comprehensive tools and guidance to support your spiritual journey and help you build a consistent meditation habit.",
+      "smart_timer": {
+        "title": "Smart Timer",
+        "description": "Customizable meditation timer with interval bells, background persistence, and session tracking for uninterrupted practice."
+      },
+      "progress_tracking": {
+        "title": "Progress Tracking",
+        "description": "Monitor your meditation journey with detailed analytics, streaks, insights, and visual progress charts."
+      },
+      "dhamma_library": {
+        "title": "Dhamma Library",
+        "description": "Access authentic Buddhist teachings, guided meditations, and spiritual wisdom from the Theravada tradition."
+      },
+      "audio_collection": {
+        "title": "Audio Collection",
+        "description": "Beautiful collection of meditation music, chanting, nature sounds, and guided audio sessions."
+      },
+      "session_logbook": {
+        "title": "Session Logbook",
+        "description": "Record your experiences, insights, and progress in your personal meditation journal and calendar."
+      },
+      "pwa_ready": {
+        "title": "PWA Ready",
+        "description": "Install as an app on your device for offline access, native experience, and seamless meditation practice."
+      }
+    },
+    "about": {
+      "title": "Rooted in Ancient Wisdom,",
+      "subtitle": "Built for Modern Life",
+      "description": "Our platform combines the timeless teachings of Theravada Buddhism with modern technology to create a meditation experience that fits seamlessly into your daily routine.",
+      "subdescription": "Whether you're a beginner seeking guidance or an experienced practitioner looking to deepen your practice, Meditation Guide provides the tools and resources you need to cultivate mindfulness, wisdom, and inner peace.",
+      "start_free": "Start Free Today",
+      "learn_more": "Learn More",
+      "community": {
+        "title": "Join Our Community",
+        "description": "Connect with fellow practitioners, share experiences, and grow together on your meditation journey.",
+        "active_users": "Active Meditators"
+      }
+    },
+    "cta": {
+      "title": "Begin your meditation journey today",
+      "description": "Join thousands of practitioners who have found peace, clarity, and wisdom through regular meditation practice. Your path to inner transformation starts here.",
+      "create_account": "Create Free Account",
+      "sign_in": "Sign In"
+    }
+  },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome back, {name}! ",
+    "welcome": "Welcome back, {name}!",
     "motivation": {
-      "strong_habit": "Amazing! You are building a strong meditation habit. Keep going! �",
-      "good_progress": "Great progress! You are developing consistency in your practice. ",
-      "good_start": "Good start! Every meditation session brings you closer to inner peace. ",
-      "ready_begin": "Ready to begin your meditation journey? Start with a short session today! "
+      "strong_habit": "Amazing! You are building a strong meditation habit. Keep going! 🔥",
+      "good_progress": "Great progress! You are developing consistency in your practice.",
+      "good_start": "Good start! Every meditation session brings you closer to inner peace.",
+      "ready_begin": "Ready to begin your meditation journey? Start with a short session today!"
     },
     "stats": {
       "total_sessions": "Total Sessions",
       "current_streak": "Current Streak",
       "this_week": "This Week",
       "longest_streak": "Longest Streak",
+      "avg_session": "Avg. Session",
       "days": "days",
       "minutes": "minutes"
     },
     "progress": {
       "weekly_progress": "Weekly Progress",
-      "weekly_goal": "Weekly Goal (200 min)",
+      "weekly_goal": "Weekly Goal ({goal} min)",
       "min_this_week": "min this week",
       "min_last_week": "min last week"
     },
@@ -27,8 +94,17 @@
       "dhamma_posts": "Dhamma Posts",
       "audio_sessions": "Audio Sessions"
     },
+    "meditation_types": {
+      "title": "Meditation Types Breakdown",
+      "sessions": "sessions"
+    },
+    "recent_sessions": {
+      "title": "Recent Sessions",
+      "completed": "completed",
+      "paused": "paused"
+    },
     "actions": {
-      "ready_meditate": "Ready to Meditate? ",
+      "ready_meditate": "Ready to Meditate?",
       "favorite_type": "Your favorite meditation type is {type}. Start a session now and continue building your practice.",
       "start_meditating": "Start Meditating",
       "quick_actions": "Quick Actions",
@@ -44,6 +120,124 @@
       "upgrade_now": "Upgrade Now"
     }
   },
+  "meditation": {
+    "title": "Meditation",
+    "setup": {
+      "title": "Meditation Setup",
+      "type": "Meditation Type",
+      "duration": "Duration (minutes)",
+      "start_session": "Start Session",
+      "custom_duration": "Custom Duration"
+    },
+    "timer": {
+      "title": "Meditation Timer",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "session_complete": "Session Complete!",
+      "save_session": "Save Session",
+      "time_remaining": "Time Remaining"
+    },
+    "reflection": {
+      "title": "Session Reflection",
+      "how_was_session": "How was your meditation session?",
+      "notes": "Notes (optional)",
+      "save_reflection": "Save Reflection",
+      "skip": "Skip"
+    }
+  },
+  "logbook": {
+    "title": "Meditation Logbook",
+    "calendar": {
+      "title": "Meditation Calendar",
+      "no_sessions": "No sessions on this date",
+      "sessions_today": "Sessions today"
+    },
+    "sessions": {
+      "title": "Session History",
+      "no_sessions": "No meditation sessions yet",
+      "start_first_session": "Start your first meditation session to begin tracking your journey."
+    }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "overview": "Overview",
+    "time_range": "Time Range",
+    "last_7_days": "Last 7 Days",
+    "last_30_days": "Last 30 Days",
+    "last_90_days": "Last 90 Days",
+    "all_time": "All Time"
+  },
+  "audio": {
+    "title": "Audio Library",
+    "kamatahan": "Kamatahan",
+    "playlists": "Playlists",
+    "categories": "Categories",
+    "search": "Search audio...",
+    "no_audio": "No audio files found",
+    "upload_audio": "Upload Audio"
+  },
+  "dhamma": {
+    "title": "Dhamma Library",
+    "posts": "Dhamma Posts",
+    "categories": "Categories",
+    "search": "Search teachings...",
+    "no_posts": "No Dhamma posts found",
+    "read_more": "Read More"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "preferences": "Preferences",
+    "privacy": "Privacy",
+    "account": "Account",
+    "edit_profile": "Edit Profile",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "auth": {
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "sign_out": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "forgot_password": "Forgot Password?",
+    "dont_have_account": "Don't have an account?",
+    "already_have_account": "Already have an account?",
+    "create_account": "Create Account",
+    "guest_login": "Continue as Guest"
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "description": "Have questions about meditation, need support with your practice, or want to share your experience? We'd love to hear from you.",
+    "form": {
+      "title": "Send us a Message",
+      "full_name": "Full Name",
+      "email_address": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "send_message": "Send Message",
+      "sending": "Sending Message...",
+      "success": "Thank you! Your message has been sent successfully."
+    },
+    "info": {
+      "title": "About Meditation Guide",
+      "description": "We are dedicated to making meditation accessible to everyone. Our platform combines ancient wisdom with modern technology to help you cultivate mindfulness, wisdom, and inner peace.",
+      "active_users": "Active Users",
+      "support": "Support"
+    },
+    "methods": {
+      "title": "Other Ways to Reach Us",
+      "email_support": "Email Support",
+      "live_chat": "Live Chat",
+      "help_center": "Help Center",
+      "business_hours": "Business Hours",
+      "emergency_support": "Emergency support available 24/7 for critical issues"
+    }
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "meditate": "Meditate",
@@ -51,14 +245,44 @@
     "analytics": "Analytics",
     "kamatahan": "Kamatahan",
     "dhamma": "Dhamma",
-    "settings": "Settings"
+    "settings": "Settings",
+    "home": "Home",
+    "features": "Features",
+    "about": "About",
+    "contact": "Contact"
   },
   "common": {
     "loading": "Loading...",
     "welcome": "Welcome",
-    "sign_out": "Sign Out",
     "language": "Language",
     "english": "English",
-    "sinhala": "සහල"
+    "sinhala": "සිංහල",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "refresh": "Refresh",
+    "more": "More",
+    "less": "Less",
+    "view_all": "View All",
+    "no_data": "No data available",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "footer": {
+    "description": "Your comprehensive guide to Theravada Buddhist meditation. Cultivate mindfulness, wisdom, and inner peace.",
+    "features": "Features",
+    "support": "Support",
+    "copyright": "Created with ❤️ by {author}",
+    "blessing": "May all beings be happy, peaceful, and free from suffering."
   }
 }

@@ -1,7 +1,12 @@
+'use client';
+
 import Link from "next/link";
 import { APP_CONFIG } from "@/constants";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export default function Home() {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       {/* Navigation Header */}
@@ -21,28 +26,29 @@ export default function Home() {
             
             <div className="hidden md:flex items-center space-x-8">
               <Link href="#features" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Features
+                {t('navigation.features')}
               </Link>
               <Link href="#about" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                About
+                {t('navigation.about')}
               </Link>
               <Link href="/contact" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Contact
+                {t('navigation.contact')}
               </Link>
             </div>
 
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <Link
                 href="/auth"
                 className="hidden sm:inline-flex items-center px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
-                Sign In
+                {t('auth.sign_in')}
               </Link>
               <Link
                 href="/auth?mode=register"
                 className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
-                Get Started
+                {t('home.hero.start_journey')}
               </Link>
             </div>
           </div>
@@ -60,15 +66,13 @@ export default function Home() {
                 </svg>
               </div>
               <h1 className="text-5xl md:text-7xl font-bold text-slate-900 dark:text-white mb-8 leading-tight">
-                Your Journey to
+                {t('home.hero.title')}
                 <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Inner Peace
+                  {t('home.hero.subtitle')}
                 </span>
               </h1>
               <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed mb-12">
-                Discover the ancient wisdom of Theravada Buddhist meditation. 
-                Track your progress, explore guided sessions, and cultivate mindfulness 
-                with our comprehensive meditation platform.
+                {t('home.hero.description')}
               </p>
             </div>
 
@@ -77,7 +81,7 @@ export default function Home() {
                 href="/auth?mode=register"
                 className="inline-flex items-center justify-center px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-lg rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-2xl hover:shadow-3xl"
               >
-                Start Your Journey
+                {t('home.hero.start_journey')}
                 <svg className="ml-3 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -86,7 +90,7 @@ export default function Home() {
                 href="/auth"
                 className="inline-flex items-center justify-center px-10 py-4 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold text-lg rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
               >
-                Sign In
+                {t('home.hero.sign_in')}
               </Link>
             </div>
 
@@ -94,15 +98,15 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">10+</div>
-                <div className="text-slate-600 dark:text-slate-400">Meditation Types</div>
+                <div className="text-slate-600 dark:text-slate-400">{t('home.stats.meditation_types')}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">24/7</div>
-                <div className="text-slate-600 dark:text-slate-400">Available</div>
+                <div className="text-slate-600 dark:text-slate-400">{t('home.stats.available')}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">100%</div>
-                <div className="text-slate-600 dark:text-slate-400">Free</div>
+                <div className="text-slate-600 dark:text-slate-400">{t('home.stats.free')}</div>
               </div>
             </div>
           </div>
@@ -119,10 +123,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
-              Everything you need for your meditation practice
+              {t('home.features.title')}
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Comprehensive tools and guidance to support your spiritual journey and help you build a consistent meditation habit.
+              {t('home.features.subtitle')}
             </p>
           </div>
 
@@ -134,9 +138,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Smart Timer</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('home.features.smart_timer.title')}</h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Customizable meditation timer with interval bells, background persistence, and session tracking for uninterrupted practice.
+                {t('home.features.smart_timer.description')}
               </p>
             </div>
 
@@ -147,9 +151,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Progress Tracking</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('home.features.progress_tracking.title')}</h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Monitor your meditation journey with detailed analytics, streaks, insights, and visual progress charts.
+                {t('home.features.progress_tracking.description')}
               </p>
             </div>
 
@@ -160,9 +164,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Dhamma Library</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('home.features.dhamma_library.title')}</h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Access authentic Buddhist teachings, guided meditations, and spiritual wisdom from the Theravada tradition.
+                {t('home.features.dhamma_library.description')}
               </p>
             </div>
 
@@ -173,9 +177,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Audio Collection</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('home.features.audio_collection.title')}</h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Beautiful collection of meditation music, chanting, nature sounds, and guided audio sessions.
+                {t('home.features.audio_collection.description')}
               </p>
             </div>
 
@@ -186,9 +190,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Session Logbook</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('home.features.session_logbook.title')}</h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Record your experiences, insights, and progress in your personal meditation journal and calendar.
+                {t('home.features.session_logbook.description')}
               </p>
             </div>
 
@@ -199,9 +203,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">PWA Ready</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('home.features.pwa_ready.title')}</h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Install as an app on your device for offline access, native experience, and seamless meditation practice.
+                {t('home.features.pwa_ready.description')}
               </p>
             </div>
           </div>
@@ -214,30 +218,27 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-8">
-                Rooted in Ancient Wisdom, 
-                <span className="block text-blue-600 dark:text-blue-400">Built for Modern Life</span>
+                {t('home.about.title')}
+                <span className="block text-blue-600 dark:text-blue-400">{t('home.about.subtitle')}</span>
               </h2>
               <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                Our platform combines the timeless teachings of Theravada Buddhism with modern technology 
-                to create a meditation experience that fits seamlessly into your daily routine.
+                {t('home.about.description')}
               </p>
               <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                                 Whether you&apos;re a beginner seeking guidance or an experienced practitioner looking to deepen 
-                your practice, Meditation Guide provides the tools and resources you need to cultivate 
-                mindfulness, wisdom, and inner peace.
+                {t('home.about.subdescription')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/auth?mode=register"
                   className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105"
                 >
-                  Start Free Today
+                  {t('home.about.start_free')}
                 </Link>
                 <Link
                   href="/contact"
                   className="inline-flex items-center justify-center px-8 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
                 >
-                  Learn More
+                  {t('home.about.learn_more')}
                 </Link>
               </div>
             </div>
@@ -249,12 +250,12 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Join Our Community</h3>
+                  <h3 className="text-2xl font-bold mb-4">{t('home.about.community.title')}</h3>
                   <p className="text-blue-100 mb-6">
-                    Connect with fellow practitioners, share experiences, and grow together on your meditation journey.
+                    {t('home.about.community.description')}
                   </p>
                   <div className="text-3xl font-bold">10,000+</div>
-                  <div className="text-blue-100">Active Meditators</div>
+                  <div className="text-blue-100">{t('home.about.community.active_users')}</div>
                 </div>
               </div>
             </div>
@@ -266,18 +267,17 @@ export default function Home() {
       <div className="py-24 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Begin your meditation journey today
+            {t('home.cta.title')}
           </h2>
           <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto">
-            Join thousands of practitioners who have found peace, clarity, and wisdom through regular meditation practice. 
-            Your path to inner transformation starts here.
+            {t('home.cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link
               href="/auth?mode=register"
               className="inline-flex items-center justify-center px-10 py-4 bg-white text-blue-600 font-bold text-lg rounded-xl hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-2xl"
             >
-              Create Free Account
+              {t('home.cta.create_account')}
               <svg className="ml-3 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
@@ -286,7 +286,7 @@ export default function Home() {
               href="/auth"
               className="inline-flex items-center justify-center px-10 py-4 border-2 border-white text-white font-bold text-lg rounded-xl hover:bg-white hover:text-blue-600 transition-all duration-200"
             >
-              Sign In
+              {t('home.cta.sign_in')}
             </Link>
           </div>
         </div>
@@ -306,7 +306,7 @@ export default function Home() {
                 <span className="text-xl font-bold">{APP_CONFIG.name}</span>
               </div>
               <p className="text-slate-400 mb-4 max-w-md">
-                Your comprehensive guide to Theravada Buddhist meditation. Cultivate mindfulness, wisdom, and inner peace.
+                {t('footer.description')}
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-slate-400 hover:text-white transition-colors">
@@ -323,19 +323,19 @@ export default function Home() {
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-4">Features</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('footer.features')}</h3>
               <ul className="space-y-2 text-slate-400">
-                <li><Link href="/meditate" className="hover:text-white transition-colors">Meditation Timer</Link></li>
-                <li><Link href="/logbook" className="hover:text-white transition-colors">Progress Tracking</Link></li>
-                <li><Link href="/dhamma" className="hover:text-white transition-colors">Dhamma Library</Link></li>
-                <li><Link href="/kamatahan" className="hover:text-white transition-colors">Audio Collection</Link></li>
+                <li><Link href="/meditate" className="hover:text-white transition-colors">{t('navigation.meditate')}</Link></li>
+                <li><Link href="/logbook" className="hover:text-white transition-colors">{t('navigation.logbook')}</Link></li>
+                <li><Link href="/dhamma" className="hover:text-white transition-colors">{t('navigation.dhamma')}</Link></li>
+                <li><Link href="/kamatahan" className="hover:text-white transition-colors">{t('navigation.kamatahan')}</Link></li>
               </ul>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-4">Support</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('footer.support')}</h3>
               <ul className="space-y-2 text-slate-400">
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">{t('navigation.contact')}</Link></li>
                 <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
                 <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
@@ -346,10 +346,10 @@ export default function Home() {
           <div className="border-t border-slate-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-slate-400 text-sm">
-                © {new Date().getFullYear()} {APP_CONFIG.name}. Created with ❤️ by {APP_CONFIG.author}.
+                © {new Date().getFullYear()} {APP_CONFIG.name}. {t('footer.copyright', { author: APP_CONFIG.author })}.
               </p>
               <p className="text-slate-500 text-sm mt-4 md:mt-0">
-                May all beings be happy, peaceful, and free from suffering.
+                {t('footer.blessing')}
               </p>
             </div>
           </div>

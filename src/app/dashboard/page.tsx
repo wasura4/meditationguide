@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { MeditationService } from '@/lib/meditationService';
 import { MeditationSession } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DashboardStats {
   totalSessions: number;
@@ -33,6 +34,7 @@ interface DashboardStats {
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -139,16 +141,16 @@ export default function DashboardPage() {
   };
 
   const getMotivationalMessage = () => {
-    if (!stats) return "Welcome to your meditation journey!";
+    if (!stats) return t('dashboard.motivation.ready_begin');
     
     if (stats.currentStreak >= 7) {
-      return "Amazing! You are building a strong meditation habit. Keep going! ";
+      return t('dashboard.motivation.strong_habit');
     } else if (stats.currentStreak >= 3) {
-      return "Great progress! You are developing consistency in your practice. ";
+      return t('dashboard.motivation.good_progress');
     } else if (stats.currentStreak >= 1) {
-      return "Good start! Every meditation session brings you closer to inner peace. ";
+      return t('dashboard.motivation.good_start');
     } else {
-      return "Ready to begin your meditation journey? Start with a short session today! ";
+      return t('dashboard.motivation.ready_begin');
     }
   };
 
@@ -172,7 +174,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">Loading your meditation journey...</p>
+              <p className="text-gray-600 dark:text-gray-300">{t('common.loading')}</p>
             </div>
           </div>
         </div>
@@ -194,19 +196,19 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Dashboard
+                  {t('dashboard.title')}
                 </h1>
               </div>
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600 dark:text-gray-300">
-                  Welcome, {user?.displayName}
+                  {t('common.welcome')}, {user?.displayName}
                 </span>
                 <Button
                   onClick={handleLogout}
                   variant="outline"
                   size="sm"
                 >
-                  Sign Out
+                  {t('auth.sign_out')}
                 </Button>
               </div>
             </div>
@@ -221,7 +223,7 @@ export default function DashboardPage() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h2 className="text-3xl font-bold mb-2">
-                    Welcome back, {user?.displayName}! 
+                    {t('dashboard.welcome', { name: user?.displayName || 'User' })} 
                   </h2>
                   <p className="text-xl text-purple-100 mb-6">
                     {getMotivationalMessage()}
@@ -258,7 +260,7 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Sessions</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.stats.total_sessions')}</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.totalSessions}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
@@ -273,9 +275,9 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Current Streak</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.stats.current_streak')}</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.currentStreak}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">days</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.stats.days')}</p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
                   <span className="text-2xl">{getStreakEmoji(stats?.currentStreak || 0)}</span>
@@ -287,9 +289,9 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">This Week</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.stats.this_week')}</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.thisWeekMinutes}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">minutes</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.stats.minutes')}</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
