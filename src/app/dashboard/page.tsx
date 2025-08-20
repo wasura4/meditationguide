@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { MeditationService } from '@/lib/meditationService';
+import { MeditationSession } from '@/types';
 
 interface DashboardStats {
   totalSessions: number;
@@ -16,6 +18,16 @@ interface DashboardStats {
   favoriteMeditationType: string;
   dhammaPostsRead: number;
   audioSessions: number;
+  averageSessionLength: number;
+  weeklyGoal: number;
+  weeklyGoalProgress: number;
+  meditationTypes: Array<{
+    typeId: string;
+    typeName: string;
+    sessions: number;
+    minutes: number;
+  }>;
+  recentSessions: MeditationSession[];
 }
 
 export default function DashboardPage() {
@@ -25,26 +37,97 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading stats - in production this would come from Firebase
     const loadStats = async () => {
-      setTimeout(() => {
-        setStats({
-          totalSessions: 47,
-          totalMinutes: 2840,
-          currentStreak: 8,
-          longestStreak: 21,
-          thisWeekMinutes: 180,
-          lastWeekMinutes: 165,
-          favoriteMeditationType: 'Anapanasathi',
-          dhammaPostsRead: 12,
-          audioSessions: 23
+      if (!user?.id) return;
+      
+      try {
+        setLoading(true);
+        const userStats = await MeditationService.getUserStats(user.id);
+        
+        // Calculate weekly stats manually
+        const allSessions = await MeditationService.getUserSessions(user.id, 1000);
+        const now = new Date();
+        const thisWeekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 1);
+        const thisWeekEnd = new Date(thisWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+        const lastWeekStart = new Date(thisWeekStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const lastWeekEnd = new Date(thisWeekStart.getTime() - 24 * 60 * 60 * 1000);
+
+        const thisWeekSessions = allSessions.filter(session => 
+          session.createdAt >= thisWeekStart && session.createdAt <= thisWeekEnd
+        );
+        const lastWeekSessions = allSessions.filter(session => 
+          session.createdAt >= lastWeekStart && session.createdAt <= lastWeekEnd
+        );
+
+        const thisWeekMinutes = thisWeekSessions.reduce((sum, session) => sum + session.duration, 0);
+        const lastWeekMinutes = lastWeekSessions.reduce((sum, session) => sum + session.duration, 0);
+        const weeklyGoal = 200;
+        const weeklyGoalProgress = Math.min((thisWeekMinutes / weeklyGoal) * 100, 100);
+
+        // Calculate meditation types breakdown
+        const typeCounts: Record<string, { sessions: number; minutes: number; name: string }> = {};
+        allSessions.forEach(session => {
+          if (!typeCounts[session.typeId]) {
+            typeCounts[session.typeId] = { sessions: 0, minutes: 0, name: session.typeName };
+          }
+          typeCounts[session.typeId].sessions += 1;
+          typeCounts[session.typeId].minutes += session.duration;
         });
+
+        const meditationTypes = Object.entries(typeCounts).map(([typeId, data]) => ({
+          typeId,
+          typeName: data.name,
+          sessions: data.sessions,
+          minutes: data.minutes,
+        }));
+
+        // Get recent sessions (last 5)
+        const recentSessions = allSessions
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+          .slice(0, 5);
+
+        setStats({
+          totalSessions: userStats.totalSessions,
+          totalMinutes: userStats.totalMinutes,
+          currentStreak: userStats.currentStreak,
+          longestStreak: userStats.longestStreak,
+          thisWeekMinutes,
+          lastWeekMinutes,
+          favoriteMeditationType: userStats.favoriteType || 'None yet',
+          dhammaPostsRead: 0, // TODO: Implement user reading tracking
+          audioSessions: 0, // TODO: Implement audio session tracking
+          averageSessionLength: userStats.averageSessionLength,
+          weeklyGoal,
+          weeklyGoalProgress,
+          meditationTypes,
+          recentSessions,
+        });
+      } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+        // Fallback to empty stats if there's an error
+        setStats({
+          totalSessions: 0,
+          totalMinutes: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          thisWeekMinutes: 0,
+          lastWeekMinutes: 0,
+          favoriteMeditationType: 'None yet',
+          dhammaPostsRead: 0,
+          audioSessions: 0,
+          averageSessionLength: 0,
+          weeklyGoal: 200,
+          weeklyGoalProgress: 0,
+          meditationTypes: [],
+          recentSessions: [],
+        });
+      } finally {
         setLoading(false);
-      }, 1000);
+      }
     };
 
     loadStats();
-  }, []);
+  }, [user?.id]);
 
   const handleLogout = async () => {
     try {
@@ -71,8 +154,7 @@ export default function DashboardPage() {
 
   const getProgressPercentage = () => {
     if (!stats) return 0;
-    const weeklyGoal = 200; // 200 minutes per week goal
-    return Math.min((stats.thisWeekMinutes / weeklyGoal) * 100, 100);
+    return stats.weeklyGoalProgress;
   };
 
   const getStreakEmoji = (streak: number) => {
@@ -171,7 +253,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             {/* Total Sessions */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
@@ -225,9 +307,25 @@ export default function DashboardPage() {
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.longestStreak}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">days</p>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Average Session Length */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Session</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.averageSessionLength || 0}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">minutes</p>
+                </div>
+                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
@@ -241,9 +339,9 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Weekly Progress</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Weekly Goal (200 min)</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Weekly Goal ({stats?.weeklyGoal || 200} min)</span>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {stats?.thisWeekMinutes || 0}/200 min
+                    {stats?.thisWeekMinutes || 0}/{stats?.weeklyGoal || 200} min
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
@@ -390,6 +488,55 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Meditation Types Breakdown */}
+          {stats?.meditationTypes && stats.meditationTypes.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meditation Types Breakdown</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {stats.meditationTypes.map((type) => (
+                  <div key={type.typeId} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-gray-900 dark:text-white">{type.typeName}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{type.sessions} sessions</span>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{type.minutes} min</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recent Sessions */}
+          {stats?.recentSessions && stats.recentSessions.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Sessions</h3>
+              <div className="space-y-3">
+                {stats.recentSessions.map((session) => (
+                  <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">{session.typeName}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {session.createdAt.toLocaleDateString()} • {session.duration} min
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {session.status === 'completed' ? '✅' : '⏸️'} {session.status}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Guest Upgrade Notice */}
           {user?.isAnonymous && (
