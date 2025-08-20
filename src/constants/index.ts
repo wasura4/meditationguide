@@ -1,10 +1,10 @@
 // App Configuration
 export const APP_CONFIG = {
-  name: 'Nirvanaya Web',
+  name: 'Meditation Guide',
   version: '1.0.0',
   description: 'Theravada Buddhist Meditation Web App',
   author: 'Wasura Edirisuriya',
-  website: 'https://nirvanaya.com',
+  website: 'https://meditationguide.com',
 } as const;
 
 // Firebase Configuration
