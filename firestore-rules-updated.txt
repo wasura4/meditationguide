@@ -1,0 +1,40 @@
+# Updated Firestore Rules with Audio Management & Dhamma Posts
+# Copy these rules to Firebase Console > Firestore Database > Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+    
+    // Users can read/write their own meditation sessions
+    match /meditation_sessions/{sessionId} {
+      allow read: if request.auth.uid != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth.uid != null && request.auth.uid == request.resource.data.userId;
+      allow update: if request.auth.uid != null && request.auth.uid == resource.data.userId;
+      allow delete: if request.auth.uid != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Admin users collection - secure access
+    match /admin_users/{adminId} {
+      allow read: if request.auth.uid != null && request.auth.uid == adminId;
+      allow write: if request.auth.uid != null && request.auth.uid == adminId;
+    }
+    
+    // Kamatahan audio collection - admins can manage, users can read public files
+    match /kamatahan_audio/{audioId} {
+      allow read: if true; // Anyone can read audio metadata
+      allow write: if request.auth.uid != null && 
+                   exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    }
+    
+    // Dhamma posts collection - admins can manage, users can read published posts
+    match /dhamma_posts/{postId} {
+      allow read: if true; // Anyone can read post metadata
+      allow write: if request.auth.uid != null && 
+                   exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    }
+  }
+}

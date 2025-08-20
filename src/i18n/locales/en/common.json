@@ -1,0 +1,64 @@
+﻿{
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}! ",
+    "motivation": {
+      "strong_habit": "Amazing! You are building a strong meditation habit. Keep going! �",
+      "good_progress": "Great progress! You are developing consistency in your practice. ",
+      "good_start": "Good start! Every meditation session brings you closer to inner peace. ",
+      "ready_begin": "Ready to begin your meditation journey? Start with a short session today! "
+    },
+    "stats": {
+      "total_sessions": "Total Sessions",
+      "current_streak": "Current Streak",
+      "this_week": "This Week",
+      "longest_streak": "Longest Streak",
+      "days": "days",
+      "minutes": "minutes"
+    },
+    "progress": {
+      "weekly_progress": "Weekly Progress",
+      "weekly_goal": "Weekly Goal (200 min)",
+      "min_this_week": "min this week",
+      "min_last_week": "min last week"
+    },
+    "learning": {
+      "title": "Learning Progress",
+      "dhamma_posts": "Dhamma Posts",
+      "audio_sessions": "Audio Sessions"
+    },
+    "actions": {
+      "ready_meditate": "Ready to Meditate? ",
+      "favorite_type": "Your favorite meditation type is {type}. Start a session now and continue building your practice.",
+      "start_meditating": "Start Meditating",
+      "quick_actions": "Quick Actions",
+      "view_logbook": "View Logbook",
+      "audio_library": "Audio Library",
+      "dhamma_library": "Dhamma Library",
+      "view_analytics": "View Analytics",
+      "settings": "Settings"
+    },
+    "guest_notice": {
+      "title": "Upgrade Your Account",
+      "message": "You are currently using a guest account. Upgrade to a full account to save your progress, track your meditation sessions, and access all features.",
+      "upgrade_now": "Upgrade Now"
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "meditate": "Meditate",
+    "logbook": "Logbook",
+    "analytics": "Analytics",
+    "kamatahan": "Kamatahan",
+    "dhamma": "Dhamma",
+    "settings": "Settings"
+  },
+  "common": {
+    "loading": "Loading...",
+    "welcome": "Welcome",
+    "sign_out": "Sign Out",
+    "language": "Language",
+    "english": "English",
+    "sinhala": "සහල"
+  }
+}

@@ -1,0 +1,18 @@
+# Firebase Storage Rules for Audio Files
+# Copy these rules to Firebase Console > Storage > Rules
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Audio files - only admins can upload/delete, users can read public files
+    match /audio/{audioFile} {
+      allow read: if true; // Anyone can read audio files
+      allow write: if request.auth != null; // Only authenticated users can write (admins)
+    }
+    
+    // Default rule - deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

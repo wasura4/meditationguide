@@ -1,0 +1,64 @@
+﻿{
+  "dashboard": {
+    "title": "උපකරම පවරව",
+    "welcome": "ආයබවන, {name}! ",
+    "motivation": {
+      "strong_habit": "අපර! ඔබ ශකතමත භවන පරදදක ගඩනගමන සටනව. දගටම කරගන යනන! ",
+      "good_progress": "හඳ පරගතයක! ඔබ ඔබ පරදද අඛණඩතවය වරධනය කරමන සටනව. ",
+      "good_start": "හඳ ආරමභයක! සම භවන සසයකම ඔබව අභයනතර සමය වත ගන යය. ",
+      "ready_begin": "ඔබ භවන ගමන ආරමභ කරමට සදනමද? අද කට සසයකන ආරමභ කරනන! "
+    },
+    "stats": {
+      "total_sessions": "මළ සස",
+      "current_streak": "වරතමන අඛණඩතවය",
+      "this_week": "මම සතය",
+      "longest_streak": "දගම අඛණඩතවය",
+      "days": "දන",
+      "minutes": "මනතත"
+    },
+    "progress": {
+      "weekly_progress": "සතපත පරගතය",
+      "weekly_goal": "සතපත ඉලකකය (200 මනතත)",
+      "min_this_week": "මම සතය මනතත",
+      "min_last_week": "පසගය සතය මනතත"
+    },
+    "learning": {
+      "title": "ඉගනම පරගතය",
+      "dhamma_posts": "ධරම ලප",
+      "audio_sessions": "ශරවය සස"
+    },
+    "actions": {
+      "ready_meditate": "භවන කරමට සදනමද? ",
+      "favorite_type": "ඔබ පරයතම භවන වරගය {type} ව. දන සසයක ආරමභ කර ඔබ පරදද ගඩනගගන යනන.",
+      "start_meditating": "භවන ආරමභ කරනන",
+      "quick_actions": "කෂණක කරය",
+      "view_logbook": "ලග පත බලනන",
+      "audio_library": "ශරවය පසතකලය",
+      "dhamma_library": "ධරම පසතකලය",
+      "view_analytics": "වශලෂණ බලනන",
+      "settings": "සකසම"
+    },
+    "guest_notice": {
+      "title": "ඔබ ගණම උසස කරනන",
+      "message": "ඔබ දනට ගසට ගණමක භවත කරමන සටනව. ඔබ පරගතය සරකමට, භවන සස ගණන කරමට සහ සයලම වශෂග පරවශ කරමට සමපරණ ගණමකට උසස කරනන.",
+      "upgrade_now": "දන උසස කරනන"
+    }
+  },
+  "navigation": {
+    "dashboard": "උපකරම පවරව",
+    "meditate": "භවන කරනන",
+    "logbook": "ලග පත",
+    "analytics": "වශලෂණ",
+    "kamatahan": "කමටහන",
+    "dhamma": "ධරමය",
+    "settings": "සකසම"
+  },
+  "common": {
+    "loading": "පරණය වමන...",
+    "welcome": "ආයබවන",
+    "sign_out": "පටවම",
+    "language": "භෂව",
+    "english": "English",
+    "sinhala": "සහල"
+  }
+}
