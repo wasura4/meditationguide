@@ -27,7 +27,10 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
   themeColor: "#0ea5e9",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -36,9 +39,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
+      <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content={APP_CONFIG.name} />
+        <meta name="msapplication-TileColor" content="#0ea5e9" />
+        <meta name="msapplication-tap-highlight" content="no" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased touch-manipulation`}
       >
         <AuthProvider>
           <LanguageProvider>
