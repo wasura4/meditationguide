@@ -6,6 +6,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { DhammaPost, DhammaPostFormData } from '@/types/admin';
 import ImageUploadField from './ImageUploadField';
 import { useToast } from '@/components/ui/toast';
+import SummernoteEditor from './SummernoteEditor';
 
 interface DhammaPostFormProps {
   post?: DhammaPost;
@@ -206,38 +207,32 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Content *
             </label>
-            <textarea
-              required
+            <SummernoteEditor
               value={formData.content}
-              onChange={(e) => handleInputChange('content', e.target.value)}
-              rows={15}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-              placeholder="Write your Dhamma post content here...
-
-You can embed YouTube videos by adding this format anywhere in your content:
-[VIDEO:https://www.youtube.com/watch?v=VIDEO_ID]
-
-Example:
-[VIDEO:https://www.youtube.com/watch?v=dQw4w9WgXcQ]"
+              onChange={(content) => handleInputChange('content', content)}
+              placeholder="Write your Dhamma post content here... You can format text, add images, and embed YouTube videos directly!"
+              height={400}
             />
             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Estimated reading time: {calculateReadTime(formData.content)} minutes
+              Estimated reading time: {calculateReadTime(formData.content.replace(/<[^>]*>/g, ''))} minutes
             </div>
           </div>
 
           {/* YouTube Video Embed Helper */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-              🎥 YouTube Video Embed Helper
+              🎥 YouTube Video Embed Guide
             </h4>
             <div className="space-y-2">
               <p className="text-xs text-blue-700 dark:text-blue-300">
-                To embed a YouTube video, copy the video URL and paste it in this format:
+                To embed a YouTube video:
               </p>
-              <div className="bg-white dark:bg-gray-800 rounded p-2 font-mono text-xs text-blue-800 dark:text-blue-200">
-                [VIDEO:https://www.youtube.com/watch?v=VIDEO_ID]
-              </div>
-              <p className="text-xs text-blue-700 dark:text-blue-300">
+              <ol className="text-xs text-blue-700 dark:text-blue-300 list-decimal list-inside space-y-1">
+                <li>Click the "Video" button in the toolbar</li>
+                <li>Paste your YouTube video URL</li>
+                <li>Or use the video embed code directly</li>
+              </ol>
+              <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
                 The video will automatically appear in your post when published.
               </p>
             </div>

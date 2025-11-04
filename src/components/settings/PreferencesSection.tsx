@@ -44,10 +44,20 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
   // Apply theme preference
   useEffect(() => {
     const root = document.documentElement;
-    if (preferences.theme === 'dark' || (preferences.theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (preferences.theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else if (preferences.theme === 'dark') {
+      root.classList.remove('light');
       root.classList.add('dark');
     } else {
-      root.classList.remove('dark');
+      // Auto mode - use system preference
+      root.classList.remove('light', 'dark');
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        root.classList.add('dark');
+      } else {
+        root.classList.add('light');
+      }
     }
   }, [preferences.theme]);
 
