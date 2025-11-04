@@ -10,28 +10,50 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { MeditationSession } from '@/types';
 import { MeditationService } from '@/lib/meditationService';
+import { MeditationTypeService } from '@/lib/meditationTypeService';
 
 type MeditationMode = 'setup' | 'timer' | 'complete' | 'reflection';
 
 export default function MeditatePage() {
   const [mode, setMode] = useState<MeditationMode>('setup');
   const [meditationType, setMeditationType] = useState('mindfulness');
+  const [meditationTypeName, setMeditationTypeName] = useState('Mindfulness');
   const [duration, setDuration] = useState(15);
   const [completedSession, setCompletedSession] = useState<MeditationSession | null>(null);
   const router = useRouter();
   const { showToast } = useToast();
 
-  const handleStart = (type: string, sessionDuration: number) => {
-    setMeditationType(type);
-    setDuration(sessionDuration);
-    setMode('timer');
-    
-    showToast({
-      type: 'success',
-      title: 'Session Started',
-      message: `Beginning ${type} meditation for ${sessionDuration} minutes.`,
-      duration: 3000
-    });
+  const handleStart = async (type: string, sessionDuration: number) => {
+    try {
+      setMeditationType(type);
+      setDuration(sessionDuration);
+
+      // Get the meditation type name from Firebase
+      const meditationTypeData = await MeditationTypeService.getTypeById(type);
+      const typeName = meditationTypeData?.name || type.charAt(0).toUpperCase() + type.slice(1);
+      setMeditationTypeName(typeName);
+
+      setMode('timer');
+
+      showToast({
+        type: 'success',
+        title: 'Session Started',
+        message: `Beginning ${typeName} meditation for ${sessionDuration} minutes.`,
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Error getting meditation type:', error);
+      // Fallback to using the type ID as name
+      setMeditationTypeName(type.charAt(0).toUpperCase() + type.slice(1));
+      setMode('timer');
+
+      showToast({
+        type: 'success',
+        title: 'Session Started',
+        message: `Beginning meditation for ${sessionDuration} minutes.`,
+        duration: 3000
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -151,6 +173,7 @@ export default function MeditatePage() {
             <MeditationTimer
               defaultDuration={duration}
               meditationType={meditationType}
+              meditationTypeName={meditationTypeName}
               onSessionComplete={handleSessionComplete}
             />
           </div>

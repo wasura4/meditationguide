@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { DEFAULT_MEDITATION_TYPES, TIMER_SETTINGS, MEDITATION_CATEGORY_DETAILS } from '@/constants';
+import { TIMER_SETTINGS, MEDITATION_CATEGORY_DETAILS } from '@/constants';
+import { MeditationTypeService } from '@/lib/meditationTypeService';
+import { MeditationType } from '@/types';
+import { useToast } from '@/components/ui/toast';
 
 interface MeditationSetupProps {
   onStart: (type: string, duration: number) => void;
@@ -10,21 +13,53 @@ interface MeditationSetupProps {
 }
 
 export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCancel }) => {
-  const [selectedType, setSelectedType] = useState('anapanasathi');
-  const [customDuration, setCustomDuration] = useState<number>(20);
-  const [selectedCategory, setSelectedCategory] = useState('theravada');
+  const [selectedType, setSelectedType] = useState('');
+  const [customDuration, setCustomDuration] = useState<number>(15);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [meditationTypes, setMeditationTypes] = useState<MeditationType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
+
+  // Load meditation types from Firebase
+  useEffect(() => {
+    const loadTypes = async () => {
+      try {
+        setLoading(true);
+        const types = await MeditationTypeService.getActiveTypes();
+        setMeditationTypes(types);
+
+        // Set default selected type to the first available type
+        if (types.length > 0 && !selectedType) {
+          setSelectedType(types[0].id);
+          setCustomDuration(types[0].defaultDuration);
+        }
+      } catch (error) {
+        console.error('Error loading meditation types:', error);
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to load meditation types. Using defaults.',
+          duration: 5000
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTypes();
+  }, []);
 
   // Filter meditations based on search and category
   const filteredMeditations = useMemo(() => {
-    return DEFAULT_MEDITATION_TYPES.filter(type => {
+    return meditationTypes.filter(type => {
       const matchesSearch = type.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            type.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            type.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesCategory = selectedCategory === 'all' || type.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [meditationTypes, searchQuery, selectedCategory]);
 
   const handleStart = () => {
     onStart(selectedType, customDuration);
@@ -33,7 +68,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   const handleTypeSelect = (typeId: string) => {
     setSelectedType(typeId);
     // Set default duration for the selected type
-    const type = DEFAULT_MEDITATION_TYPES.find(t => t.id === typeId);
+    const type = meditationTypes.find(t => t.id === typeId);
     if (type) {
       setCustomDuration(type.defaultDuration);
     }
@@ -50,7 +85,23 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
     setSearchQuery(''); // Clear search when changing category
   };
 
-  const selectedMeditation = DEFAULT_MEDITATION_TYPES.find(t => t.id === selectedType);
+  const selectedMeditation = meditationTypes.find(t => t.id === selectedType);
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            Loading Meditation Types
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300">
+            Preparing your meditation options...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">

@@ -10,12 +10,15 @@ import { MeditationService } from '@/lib/meditationService';
 interface MeditationTimerProps {
   defaultDuration?: number;
   meditationType?: string;
+  meditationTypeName?: string;
   onSessionComplete?: (session: MeditationSession) => void;
+  onSessionUpdate?: (typeId: string, typeName: string) => void;
 }
 
 export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   defaultDuration = TIMER_SETTINGS.defaultDuration,
   meditationType = 'mindfulness',
+  meditationTypeName,
   onSessionComplete
 }) => {
   const { user } = useAuth();
@@ -26,15 +29,155 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   const [startTime, setStartTime] = useState<Date | null>(null);
 
   const [sessionId, setSessionId] = useState<string>('');
-  
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const pauseTimeRef = useRef<number>(0);
+  const lastUpdateRef = useRef<number>(0);
+  const backgroundTimeRef = useRef<number>(0);
 
   // Generate session ID
   useEffect(() => {
     setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   }, []);
+
+  // Load timer state from localStorage on mount
+  useEffect(() => {
+    const savedTimerState = localStorage.getItem('meditation_timer_state');
+    if (savedTimerState) {
+      try {
+        const state = JSON.parse(savedTimerState);
+        const now = Date.now();
+
+        // Check if the saved session is from today and not completed
+        const sessionDate = new Date(state.startTime);
+        const today = new Date();
+        const isToday = sessionDate.toDateString() === today.toDateString();
+
+        if (isToday && state.isRunning && !state.isCompleted) {
+          // Calculate elapsed time including background time
+          const backgroundElapsed = Math.floor((now - state.lastUpdate) / 1000);
+          const totalElapsed = state.elapsed + backgroundElapsed;
+
+          setIsRunning(state.isRunning);
+          setIsPaused(state.isPaused);
+          setElapsed(totalElapsed);
+          setTotal(state.total);
+          setStartTime(new Date(state.startTime));
+          setSessionId(state.sessionId);
+
+          // Resume timer if it was running
+          if (state.isRunning && !state.isPaused) {
+            startTimeRef.current = now - (totalElapsed * 1000);
+            lastUpdateRef.current = now;
+
+            intervalRef.current = setInterval(() => {
+              const currentTime = Date.now();
+              const newElapsed = Math.floor((currentTime - startTimeRef.current) / 1000);
+              setElapsed(prev => {
+                const updated = Math.min(newElapsed, total);
+                lastUpdateRef.current = currentTime;
+
+                // Save state periodically
+                saveTimerState(updated, total, true, false, new Date(state.startTime), state.sessionId);
+
+                if (updated >= total) {
+                  completeSession();
+                  return total;
+                }
+                return updated;
+              });
+            }, 1000);
+          }
+        } else {
+          // Clear old state
+          localStorage.removeItem('meditation_timer_state');
+        }
+      } catch (error) {
+        console.error('Error loading timer state:', error);
+        localStorage.removeItem('meditation_timer_state');
+      }
+    }
+  }, []);
+
+  // Save timer state to localStorage
+  const saveTimerState = (
+    elapsedTime: number,
+    totalTime: number,
+    running: boolean,
+    paused: boolean,
+    sessionStartTime: Date,
+    sessionIdValue: string
+  ) => {
+    const state = {
+      elapsed: elapsedTime,
+      total: totalTime,
+      isRunning: running,
+      isPaused: paused,
+      startTime: sessionStartTime.toISOString(),
+      sessionId: sessionIdValue,
+      lastUpdate: Date.now(),
+      isCompleted: false
+    };
+    localStorage.setItem('meditation_timer_state', JSON.stringify(state));
+  };
+
+  // Clear timer state from localStorage
+  const clearTimerState = () => {
+    localStorage.removeItem('meditation_timer_state');
+  };
+
+  // Handle visibility change (tab switching, screen off)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Page is hidden, save current state
+        if (isRunning && startTime) {
+          saveTimerState(elapsed, total, isRunning, isPaused, startTime, sessionId);
+        }
+      } else {
+        // Page is visible again
+        const savedState = localStorage.getItem('meditation_timer_state');
+        if (savedState && isRunning && startTime) {
+          try {
+            const state = JSON.parse(savedState);
+            const now = Date.now();
+            const timeDiff = Math.floor((now - state.lastUpdate) / 1000);
+
+            if (timeDiff > 0 && !isPaused) {
+              // Update elapsed time with background time
+              const newElapsed = Math.min(elapsed + timeDiff, total);
+              setElapsed(newElapsed);
+
+              // Adjust start time reference
+              startTimeRef.current = now - (newElapsed * 1000);
+
+              // Check if timer should complete
+              if (newElapsed >= total) {
+                completeSession();
+              }
+            }
+          } catch (error) {
+            console.error('Error updating timer from background:', error);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isRunning, isPaused, elapsed, total, startTime, sessionId]);
+
+  // Periodic state saving
+  useEffect(() => {
+    if (isRunning && startTime) {
+      const saveInterval = setInterval(() => {
+        saveTimerState(elapsed, total, isRunning, isPaused, startTime, sessionId);
+      }, 10000); // Save every 10 seconds
+
+      return () => clearInterval(saveInterval);
+    }
+  }, [isRunning, isPaused, elapsed, total, startTime, sessionId]);
 
   // Handle session completion (for both completed and stopped sessions)
   const handleSessionEnd = useCallback(async (status: 'completed' | 'abandoned') => {
@@ -44,12 +187,16 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     
     setIsRunning(false);
     setIsPaused(false);
-    
+
+    // Clear timer state from localStorage
+    clearTimerState();
+
     // Create session data
+    const typeName = meditationTypeName || meditationType;
     const sessionData: Omit<MeditationSession, 'id'> = {
       userId: user?.id || 'anonymous',
       typeId: meditationType,
-      typeName: meditationType,
+      typeName: typeName,
       startTime: startTime || new Date(),
       endTime: new Date(),
       duration: Math.max(1, Math.ceil(elapsed / 60)), // Convert to minutes, minimum 1 minute
@@ -85,7 +232,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
         onSessionComplete(session);
       }
     }
-  }, [sessionId, user?.id, meditationType, startTime, elapsed, onSessionComplete]);
+  }, [sessionId, user?.id, meditationType, meditationTypeName, startTime, elapsed, onSessionComplete, clearTimerState]);
 
   // Complete session function (defined first to avoid dependency issues)
   const completeSession = useCallback(() => {
@@ -95,56 +242,85 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   // Timer logic
   const startTimer = useCallback(() => {
     if (!isRunning) {
+      const now = Date.now();
       setIsRunning(true);
       setIsPaused(false);
       setStartTime(new Date());
-      startTimeRef.current = Date.now();
-      
+      startTimeRef.current = now;
+      lastUpdateRef.current = now;
+
       intervalRef.current = setInterval(() => {
+        const currentTime = Date.now();
+        const newElapsed = Math.floor((currentTime - startTimeRef.current) / 1000);
+
         setElapsed(prev => {
-          const newElapsed = prev + 1;
-          if (newElapsed >= total) {
+          const updated = Math.min(newElapsed, total);
+          lastUpdateRef.current = currentTime;
+
+          // Save state
+          if (startTime) {
+            saveTimerState(updated, total, true, false, startTime, sessionId);
+          }
+
+          if (updated >= total) {
             // Timer completed
             completeSession();
             return total;
           }
-          return newElapsed;
+          return updated;
         });
       }, 1000);
     }
-  }, [isRunning, total, completeSession]);
+  }, [isRunning, total, completeSession, startTime, sessionId, saveTimerState]);
 
   const pauseTimer = useCallback(() => {
     if (isRunning && !isPaused) {
       setIsPaused(true);
       pauseTimeRef.current = Date.now();
-      
+
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+
+      // Save paused state
+      if (startTime) {
+        saveTimerState(elapsed, total, true, true, startTime, sessionId);
+      }
     }
-  }, [isRunning, isPaused]);
+  }, [isRunning, isPaused, elapsed, total, startTime, sessionId, saveTimerState]);
 
   const resumeTimer = useCallback(() => {
     if (isRunning && isPaused) {
+      const now = Date.now();
       setIsPaused(false);
-      
+
       // Adjust for pause time
-      const pauseDuration = Date.now() - pauseTimeRef.current;
+      const pauseDuration = now - pauseTimeRef.current;
       startTimeRef.current += pauseDuration;
-      
+      lastUpdateRef.current = now;
+
       intervalRef.current = setInterval(() => {
+        const currentTime = Date.now();
+        const newElapsed = Math.floor((currentTime - startTimeRef.current) / 1000);
+
         setElapsed(prev => {
-          const newElapsed = prev + 1;
-          if (newElapsed >= total) {
+          const updated = Math.min(newElapsed, total);
+          lastUpdateRef.current = currentTime;
+
+          // Save state
+          if (startTime) {
+            saveTimerState(updated, total, true, false, startTime, sessionId);
+          }
+
+          if (updated >= total) {
             completeSession();
             return total;
           }
-          return newElapsed;
+          return updated;
         });
       }, 1000);
     }
-  }, [isRunning, isPaused, total, completeSession]);
+  }, [isRunning, isPaused, total, completeSession, startTime, sessionId, saveTimerState]);
 
   const stopTimer = useCallback(() => {
     if (isRunning && startTime) {
@@ -154,11 +330,14 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       setIsRunning(false);
       setIsPaused(false);
     }
-    
+
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-  }, [isRunning, startTime, handleSessionEnd]);
+
+    // Clear timer state
+    clearTimerState();
+  }, [isRunning, startTime, handleSessionEnd, clearTimerState]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -205,7 +384,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
               cy="50"
               r="45"
               fill="none"
-              stroke="#0ea5e9"
+              stroke="#007aff"
               strokeWidth="8"
               strokeDasharray={`${2 * Math.PI * 45}`}
               strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
@@ -230,7 +409,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
         {/* Session Info */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            {meditationType.charAt(0).toUpperCase() + meditationType.slice(1)} Meditation
+            {meditationTypeName || (meditationType.charAt(0).toUpperCase() + meditationType.slice(1))} Meditation
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Session {sessionId.slice(-6)}

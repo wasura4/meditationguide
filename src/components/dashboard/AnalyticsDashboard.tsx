@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MeditationService } from '@/lib/meditationService';
-import { MeditationSession } from '@/types';
+import { MeditationTypeService } from '@/lib/meditationTypeService';
+import { MeditationSession, MeditationType } from '@/types';
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
-import { 
+import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
@@ -37,29 +38,37 @@ interface TypeDistribution {
 export const AnalyticsDashboard: React.FC = () => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
+  const [meditationTypes, setMeditationTypes] = useState<MeditationType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
 
-  // Load sessions
+  // Load sessions and meditation types
   useEffect(() => {
-    const loadSessions = async () => {
+    const loadData = async () => {
       if (!user?.id) return;
-      
+
       try {
         setLoading(true);
-        const userSessions = await MeditationService.getUserSessions(user.id, 1000);
+
+        // Load sessions and meditation types in parallel
+        const [userSessions, types] = await Promise.all([
+          MeditationService.getUserSessions(user.id, 1000),
+          MeditationTypeService.getAllTypes()
+        ]);
+
         setSessions(userSessions);
+        setMeditationTypes(types);
         setError(null);
       } catch (err) {
-        setError('Failed to load sessions');
-        console.error('Error loading sessions:', err);
+        setError('Failed to load data');
+        console.error('Error loading data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadSessions();
+    loadData();
   }, [user?.id]);
 
   // Calculate analytics data
@@ -86,7 +95,9 @@ export const AnalyticsDashboard: React.FC = () => {
     sessions.forEach(session => {
       typeCounts[session.typeId] = (typeCounts[session.typeId] || 0) + 1;
     });
-    const favoriteType = Object.entries(typeCounts).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+    const favoriteTypeId = Object.entries(typeCounts).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+    const favoriteTypeData = meditationTypes.find(t => t.id === favoriteTypeId);
+    const favoriteType = favoriteTypeData?.name || favoriteTypeId.charAt(0).toUpperCase() + favoriteTypeId.slice(1);
 
     // Calculate streaks
     const sortedSessions = sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -200,7 +211,7 @@ export const AnalyticsDashboard: React.FC = () => {
     if (sessions.length === 0) return [];
 
     const typeStats: Record<string, { sessions: number; minutes: number }> = {};
-    
+
     sessions.forEach(session => {
       if (!typeStats[session.typeId]) {
         typeStats[session.typeId] = { sessions: 0, minutes: 0 };
@@ -210,12 +221,18 @@ export const AnalyticsDashboard: React.FC = () => {
     });
 
     return Object.entries(typeStats)
-      .map(([type, stats]) => ({
-        type: type.charAt(0).toUpperCase() + type.slice(1),
-        ...stats,
-      }))
+      .map(([typeId, stats]) => {
+        // Find the meditation type name, fallback to capitalized ID
+        const meditationType = meditationTypes.find(t => t.id === typeId);
+        const typeName = meditationType?.name || typeId.charAt(0).toUpperCase() + typeId.slice(1);
+
+        return {
+          type: typeName,
+          ...stats,
+        };
+      })
       .sort((a, b) => b.sessions - a.sessions);
-  }, [sessions]);
+  }, [sessions, meditationTypes]);
 
   // Chart colors
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
@@ -364,13 +381,13 @@ export const AnalyticsDashboard: React.FC = () => {
                   color: '#F9FAFB'
                 }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="minutes" 
-                stroke="#0EA5E9" 
+              <Line
+                type="monotone"
+                dataKey="minutes"
+                stroke="#007AFF"
                 strokeWidth={3}
-                dot={{ fill: '#0EA5E9', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#0EA5E9', strokeWidth: 2 }}
+                dot={{ fill: '#007AFF', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#007AFF', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

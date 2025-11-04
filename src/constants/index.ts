@@ -222,47 +222,47 @@ export const TIMER_SETTINGS = {
   intervalBells: [5, 10, 15, 20, 30, 45, 60], // minutes
 } as const;
 
-// Theme Colors
+// Theme Colors - Apple Style Design System
 export const THEME_COLORS = {
   primary: {
-    50: '#f0f9ff',
-    100: '#e0f2fe',
-    500: '#0ea5e9',
-    600: '#0284c7',
-    700: '#0369a1',
-    900: '#0c4a6e',
+    50: '#f2f2f7',   // System Gray 6
+    100: '#e5e5ea',  // System Gray 5
+    500: '#007aff',  // System Blue
+    600: '#005bd3',  // System Blue (darker)
+    700: '#004085',  // System Blue (darkest)
+    900: '#1c1c1e',  // System Gray
   },
   secondary: {
-    50: '#fdf4ff',
-    100: '#fae8ff',
-    500: '#a855f7',
-    600: '#9333ea',
-    700: '#7c3aed',
-    900: '#581c87',
+    50: '#f2f2f7',   // System Gray 6
+    100: '#e5e5ea',  // System Gray 5
+    500: '#8e8e93',  // System Gray 3
+    600: '#636366',  // System Gray 2
+    700: '#48484a',  // System Gray
+    900: '#1c1c1e',  // System Gray
   },
   success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    500: '#22c55e',
-    600: '#16a34a',
-    700: '#15803d',
-    900: '#14532d',
+    50: '#f2f2f7',   // System Gray 6
+    100: '#e5e5ea',  // System Gray 5
+    500: '#34c759',  // System Green
+    600: '#28a745',  // System Green (darker)
+    700: '#1e7e34',  // System Green (darkest)
+    900: '#155724',  // System Green (dark)
   },
   warning: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    500: '#f59e0b',
-    600: '#d97706',
-    700: '#b45309',
-    900: '#78350f',
+    50: '#f2f2f7',   // System Gray 6
+    100: '#e5e5ea',  // System Gray 5
+    500: '#ff9500',  // System Orange
+    600: '#e8890b',  // System Orange (darker)
+    700: '#b86400',  // System Orange (darkest)
+    900: '#8b4513',  // System Orange (dark)
   },
   error: {
-    50: '#fef2f2',
-    100: '#fee2e2',
-    500: '#ef4444',
-    600: '#dc2626',
-    700: '#b91c1c',
-    900: '#7f1d1d',
+    50: '#f2f2f7',   // System Gray 6
+    100: '#e5e5ea',  // System Gray 5
+    500: '#ff3b30',  // System Red
+    600: '#dc3545',  // System Red (darker)
+    700: '#bd2130',  // System Red (darkest)
+    900: '#721c24',  // System Red (dark)
   },
 } as const;
 

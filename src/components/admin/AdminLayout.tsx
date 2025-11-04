@@ -22,6 +22,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: '📊', permission: 'analytics:read' },
+    { name: 'Meditation Types', href: '/admin/types', icon: '🧘‍♀️', permission: 'content:read' },
     { name: 'Audio Management', href: '/admin/audio', icon: '🎵', permission: 'audio:read' },
     { name: 'Dhamma Content', href: '/admin/dhamma', icon: '📖', permission: 'dhamma:read' },
     { name: 'User Management', href: '/admin/users', icon: '👥', permission: 'users:read' },
@@ -75,7 +76,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
       }`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#007aff] rounded-lg flex items-center justify-center">
               <span className="text-white text-lg">🕉️</span>
             </div>
             <h1 className="ml-3 text-xl font-bold text-gray-900 dark:text-white">
@@ -121,7 +122,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
         {/* Admin Info */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-[#007aff] rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-semibold">
                 {adminUser?.displayName?.charAt(0).toUpperCase() || 'A'}
               </span>

@@ -60,18 +60,18 @@ export default function AdminDashboardPage() {
       <AdminLayout currentPage="/admin/dashboard">
         <div className="space-y-6">
           {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white">
+          <div className="bg-gradient-to-r from-[#007aff] to-[#005bd3] rounded-xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold">
                   Welcome back, {adminUser?.displayName}! 🙏
                 </h1>
-                <p className="text-purple-100 mt-2">
+                <p className="text-blue-100 mt-2">
                   Here&apos;s what&apos;s happening with Nirvanaya today
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-purple-100">Role</p>
+                <p className="text-sm text-blue-100">Role</p>
                 <p className="text-lg font-semibold capitalize">
                   {adminUser?.role?.replace('_', ' ')}
                 </p>
