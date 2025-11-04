@@ -43,10 +43,11 @@ export default function AdminMeditationTypesPage() {
 
   const handleCreateType = async (formData: FormData) => {
     try {
+      const categoryValue = formData.get('category') as string;
       const typeData = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        category: formData.get('category') as string,
+        category: categoryValue as 'theravada' | 'traditional' | 'modern' | 'specialized',
         defaultDuration: parseInt(formData.get('defaultDuration') as string),
         order: types.length + 1,
         isActive: formData.get('isActive') === 'on',
@@ -75,10 +76,11 @@ export default function AdminMeditationTypesPage() {
 
   const handleUpdateType = async (typeId: string, formData: FormData) => {
     try {
+      const categoryValue = formData.get('category') as string;
       const updates = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        category: formData.get('category') as string,
+        category: categoryValue as 'theravada' | 'traditional' | 'modern' | 'specialized',
         defaultDuration: parseInt(formData.get('defaultDuration') as string),
         isActive: formData.get('isActive') === 'on',
         tags: (formData.get('tags') as string).split(',').map(tag => tag.trim()).filter(tag => tag),

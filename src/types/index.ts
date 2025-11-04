@@ -30,7 +30,7 @@ export interface MeditationType {
   id: string;
   name: string;
   description: string;
-  category: 'breathing' | 'mindfulness' | 'loving-kindness' | 'body-scan' | 'walking' | 'custom';
+  category: 'theravada' | 'traditional' | 'modern' | 'specialized';
   defaultDuration: number; // in minutes
   isActive: boolean;
   order: number;
