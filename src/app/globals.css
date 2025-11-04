@@ -1,22 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #0ea5e9;
+  /* Apple-style Color System */
+  --background: #fafafa;
+  --foreground: #1d1d1f;
+
+  /* Primary - Soft meditation blue */
+  --primary: #007aff;
+  --primary-hover: #0051d5;
   --primary-foreground: #ffffff;
-  --secondary: #a855f7;
+
+  /* Secondary - Calming lavender */
+  --secondary: #af52de;
+  --secondary-hover: #9747c2;
   --secondary-foreground: #ffffff;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
+
+  /* Accent - Warm minimal */
+  --accent: #f5f5f7;
+  --accent-foreground: #1d1d1f;
+
+  /* Success - Gentle green */
+  --success: #34c759;
+  --success-foreground: #ffffff;
+
+  /* Warning - Soft amber */
+  --warning: #ff9500;
+  --warning-foreground: #ffffff;
+
+  /* Destructive - Muted red */
+  --destructive: #ff3b30;
   --destructive-foreground: #ffffff;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #0ea5e9;
-  --radius: 0.5rem;
+
+  /* Neutral tones */
+  --muted: #f5f5f7;
+  --muted-foreground: #86868b;
+  --border: #d2d2d7;
+  --input: #e8e8ed;
+  --card: #ffffff;
+  --card-hover: #fafafa;
+
+  /* Focus ring */
+  --ring: #007aff;
+
+  /* Apple-style radius */
+  --radius: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 16px 48px 0 rgba(0, 0, 0, 0.14);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.18);
 }
 
 @theme inline {
@@ -41,25 +81,139 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --accent: #1e293b;
-    --accent-foreground: #f8fafc;
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
-    --border: #334155;
-    --input: #334155;
+    /* Apple-style Dark Mode */
+    --background: #000000;
+    --foreground: #f5f5f7;
+
+    --primary: #0a84ff;
+    --primary-hover: #409cff;
+    --secondary: #bf5af2;
+    --secondary-hover: #c97bf4;
+
+    --accent: #1c1c1e;
+    --accent-foreground: #f5f5f7;
+
+    --success: #30d158;
+    --warning: #ff9f0a;
+    --destructive: #ff453a;
+
+    --muted: #1c1c1e;
+    --muted-foreground: #98989d;
+    --border: #38383a;
+    --input: #2c2c2e;
+    --card: #1c1c1e;
+    --card-hover: #2c2c2e;
+
+    --glass-bg: rgba(28, 28, 30, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.08);
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px 0 rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 16px 48px 0 rgba(0, 0, 0, 0.7);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+  line-height: 1.5;
 }
+
+/* Apple-style transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Apple-style glassmorphism effect */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Elevated card style */
+.card-elevated {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-elevated:hover {
+  background: var(--card-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Apple-style button base */
+.btn-apple {
+  border-radius: var(--radius);
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-apple:active {
+  transform: scale(0.97);
+}
+
+/* Primary button */
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+/* Secondary button */
+.btn-secondary {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+/* Gentle fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Staggered animations */
+.fade-in-delay-1 { animation-delay: 0.1s; }
+.fade-in-delay-2 { animation-delay: 0.2s; }
+.fade-in-delay-3 { animation-delay: 0.3s; }
+.fade-in-delay-4 { animation-delay: 0.4s; }
 
 /* Mobile-First Responsive Design */
 @media (max-width: 640px) {
