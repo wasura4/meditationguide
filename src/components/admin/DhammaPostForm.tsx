@@ -6,7 +6,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { DhammaPost, DhammaPostFormData } from '@/types/admin';
 import ImageUploadField from './ImageUploadField';
 import { useToast } from '@/components/ui/toast';
-import SummernoteEditor from './SummernoteEditor';
+import RichTextEditor from './RichTextEditor';
 
 interface DhammaPostFormProps {
   post?: DhammaPost;
@@ -207,11 +207,10 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Content *
             </label>
-            <SummernoteEditor
+            <RichTextEditor
               value={formData.content}
               onChange={(content) => handleInputChange('content', content)}
               placeholder="Write your Dhamma post content here... You can format text, add images, and embed YouTube videos directly!"
-              height={400}
             />
             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               Estimated reading time: {calculateReadTime(formData.content.replace(/<[^>]*>/g, ''))} minutes
