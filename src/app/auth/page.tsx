@@ -30,7 +30,7 @@ export default function AuthPage() {
       case 'anonymous':
         return (
           <AnonymousLogin
-            onSwitchToLogin(() => setAuthMode('login')}
+            onSwitchToLogin={() => setAuthMode('login')}
             onSwitchToRegister={() => setAuthMode('register')}
           />
         );
