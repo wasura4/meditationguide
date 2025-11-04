@@ -30,6 +30,10 @@ export default function LogbookPage() {
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const loadSessions = useCallback(async () => {
     try {
       setLoading(true);
@@ -208,6 +212,24 @@ export default function LogbookPage() {
     setDateRange('all');
     setCustomStartDate('');
     setCustomEndDate('');
+    setCurrentPage(1); // Reset to first page when clearing filters
+  };
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedType, selectedMood, selectedRating, dateRange, customStartDate, customEndDate]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of sessions list
+    window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
   const formatDate = (date: Date) => {
@@ -579,7 +601,8 @@ export default function LogbookPage() {
 
             {/* Results Count */}
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {filteredSessions.length} of {sessions.length} sessions
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredSessions.length)} of {filteredSessions.length} sessions
+              {filteredSessions.length !== sessions.length && ` (${sessions.length} total)`}
             </div>
           </div>
            )}
@@ -615,11 +638,12 @@ export default function LogbookPage() {
                 )}
               </div>
             ) : (
-              filteredSessions.map((session) => (
-                <div
-                  key={session.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
-                >
+              <>
+                {paginatedSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+                  >
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-3">
@@ -727,7 +751,88 @@ export default function LogbookPage() {
                     </div>
                   </div>
                 </div>
-              ))
+                ))}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      Page {currentPage} of {totalPages}
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      {/* Previous Button */}
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm font-medium text-gray-700 dark:text-gray-200"
+                      >
+                        Previous
+                      </button>
+
+                      {/* Page Numbers */}
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                          // Show first page, last page, current page, and pages around current
+                          let pageNumber;
+                          if (totalPages <= 7) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 4) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= totalPages - 3) {
+                            pageNumber = totalPages - 6 + i;
+                          } else {
+                            pageNumber = currentPage - 3 + i;
+                          }
+
+                          if (pageNumber < 1 || pageNumber > totalPages) return null;
+
+                          return (
+                            <button
+                              key={pageNumber}
+                              onClick={() => handlePageChange(pageNumber)}
+                              className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                                currentPage === pageNumber
+                                  ? 'bg-[var(--primary)] text-white'
+                                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              }`}
+                            >
+                              {pageNumber}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Next Button */}
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm font-medium text-gray-700 dark:text-gray-200"
+                      >
+                        Next
+                      </button>
+                    </div>
+
+                    {/* Jump to Page */}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-gray-600 dark:text-gray-300">Go to:</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max={totalPages}
+                        value={currentPage}
+                        onChange={(e) => {
+                          const page = parseInt(e.target.value);
+                          if (page >= 1 && page <= totalPages) {
+                            handlePageChange(page);
+                          }
+                        }}
+                        className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-center text-sm dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
            )}

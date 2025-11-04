@@ -160,7 +160,7 @@ body {
 .health-card {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
-  padding: 1.25rem;
+  padding: 2rem;
   box-shadow: var(--shadow);
   border: 1px solid var(--card-border);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -174,7 +174,7 @@ body {
 .health-card-compact {
   background: var(--card-bg);
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 1.5rem;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--card-border);
 }
@@ -195,18 +195,18 @@ body {
 .stat-card {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: 1.75rem;
   box-shadow: var(--shadow);
   border: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .stat-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.625rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -363,11 +363,11 @@ html {
   }
 
   .health-card {
-    padding: 1rem;
+    padding: 1.5rem;
   }
 
   .stat-card {
-    padding: 1.25rem;
+    padding: 1.5rem;
   }
 }
 

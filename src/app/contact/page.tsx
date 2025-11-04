@@ -70,27 +70,27 @@ export default function ContactPage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="pt-[88px] pb-[64px] px-6 text-center fade-in">
-        <h1 className="text-[56px] leading-[1.07] font-semibold text-[var(--foreground)] mb-4 tracking-tight">
+      <div className="pt-[88px] pb-[64px] px-6 lg:px-8 text-center fade-in">
+        <h1 className="text-[48px] md:text-[56px] leading-[1.07] font-semibold text-[var(--foreground)] mb-6 tracking-tight">
           Get in Touch
         </h1>
-        <p className="text-[21px] leading-[1.381] text-[var(--muted-foreground)] max-w-[640px] mx-auto">
+        <p className="text-[19px] md:text-[21px] leading-[1.381] text-[var(--muted-foreground)] max-w-[640px] mx-auto">
           Have questions or feedback? We&apos;d love to hear from you.
         </p>
       </div>
 
       {/* Main Content */}
-      <div className="py-16 px-6">
+      <div className="py-16 lg:py-20 px-6 lg:px-8">
         <div className="max-w-[1120px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Contact Form */}
-            <div className="card-elevated p-8 fade-in fade-in-delay-1">
-              <h2 className="text-[28px] font-semibold text-[var(--foreground)] mb-6 tracking-tight">
+            <div className="card-elevated p-8 lg:p-10 fade-in fade-in-delay-1">
+              <h2 className="text-[28px] lg:text-[32px] font-semibold text-[var(--foreground)] mb-8 tracking-tight">
                 Send us a Message
               </h2>
 
               {submitStatus === 'success' && (
-                <div className="mb-6 p-4 bg-[var(--success)] bg-opacity-10 border border-[var(--success)] border-opacity-30 rounded-[var(--radius)]">
+                <div className="mb-8 p-5 bg-[var(--success)] bg-opacity-10 border border-[var(--success)] border-opacity-30 rounded-[var(--radius)]">
                   <div className="flex items-center text-[var(--success)]">
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -102,10 +102,10 @@ export default function ContactPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-[13px] font-medium text-[var(--foreground)] mb-2">
+                    <label htmlFor="name" className="block text-[14px] font-medium text-[var(--foreground)] mb-3">
                       Full Name *
                     </label>
                     <input
@@ -115,13 +115,13 @@ export default function ContactPage() {
                       required
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all"
+                      className="w-full px-4 py-3.5 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all"
                       placeholder="Your name"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-[13px] font-medium text-[var(--foreground)] mb-2">
+                    <label htmlFor="email" className="block text-[14px] font-medium text-[var(--foreground)] mb-3">
                       Email Address *
                     </label>
                     <input
@@ -131,14 +131,14 @@ export default function ContactPage() {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all"
+                      className="w-full px-4 py-3.5 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all"
                       placeholder="email@example.com"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-[13px] font-medium text-[var(--foreground)] mb-2">
+                  <label htmlFor="subject" className="block text-[14px] font-medium text-[var(--foreground)] mb-3">
                     Subject *
                   </label>
                   <select
@@ -147,7 +147,7 @@ export default function ContactPage() {
                     required
                     value={formData.subject}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all"
+                    className="w-full px-4 py-3.5 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all"
                   >
                     <option value="">Select a subject</option>
                     <option value="general">General Inquiry</option>
@@ -160,17 +160,17 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-[13px] font-medium text-[var(--foreground)] mb-2">
+                  <label htmlFor="message" className="block text-[14px] font-medium text-[var(--foreground)] mb-3">
                     Message *
                   </label>
                   <textarea
                     id="message"
                     name="message"
                     required
-                    rows={6}
+                    rows={7}
                     value={formData.message}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all resize-none"
+                    className="w-full px-4 py-3.5 border border-[var(--border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] text-[15px] transition-all resize-none"
                     placeholder="How can we help you?"
                   />
                 </div>
@@ -178,7 +178,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn-apple btn-primary w-full text-[17px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-apple btn-primary w-full text-[17px] py-4 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center justify-center">
@@ -193,9 +193,9 @@ export default function ContactPage() {
             </div>
 
             {/* Contact Information */}
-            <div className="space-y-6 fade-in fade-in-delay-2">
+            <div className="space-y-8 fade-in fade-in-delay-2">
               {/* Company Info */}
-              <div className="bg-[var(--primary)] text-white rounded-[var(--radius-lg)] p-8">
+              <div className="bg-[var(--primary)] text-white rounded-[var(--radius-lg)] p-8 lg:p-10">
                 <div className="w-16 h-16 bg-white bg-opacity-20 rounded-3xl flex items-center justify-center mb-6">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -218,12 +218,12 @@ export default function ContactPage() {
               </div>
 
               {/* Contact Methods */}
-              <div className="space-y-4">
-                <h3 className="text-[21px] font-semibold text-[var(--foreground)] tracking-tight">
+              <div className="space-y-6">
+                <h3 className="text-[21px] lg:text-[24px] font-semibold text-[var(--foreground)] tracking-tight">
                   Other Ways to Reach Us
                 </h3>
 
-                <div className="card-elevated p-6">
+                <div className="card-elevated p-6 lg:p-8">
                   <div className="flex items-start space-x-4">
                     <div className="w-10 h-10 bg-[var(--primary)] bg-opacity-10 rounded-xl flex items-center justify-center flex-shrink-0">
                       <svg className="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,9 +238,9 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="card-elevated p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-10 h-10 bg-[var(--success)] bg-opacity-10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="card-elevated p-6 lg:p-8">
+                  <div className="flex items-start space-x-5">
+                    <div className="w-12 h-12 bg-[var(--success)] bg-opacity-10 rounded-xl flex items-center justify-center flex-shrink-0">
                       <svg className="w-5 h-5 text-[var(--success)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
