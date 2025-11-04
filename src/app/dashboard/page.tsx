@@ -187,7 +187,7 @@ export default function DashboardPage() {
                   {t('dashboard.welcome', { name: user?.displayName || 'User' })}
                 </h2>
                 <p className="text-[21px] text-[var(--muted-foreground)] mb-6">
-                  You're on a {stats?.currentStreak || 0} day streak
+                  You&apos;re on a {stats?.currentStreak || 0} day streak
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button

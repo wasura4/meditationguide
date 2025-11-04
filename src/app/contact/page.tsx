@@ -75,7 +75,7 @@ export default function ContactPage() {
           Get in Touch
         </h1>
         <p className="text-[21px] leading-[1.381] text-[var(--muted-foreground)] max-w-[640px] mx-auto">
-          Have questions or feedback? We'd love to hear from you.
+          Have questions or feedback? We&apos;d love to hear from you.
         </p>
       </div>
 
@@ -203,7 +203,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-[24px] font-semibold mb-3 tracking-tight">About {APP_CONFIG.name}</h3>
                 <p className="text-[15px] opacity-90 leading-[1.47] mb-6">
-                  We're dedicated to making meditation accessible to everyone through modern technology and ancient wisdom.
+                  We&apos;re dedicated to making meditation accessible to everyone through modern technology and ancient wisdom.
                 </p>
                 <div className="flex items-center space-x-6">
                   <div>
