@@ -31,6 +31,40 @@ interface DashboardStats {
   recentSessions: MeditationSession[];
 }
 
+// Activity Ring Component
+const ActivityRing = ({ progress, color, size = 120, strokeWidth = 12 }: { progress: number; color: string; size?: number; strokeWidth?: number }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <svg width={size} height={size} className="transform -rotate-90">
+      {/* Background ring */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="var(--gray-200)"
+        strokeWidth={strokeWidth}
+        fill="none"
+      />
+      {/* Progress ring */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        fill="none"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        className="transition-all duration-1000 ease-out ring-animate"
+      />
+    </svg>
+  );
+};
+
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -143,7 +177,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
               <div className="w-12 h-12 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-[17px] text-[var(--muted-foreground)]">{t('common.loading')}</p>
+              <p className="text-sm text-[var(--muted-foreground)]">{t('common.loading')}</p>
             </div>
           </div>
         </div>
@@ -151,26 +185,29 @@ export default function DashboardPage() {
     );
   }
 
+  const streakProgress = Math.min((stats?.currentStreak || 0) / 30 * 100, 100);
+  const sessionProgress = Math.min((stats?.totalSessions || 0) / 100 * 100, 100);
+  const minutesProgress = Math.min((stats?.thisWeekMinutes || 0) / (stats?.weeklyGoal || 200) * 100, 100);
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-[var(--background)]">
         {/* Header */}
-        <header className="glass sticky top-0 z-50">
-          <div className="max-w-[1120px] mx-auto px-6">
-            <div className="flex justify-between items-center h-[52px]">
-              <h1 className="text-[21px] font-semibold text-[var(--foreground)]">
-                {t('dashboard.title')}
-              </h1>
-              <div className="flex items-center space-x-4">
-                <span className="text-[14px] text-[var(--muted-foreground)] hidden sm:inline">
-                  {t('common.welcome')}, {user?.displayName}
+        <header className="glass sticky top-0 z-50 border-b border-[var(--border)]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="flex justify-between items-center h-14">
+              <div className="flex items-center space-x-3">
+                <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <h1 className="text-lg font-semibold text-[var(--foreground)]">Summary</h1>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-[var(--muted-foreground)] hidden sm:inline">
+                  {user?.displayName}
                 </span>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  size="sm"
-                >
-                  {t('auth.sign_out')}
+                <Button onClick={handleLogout} variant="outline" size="sm">
+                  Sign Out
                 </Button>
               </div>
             </div>
@@ -178,176 +215,191 @@ export default function DashboardPage() {
         </header>
 
         {/* Main Content */}
-        <main className="max-w-[1120px] mx-auto px-6 py-8">
-          {/* Welcome Section */}
-          <div className="card-elevated p-8 mb-8 fade-in">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <h2 className="text-[32px] font-semibold text-[var(--foreground)] mb-2 tracking-tight">
-                  {t('dashboard.welcome', { name: user?.displayName || 'User' })}
-                </h2>
-                <p className="text-[21px] text-[var(--muted-foreground)] mb-6">
-                  You&apos;re on a {stats?.currentStreak || 0} day streak
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    onClick={() => router.push('/meditate')}
-                    className="btn-apple btn-primary text-[17px] px-6"
-                  >
-                    Start Meditating
-                  </button>
-                  <button
-                    onClick={() => router.push('/logbook')}
-                    className="btn-apple btn-secondary text-[17px] px-6"
-                  >
-                    View Logbook
-                  </button>
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          {/* Activity Rings */}
+          <div className="health-card mb-6 fade-in">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-[var(--foreground)]">Activity</h2>
+              <button className="text-sm font-medium text-[var(--primary)]">View All</button>
+            </div>
+            <div className="grid grid-cols-3 gap-6">
+              {/* Sessions Ring */}
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <ActivityRing progress={sessionProgress} color="var(--ring-move)" size={100} strokeWidth={10} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-[var(--foreground)]">{stats?.totalSessions}</span>
+                  </div>
                 </div>
+                <p className="text-sm font-medium text-[var(--foreground)] mt-2">SESSIONS</p>
+                <p className="text-xs text-[var(--muted-foreground)]">Goal: 100</p>
               </div>
-              <div className="hidden lg:block">
-                <div className="w-24 h-24 bg-[var(--primary)] bg-opacity-10 rounded-full flex items-center justify-center">
-                  <svg className="w-12 h-12 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+
+              {/* Weekly Minutes Ring */}
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <ActivityRing progress={minutesProgress} color="var(--ring-exercise)" size={100} strokeWidth={10} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-[var(--foreground)]">{stats?.thisWeekMinutes}</span>
+                  </div>
                 </div>
+                <p className="text-sm font-medium text-[var(--foreground)] mt-2">WEEKLY MIN</p>
+                <p className="text-xs text-[var(--muted-foreground)]">Goal: {stats?.weeklyGoal}</p>
+              </div>
+
+              {/* Streak Ring */}
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <ActivityRing progress={streakProgress} color="var(--ring-stand)" size={100} strokeWidth={10} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-[var(--foreground)]">{stats?.currentStreak}</span>
+                  </div>
+                </div>
+                <p className="text-sm font-medium text-[var(--foreground)] mt-2">DAY STREAK</p>
+                <p className="text-xs text-[var(--muted-foreground)]">Goal: 30 days</p>
               </div>
             </div>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 fade-in fade-in-delay-1">
-            <div className="card-elevated p-6">
-              <p className="text-[13px] font-medium text-[var(--muted-foreground)] mb-1">{t('dashboard.stats.total_sessions')}</p>
-              <p className="text-[40px] font-semibold text-[var(--foreground)] leading-tight">{stats?.totalSessions}</p>
-            </div>
-
-            <div className="card-elevated p-6">
-              <p className="text-[13px] font-medium text-[var(--muted-foreground)] mb-1">{t('dashboard.stats.current_streak')}</p>
-              <p className="text-[40px] font-semibold text-[var(--foreground)] leading-tight">{stats?.currentStreak}</p>
-              <p className="text-[13px] text-[var(--muted-foreground)]">{t('dashboard.stats.days')}</p>
-            </div>
-
-            <div className="card-elevated p-6">
-              <p className="text-[13px] font-medium text-[var(--muted-foreground)] mb-1">{t('dashboard.stats.this_week')}</p>
-              <p className="text-[40px] font-semibold text-[var(--foreground)] leading-tight">{stats?.thisWeekMinutes}</p>
-              <p className="text-[13px] text-[var(--muted-foreground)]">{t('dashboard.stats.minutes')}</p>
-            </div>
-
-            <div className="card-elevated p-6">
-              <p className="text-[13px] font-medium text-[var(--muted-foreground)] mb-1">Avg. Session</p>
-              <p className="text-[40px] font-semibold text-[var(--foreground)] leading-tight">{stats?.averageSessionLength || 0}</p>
-              <p className="text-[13px] text-[var(--muted-foreground)]">minutes</p>
-            </div>
-          </div>
-
-          {/* Progress & Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 fade-in fade-in-delay-2">
-            {/* Weekly Progress */}
-            <div className="card-elevated p-8">
-              <h3 className="text-[21px] font-semibold text-[var(--foreground)] mb-6">Weekly Progress</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-[var(--muted-foreground)]">Weekly Goal ({stats?.weeklyGoal || 200} min)</span>
-                  <span className="text-[14px] font-medium text-[var(--foreground)]">
-                    {stats?.thisWeekMinutes || 0}/{stats?.weeklyGoal || 200}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-[var(--muted)] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[var(--primary)] transition-all duration-500 rounded-full"
-                    style={{ width: `${stats?.weeklyGoalProgress || 0}%` }}
-                  ></div>
-                </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 fade-in fade-in-delay-1">
+            {/* Total Minutes */}
+            <div className="stat-card">
+              <div className="stat-icon" style={{ backgroundColor: 'rgba(250, 17, 79, 0.1)' }}>
+                <svg className="w-5 h-5" style={{ color: 'var(--ring-move)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Total Minutes</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">{stats?.totalMinutes}</p>
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="card-elevated p-8">
-              <h3 className="text-[21px] font-semibold text-[var(--foreground)] mb-6">Quick Actions</h3>
-              <div className="space-y-3">
-                <button
-                  onClick={() => router.push('/analytics')}
-                  className="btn-apple btn-secondary w-full text-[14px] justify-start"
-                >
-                  View Analytics
-                </button>
-                <button
-                  onClick={() => router.push('/kamatahan')}
-                  className="btn-apple btn-secondary w-full text-[14px] justify-start"
-                >
-                  Audio Library
-                </button>
-                <button
-                  onClick={() => router.push('/dhamma')}
-                  className="btn-apple btn-secondary w-full text-[14px] justify-start"
-                >
-                  Dhamma Library
-                </button>
-                <button
-                  onClick={() => router.push('/settings')}
-                  className="btn-apple btn-secondary w-full text-[14px] justify-start"
-                >
-                  Settings
-                </button>
+            {/* Average Session */}
+            <div className="stat-card">
+              <div className="stat-icon" style={{ backgroundColor: 'rgba(146, 232, 42, 0.1)' }}>
+                <svg className="w-5 h-5" style={{ color: 'var(--ring-exercise)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Avg Session</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">{stats?.averageSessionLength || 0}</p>
+              </div>
+            </div>
+
+            {/* Longest Streak */}
+            <div className="stat-card">
+              <div className="stat-icon" style={{ backgroundColor: 'rgba(0, 199, 190, 0.1)' }}>
+                <svg className="w-5 h-5" style={{ color: 'var(--ring-stand)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Best Streak</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">{stats?.longestStreak}</p>
+              </div>
+            </div>
+
+            {/* This Week */}
+            <div className="stat-card">
+              <div className="stat-icon" style={{ backgroundColor: 'rgba(0, 122, 255, 0.1)' }}>
+                <svg className="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide">This Week</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">{stats?.thisWeekMinutes} min</p>
               </div>
             </div>
           </div>
 
-          {/* Meditation Types Breakdown */}
-          {stats?.meditationTypes && stats.meditationTypes.length > 0 && (
-            <div className="card-elevated p-8 mb-8 fade-in fade-in-delay-3">
-              <h3 className="text-[21px] font-semibold text-[var(--foreground)] mb-6">Meditation Types</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {stats.meditationTypes.map((type) => (
-                  <div key={type.typeId} className="bg-[var(--muted)] rounded-[var(--radius)] p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-[var(--foreground)] text-[15px]">{type.typeName}</span>
-                      <span className="text-[13px] text-[var(--muted-foreground)]">{type.sessions} sessions</span>
-                    </div>
-                    <div className="text-[32px] font-semibold text-[var(--primary)] leading-tight">{type.minutes} min</div>
-                  </div>
-                ))}
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 fade-in fade-in-delay-2">
+            <button
+              onClick={() => router.push('/meditate')}
+              className="health-card flex items-center justify-between p-4 hover:scale-[1.02]"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(250, 17, 79, 0.1)' }}>
+                  <svg className="w-5 h-5" style={{ color: 'var(--ring-move)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-[var(--foreground)]">Start Session</span>
               </div>
-            </div>
-          )}
+              <svg className="w-5 h-5 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => router.push('/analytics')}
+              className="health-card flex items-center justify-between p-4 hover:scale-[1.02]"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(146, 232, 42, 0.1)' }}>
+                  <svg className="w-5 h-5" style={{ color: 'var(--ring-exercise)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-[var(--foreground)]">View Analytics</span>
+              </div>
+              <svg className="w-5 h-5 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => router.push('/logbook')}
+              className="health-card flex items-center justify-between p-4 hover:scale-[1.02]"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 199, 190, 0.1)' }}>
+                  <svg className="w-5 h-5" style={{ color: 'var(--ring-stand)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-[var(--foreground)]">View Logbook</span>
+              </div>
+              <svg className="w-5 h-5 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
 
           {/* Recent Sessions */}
           {stats?.recentSessions && stats.recentSessions.length > 0 && (
-            <div className="card-elevated p-8 fade-in fade-in-delay-4">
-              <h3 className="text-[21px] font-semibold text-[var(--foreground)] mb-6">Recent Sessions</h3>
+            <div className="health-card fade-in fade-in-delay-3">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-[var(--foreground)]">Recent Sessions</h2>
+                <button className="text-sm font-medium text-[var(--primary)]">View All</button>
+              </div>
               <div className="space-y-3">
                 {stats.recentSessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-4 bg-[var(--muted)] rounded-[var(--radius)]">
-                    <div>
-                      <div className="font-medium text-[var(--foreground)] text-[15px]">{session.typeName}</div>
-                      <div className="text-[13px] text-[var(--muted-foreground)]">
-                        {session.createdAt.toLocaleDateString()} • {session.duration} min
+                  <div key={session.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--muted)]">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 122, 255, 0.1)' }}>
+                        <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-[var(--foreground)] text-sm">{session.typeName}</p>
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          {session.createdAt.toLocaleDateString()} • {session.duration} min
+                        </p>
                       </div>
                     </div>
-                    <div className="text-[13px] font-medium text-[var(--foreground)]">
-                      {session.status === 'completed' ? '✓' : '⏸'} {session.status}
-                    </div>
+                    <span className="text-xs font-medium text-[var(--success)]">
+                      {session.status === 'completed' ? '✓ Completed' : '⏸ Paused'}
+                    </span>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Guest Upgrade Notice */}
-          {user?.isAnonymous && (
-            <div className="mt-8 bg-[var(--warning)] bg-opacity-10 border border-[var(--warning)] border-opacity-30 rounded-[var(--radius)] p-6">
-              <h3 className="text-[17px] font-semibold text-[var(--foreground)] mb-2">
-                Upgrade Your Account
-              </h3>
-              <p className="text-[14px] text-[var(--muted-foreground)] mb-4">
-                Save your progress permanently by upgrading to a full account.
-              </p>
-              <button
-                onClick={() => router.push('/auth?mode=register')}
-                className="btn-apple btn-primary text-[14px] px-5"
-              >
-                Upgrade Now
-              </button>
             </div>
           )}
         </main>
