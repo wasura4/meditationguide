@@ -227,7 +227,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
                 To embed a YouTube video:
               </p>
               <ol className="text-xs text-blue-700 dark:text-blue-300 list-decimal list-inside space-y-1">
-                <li>Click the "Video" button in the toolbar</li>
+                <li>Click the &quot;Video&quot; button in the toolbar</li>
                 <li>Paste your YouTube video URL</li>
                 <li>Or use the video embed code directly</li>
               </ol>

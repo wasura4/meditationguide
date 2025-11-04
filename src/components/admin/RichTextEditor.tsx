@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -8,14 +8,14 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
-import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
+import { ErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getRoot, $insertNodes } from 'lexical';
+import { $getRoot } from 'lexical';
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import ToolbarPlugin from './ToolbarPlugin';
 
@@ -31,7 +31,6 @@ function OnChange({ onChange }: { onChange: (content: string) => void }) {
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        const root = $getRoot();
         const htmlString = $generateHtmlFromNodes(editor, null);
         onChange(htmlString);
       });
@@ -109,7 +108,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
             <RichTextPlugin
               contentEditable={<ContentEditable className="editor-input" />}
               placeholder={<div className="editor-placeholder">{placeholder}</div>}
-              ErrorBoundary={LexicalErrorBoundary}
+              ErrorBoundary={ErrorBoundary}
             />
             <HistoryPlugin />
             <AutoFocusPlugin />

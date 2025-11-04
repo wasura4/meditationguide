@@ -4,7 +4,6 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $getSelection, $isRangeSelection } from 'lexical';
 import {
   $createHeadingNode,
-  $createQuoteNode,
   HeadingTagType,
 } from '@lexical/rich-text';
 import {
@@ -56,15 +55,6 @@ export default function ToolbarPlugin() {
     editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
   };
 
-  const formatParagraph = () => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const paragraphNode = $createParagraphNode();
-        selection.insertNodes([paragraphNode]);
-      }
-    });
-  };
 
   const insertLink = () => {
     const url = prompt('Enter URL:');
