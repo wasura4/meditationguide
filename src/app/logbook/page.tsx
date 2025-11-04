@@ -29,6 +29,10 @@ export default function LogbookPage() {
   const [customEndDate, setCustomEndDate] = useState<string>('');
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadSessions = useCallback(async () => {
     try {
@@ -142,6 +146,35 @@ export default function LogbookPage() {
       return true;
     });
   }, [sessions, searchQuery, selectedType, selectedMood, selectedRating, dateRange, customStartDate, customEndDate]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedType, selectedMood, selectedRating, dateRange, customStartDate, customEndDate]);
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      handlePageChange(currentPage + 1);
+    }
+  };
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -579,7 +612,8 @@ export default function LogbookPage() {
 
             {/* Results Count */}
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {filteredSessions.length} of {sessions.length} sessions
+              Showing {filteredSessions.length > 0 ? `${startIndex + 1}-${Math.min(endIndex, filteredSessions.length)}` : '0'} of {filteredSessions.length} sessions
+              {filteredSessions.length !== sessions.length && ` (${sessions.length} total)`}
             </div>
           </div>
            )}
@@ -615,7 +649,8 @@ export default function LogbookPage() {
                 )}
               </div>
             ) : (
-              filteredSessions.map((session) => (
+              <>
+                {paginatedSessions.map((session) => (
                 <div
                   key={session.id}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
@@ -727,7 +762,87 @@ export default function LogbookPage() {
                     </div>
                   </div>
                 </div>
-              ))
+                ))}
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {/* Previous Button */}
+                      <Button
+                        onClick={handlePreviousPage}
+                        disabled={currentPage === 1}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                      </Button>
+
+                      {/* Page Numbers */}
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                          // Show first page, last page, current page, and pages around current
+                          const showPage = 
+                            page === 1 || 
+                            page === totalPages || 
+                            (page >= currentPage - 1 && page <= currentPage + 1) ||
+                            (currentPage <= 3 && page <= 5) ||
+                            (currentPage >= totalPages - 2 && page >= totalPages - 4);
+
+                          if (!showPage) {
+                            // Show ellipsis
+                            const prevPage = page - 1;
+                            const nextPage = page + 1;
+                            if (
+                              (prevPage === 1 || prevPage === currentPage - 2) &&
+                              (nextPage === totalPages || nextPage === currentPage + 2)
+                            ) {
+                              return (
+                                <span key={page} className="px-2 text-gray-400">
+                                  ...
+                                </span>
+                              );
+                            }
+                            return null;
+                          }
+
+                          return (
+                            <Button
+                              key={page}
+                              onClick={() => handlePageChange(page)}
+                              variant={currentPage === page ? "meditation" : "outline"}
+                              size="sm"
+                              className="min-w-[40px]"
+                            >
+                              {page}
+                            </Button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Next Button */}
+                      <Button
+                        onClick={handleNextPage}
+                        disabled={currentPage === totalPages}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Next
+                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
            )}
