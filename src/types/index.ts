@@ -34,6 +34,7 @@ export interface MeditationType {
   defaultDuration: number; // in minutes
   isActive: boolean;
   order: number;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
 }
