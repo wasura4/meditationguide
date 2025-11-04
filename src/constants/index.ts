@@ -222,47 +222,47 @@ export const TIMER_SETTINGS = {
   intervalBells: [5, 10, 15, 20, 30, 45, 60], // minutes
 } as const;
 
-// Theme Colors - Apple Style Design System
+// Theme Colors - Calming Meditation Design System
 export const THEME_COLORS = {
   primary: {
-    50: '#f2f2f7',   // System Gray 6
-    100: '#e5e5ea',  // System Gray 5
-    500: '#007aff',  // System Blue
-    600: '#005bd3',  // System Blue (darker)
-    700: '#004085',  // System Blue (darkest)
-    900: '#1c1c1e',  // System Gray
+    50: '#f0f7f4',   // Soft sage green
+    100: '#d9ebe4',  // Light sage
+    500: '#6b9e7a',  // Calming green
+    600: '#5a8a68',  // Medium green
+    700: '#4a7365',  // Deep sage
+    900: '#2d4a3a',  // Forest green
   },
   secondary: {
-    50: '#f2f2f7',   // System Gray 6
-    100: '#e5e5ea',  // System Gray 5
-    500: '#8e8e93',  // System Gray 3
-    600: '#636366',  // System Gray 2
-    700: '#48484a',  // System Gray
-    900: '#1c1c1e',  // System Gray
+    50: '#f5f3f0',   // Warm beige
+    100: '#e8e0d8',  // Light beige
+    500: '#a68b7a',  // Muted terracotta
+    600: '#8b6f5f',  // Medium terracotta
+    700: '#6d5549',  // Deep terracotta
+    900: '#3d2f28',  // Dark earth
   },
   success: {
-    50: '#f2f2f7',   // System Gray 6
-    100: '#e5e5ea',  // System Gray 5
-    500: '#34c759',  // System Green
-    600: '#28a745',  // System Green (darker)
-    700: '#1e7e34',  // System Green (darkest)
-    900: '#155724',  // System Green (dark)
+    50: '#f0f9f4',   // Mint green
+    100: '#d4edda',  // Light mint
+    500: '#7fb88c',  // Soft green
+    600: '#6ba37a',  // Medium green
+    700: '#568466',  // Deep green
+    900: '#2d4a35',  // Forest
   },
   warning: {
-    50: '#f2f2f7',   // System Gray 6
-    100: '#e5e5ea',  // System Gray 5
-    500: '#ff9500',  // System Orange
-    600: '#e8890b',  // System Orange (darker)
-    700: '#b86400',  // System Orange (darkest)
-    900: '#8b4513',  // System Orange (dark)
+    50: '#fff8f0',   // Soft cream
+    100: '#ffeccf',  // Light peach
+    500: '#d4a574',  // Warm sand
+    600: '#b88d5f',  // Medium sand
+    700: '#94704d',  // Deep sand
+    900: '#5c4532',  // Dark sand
   },
   error: {
-    50: '#f2f2f7',   // System Gray 6
-    100: '#e5e5ea',  // System Gray 5
-    500: '#ff3b30',  // System Red
-    600: '#dc3545',  // System Red (darker)
-    700: '#bd2130',  // System Red (darkest)
-    900: '#721c24',  // System Red (dark)
+    50: '#fef5f5',   // Soft rose
+    100: '#fde2e2',  // Light rose
+    500: '#d88a8a',  // Muted rose
+    600: '#c27373',  // Medium rose
+    700: '#9d5c5c',  // Deep rose
+    900: '#5d3636',  // Dark rose
   },
 } as const;
 

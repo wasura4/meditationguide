@@ -76,7 +76,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
       }`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-[#007aff] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#6b9e7a] rounded-lg flex items-center justify-center">
               <span className="text-white text-lg">🕉️</span>
             </div>
             <h1 className="ml-3 text-xl font-bold text-gray-900 dark:text-white">
@@ -107,8 +107,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
                   href={item.href}
                   className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-[#f0f7f4] dark:bg-[#2d4a3a]/20 text-[#4a7365] dark:text-[#7fb88c]'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-[#f0f7f4] dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <span className="mr-3 text-lg">{item.icon}</span>
@@ -122,7 +122,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
         {/* Admin Info */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-[#007aff] rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-[#6b9e7a] rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-semibold">
                 {adminUser?.displayName?.charAt(0).toUpperCase() || 'A'}
               </span>

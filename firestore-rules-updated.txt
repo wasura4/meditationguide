@@ -36,5 +36,12 @@ service cloud.firestore {
       allow write: if request.auth.uid != null && 
                    exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
     }
+    
+    // Meditation types collection - admins can manage, users can read active types
+    match /meditation_types/{typeId} {
+      allow read: if true; // Anyone can read meditation types
+      allow write: if request.auth.uid != null && 
+                   exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    }
   }
 }

@@ -384,10 +384,10 @@ export const AnalyticsDashboard: React.FC = () => {
               <Line
                 type="monotone"
                 dataKey="minutes"
-                stroke="#007AFF"
+                stroke="#6b9e7a"
                 strokeWidth={3}
-                dot={{ fill: '#007AFF', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#007AFF', strokeWidth: 2 }}
+                dot={{ fill: '#6b9e7a', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#6b9e7a', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

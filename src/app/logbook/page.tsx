@@ -242,10 +242,10 @@ export default function LogbookPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b9e7a] mx-auto"></div>
               <p className="mt-4 text-gray-600 dark:text-gray-300">Loading your meditation history...</p>
             </div>
           </div>
@@ -363,8 +363,8 @@ export default function LogbookPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 bg-[#f0f7f4] dark:bg-[#2d4a3a]/20 rounded-lg">
+                  <svg className="w-6 h-6 text-[#6b9e7a] dark:text-[#7fb88c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -377,8 +377,8 @@ export default function LogbookPage() {
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 bg-[#f0f9f4] dark:bg-[#2d4a35]/20 rounded-lg">
+                  <svg className="w-6 h-6 text-[#7fb88c] dark:text-[#7fb88c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
@@ -391,8 +391,8 @@ export default function LogbookPage() {
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
-                  <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <div className="p-2 bg-[#fff8f0] dark:bg-[#5c4532]/20 rounded-lg">
+                  <svg className="w-6 h-6 text-[#d4a574] dark:text-[#d4a574]" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 </div>
@@ -405,8 +405,8 @@ export default function LogbookPage() {
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                  <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 bg-[#f5f3f0] dark:bg-[#3d2f28]/20 rounded-lg">
+                  <svg className="w-6 h-6 text-[#a68b7a] dark:text-[#a68b7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -460,7 +460,7 @@ export default function LogbookPage() {
                   placeholder="Search sessions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                 />
               </div>
 
@@ -472,7 +472,7 @@ export default function LogbookPage() {
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                 >
                   <option value="all">All Types</option>
                   {DEFAULT_MEDITATION_TYPES.map(type => (
@@ -489,7 +489,7 @@ export default function LogbookPage() {
                 <select
                   value={selectedMood}
                   onChange={(e) => setSelectedMood(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                 >
                   <option value="all">All Moods</option>
                   <option value="excellent">Excellent 🌟</option>
@@ -508,7 +508,7 @@ export default function LogbookPage() {
                 <select
                   value={selectedRating}
                   onChange={(e) => setSelectedRating(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                 >
                   <option value="all">All Ratings</option>
                   <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
@@ -529,7 +529,7 @@ export default function LogbookPage() {
                 <select
                   value={dateRange}
                                      onChange={(e) => setDateRange(e.target.value as 'all' | 'today' | 'week' | 'month' | 'custom')}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                 >
                   <option value="all">All Time</option>
                   <option value="today">Today</option>
@@ -549,7 +549,7 @@ export default function LogbookPage() {
                       type="date"
                       value={customStartDate}
                       onChange={(e) => setCustomStartDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -560,7 +560,7 @@ export default function LogbookPage() {
                       type="date"
                       value={customEndDate}
                       onChange={(e) => setCustomEndDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                     />
                   </div>
                 </>

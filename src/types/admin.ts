@@ -11,7 +11,7 @@ export interface AdminUser {
 }
 
 export interface AdminPermission {
-  resource: 'audio' | 'dhamma' | 'users' | 'analytics' | 'settings';
+  resource: 'audio' | 'dhamma' | 'users' | 'analytics' | 'settings' | 'content';
   actions: ('create' | 'read' | 'update' | 'delete')[];
 }
 

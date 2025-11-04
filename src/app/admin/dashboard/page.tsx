@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
       <AdminLayout currentPage="/admin/dashboard">
         <div className="space-y-6">
           {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-[#007aff] to-[#005bd3] rounded-xl p-6 text-white">
+          <div className="bg-gradient-to-r from-[#6b9e7a] to-[#5a8a68] rounded-xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold">

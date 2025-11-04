@@ -180,7 +180,7 @@ export default function AdminMeditationTypesPage() {
             {hasPermission('content', 'create') && (
               <Button
                 onClick={() => setShowCreateForm(true)}
-                className="bg-[#007aff] hover:bg-[#005bd3]"
+                className="bg-[#6b9e7a] hover:bg-[#5a8a68]"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -310,7 +310,7 @@ export default function AdminMeditationTypesPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="bg-[#007aff] hover:bg-[#005bd3]"
+                      className="bg-[#6b9e7a] hover:bg-[#5a8a68]"
                     >
                       {editingType ? 'Update' : 'Create'} Type
                     </Button>
@@ -341,7 +341,7 @@ export default function AdminMeditationTypesPage() {
                   {hasPermission('content', 'create') && (
                     <Button
                       onClick={() => setShowCreateForm(true)}
-                      className="bg-[#007aff] hover:bg-[#005bd3]"
+                      className="bg-[#6b9e7a] hover:bg-[#5a8a68]"
                     >
                       Create First Type
                     </Button>
