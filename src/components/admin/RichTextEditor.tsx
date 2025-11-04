@@ -1,11 +1,23 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
-import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
-
-// Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+import React, { useState, useEffect } from 'react';
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
+import { ListItemNode, ListNode } from '@lexical/list';
+import { CodeHighlightNode, CodeNode } from '@lexical/code';
+import { AutoLinkNode, LinkNode } from '@lexical/link';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getRoot, $insertNodes } from 'lexical';
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
+import ToolbarPlugin from './ToolbarPlugin';
 
 interface RichTextEditorProps {
   value: string;
@@ -13,148 +25,212 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+function OnChange({ onChange }: { onChange: (content: string) => void }) {
+  const [editor] = useLexicalComposerContext();
+  
+  useEffect(() => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        const root = $getRoot();
+        const htmlString = $generateHtmlFromNodes(editor, null);
+        onChange(htmlString);
+      });
+    });
+  }, [editor, onChange]);
+
+  return null;
+}
+
+function InitialContent({ value }: { value: string }) {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (value) {
+      editor.update(() => {
+        const parser = new DOMParser();
+        const dom = parser.parseFromString(value, 'text/html');
+        const nodes = $generateNodesFromDOM(editor, dom);
+        const root = $getRoot();
+        root.clear();
+        root.append(...nodes);
+      });
+    }
+  }, [editor, value]);
+
+  return null;
+}
+
 export default function RichTextEditor({ value, onChange, placeholder = 'Write your content here...' }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
-
-  // Extract YouTube video ID from URL
-  const extractYouTubeId = (url: string): string | null => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
-  const modules = useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'color': [] }, { 'background': [] }],
-        ['link', 'image'],
-        ['clean']
-      ],
-      handlers: {
-        'image': function() {
-          const url = prompt('Enter image URL:');
-          if (url) {
-            const quill = (this as any).quill;
-            const range = quill.getSelection(true);
-            quill.insertEmbed(range.index, 'image', url, 'user');
-          }
-        }
-      }
+  const initialConfig = {
+    namespace: 'DhammaEditor',
+    theme: {
+      paragraph: 'editor-paragraph',
+      heading: {
+        h1: 'editor-heading-h1',
+        h2: 'editor-heading-h2',
+        h3: 'editor-heading-h3',
+      },
+      list: {
+        ol: 'editor-list-ol',
+        ul: 'editor-list-ul',
+        listitem: 'editor-listitem',
+      },
+      link: 'editor-link',
+      text: {
+        bold: 'editor-text-bold',
+        italic: 'editor-text-italic',
+        underline: 'editor-text-underline',
+      },
     },
-    clipboard: {
-      matchVisual: false,
-    }
-  }), []);
-
-  // Handle YouTube video embedding
-  const handleYouTubeEmbed = () => {
-    const url = prompt('Enter YouTube video URL:');
-    if (url) {
-      const videoId = extractYouTubeId(url);
-      if (videoId) {
-        const embed = `<div class="youtube-embed"><iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-        
-        // Get current editor content and add embed
-        const currentContent = value || '';
-        const newContent = currentContent + embed;
-        onChange(newContent);
-      } else {
-        alert('Invalid YouTube URL. Please enter a valid YouTube video URL.');
-      }
-    }
+    onError: (error: Error) => {
+      console.error('Lexical error:', error);
+    },
+    nodes: [
+      HeadingNode,
+      ListNode,
+      ListItemNode,
+      QuoteNode,
+      CodeNode,
+      CodeHighlightNode,
+      TableNode,
+      TableRowNode,
+      TableCellNode,
+      AutoLinkNode,
+      LinkNode,
+    ],
   };
-
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'color', 'background',
-    'link', 'image'
-  ];
 
   return (
-    <div className="rich-text-editor" ref={editorRef}>
-      <div className="mb-2">
-        <button
-          type="button"
-          onClick={handleYouTubeEmbed}
-          className="px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-          </svg>
-          Embed YouTube Video
-        </button>
-      </div>
-      <ReactQuill
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        modules={modules}
-        formats={formats}
-        placeholder={placeholder}
-      />
+    <div className="rich-text-editor">
+      <LexicalComposer initialConfig={initialConfig}>
+        <div className="editor-container">
+          <ToolbarPlugin />
+          <div className="editor-inner">
+            <RichTextPlugin
+              contentEditable={<ContentEditable className="editor-input" />}
+              placeholder={<div className="editor-placeholder">{placeholder}</div>}
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+            <HistoryPlugin />
+            <AutoFocusPlugin />
+            <LinkPlugin />
+            <ListPlugin />
+            <OnChange onChange={onChange} />
+            <InitialContent value={value} />
+          </div>
+        </div>
+      </LexicalComposer>
+      
       <style jsx global>{`
-        .rich-text-editor .ql-container {
-          font-size: 16px;
-          min-height: 300px;
-        }
-        .rich-text-editor .ql-editor {
-          min-height: 300px;
-          color: rgb(17 24 39);
-        }
-        .dark .rich-text-editor .ql-editor {
-          color: rgb(243 244 246);
-        }
-        .rich-text-editor .ql-snow {
-          border-color: rgb(209 213 219);
-        }
-        .dark .rich-text-editor .ql-snow {
-          border-color: rgb(75 85 99);
-          background-color: rgb(55 65 81);
-        }
-        .rich-text-editor .ql-toolbar {
-          border-color: rgb(209 213 219);
-          background-color: rgb(249 250 251);
-        }
-        .dark .rich-text-editor .ql-toolbar {
-          border-color: rgb(75 85 99);
-          background-color: rgb(31 41 55);
-        }
-        .rich-text-editor .ql-stroke {
-          stroke: rgb(17 24 39);
-        }
-        .dark .rich-text-editor .ql-stroke {
-          stroke: rgb(243 244 246);
-        }
-        .rich-text-editor .ql-fill {
-          fill: rgb(17 24 39);
-        }
-        .dark .rich-text-editor .ql-fill {
-          fill: rgb(243 244 246);
-        }
-        .rich-text-editor .ql-picker-label {
-          color: rgb(17 24 39);
-        }
-        .dark .rich-text-editor .ql-picker-label {
-          color: rgb(243 244 246);
-        }
-        .rich-text-editor .youtube-embed {
-          margin: 20px 0;
-          position: relative;
-          padding-bottom: 56.25%;
-          height: 0;
+        .rich-text-editor {
+          border: 1px solid rgb(209 213 219);
+          border-radius: 0.5rem;
           overflow: hidden;
         }
-        .rich-text-editor .youtube-embed iframe {
+        .dark .rich-text-editor {
+          border-color: rgb(75 85 99);
+        }
+        .editor-container {
+          position: relative;
+        }
+        .editor-inner {
+          background-color: white;
+          position: relative;
+          min-height: 300px;
+        }
+        .dark .editor-inner {
+          background-color: rgb(55 65 81);
+        }
+        .editor-input {
+          min-height: 300px;
+          resize: none;
+          font-size: 16px;
+          caret-color: rgb(17 24 39);
+          position: relative;
+          tab-size: 1;
+          outline: 0;
+          padding: 15px 10px;
+          color: rgb(17 24 39);
+        }
+        .dark .editor-input {
+          color: rgb(243 244 246);
+          caret-color: rgb(243 244 246);
+        }
+        .editor-placeholder {
+          color: rgb(156 163 175);
+          overflow: hidden;
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+          text-overflow: ellipsis;
+          top: 15px;
+          left: 10px;
+          font-size: 16px;
+          user-select: none;
+          display: inline-block;
+          pointer-events: none;
+        }
+        .dark .editor-placeholder {
+          color: rgb(107 114 128);
+        }
+        .editor-paragraph {
+          margin: 0;
+          margin-bottom: 8px;
+          position: relative;
+        }
+        .editor-heading-h1 {
+          font-size: 24px;
+          color: rgb(17 24 39);
+          font-weight: 400;
+          margin: 0;
+        }
+        .dark .editor-heading-h1 {
+          color: rgb(243 244 246);
+        }
+        .editor-heading-h2 {
+          font-size: 20px;
+          color: rgb(17 24 39);
+          font-weight: 400;
+          margin: 0;
+        }
+        .dark .editor-heading-h2 {
+          color: rgb(243 244 246);
+        }
+        .editor-heading-h3 {
+          font-size: 18px;
+          color: rgb(17 24 39);
+          font-weight: 400;
+          margin: 0;
+        }
+        .dark .editor-heading-h3 {
+          color: rgb(243 244 246);
+        }
+        .editor-list-ol {
+          padding: 0;
+          margin: 0;
+          margin-left: 16px;
+        }
+        .editor-list-ul {
+          padding: 0;
+          margin: 0;
+          margin-left: 16px;
+        }
+        .editor-listitem {
+          margin: 8px 32px 8px 32px;
+        }
+        .editor-link {
+          color: rgb(37 99 235);
+          text-decoration: none;
+        }
+        .dark .editor-link {
+          color: rgb(96 165 250);
+        }
+        .editor-text-bold {
+          font-weight: bold;
+        }
+        .editor-text-italic {
+          font-style: italic;
+        }
+        .editor-text-underline {
+          text-decoration: underline;
         }
       `}</style>
     </div>
