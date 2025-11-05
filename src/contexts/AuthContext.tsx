@@ -73,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
          photoURL: firebaseUser.photoURL || userData.photoURL || null,
          role: userData.role || 'user',
          createdAt: userData.createdAt?.toDate() || new Date(),
+         updatedAt: userData.updatedAt?.toDate() || new Date(),
          lastLoginAt: new Date(),
          preferences: userData.preferences || defaultPreferences,
          isAnonymous: firebaseUser.isAnonymous,
@@ -86,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         photoURL: firebaseUser.photoURL || null,
         role: 'user',
         createdAt: new Date(),
+        updatedAt: new Date(),
         lastLoginAt: new Date(),
         preferences: defaultPreferences,
         isAnonymous: firebaseUser.isAnonymous,
@@ -99,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await setDoc(doc(db, 'users', firebaseUser.uid), {
         ...userDataToSave,
         createdAt: new Date(),
+        updatedAt: new Date(),
         lastLoginAt: new Date(),
       });
 

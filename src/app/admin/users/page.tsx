@@ -21,7 +21,7 @@ export default function AdminUsersPage() {
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | undefined>(undefined);
   const { showToast } = useToast();
 
   const pageSize = 20;

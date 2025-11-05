@@ -6,6 +6,7 @@ export interface User {
   photoURL?: string | null;
   role: UserRole;
   createdAt: Date;
+  updatedAt: Date;
   lastLoginAt: Date;
   preferences: UserPreferences;
   isAnonymous: boolean;
