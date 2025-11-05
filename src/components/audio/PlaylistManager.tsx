@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { KamatahanAudio } from '@/types/admin';
@@ -40,6 +41,7 @@ export function PlaylistManager() {
   
   const { showToast } = useToast();
   const { user } = useAuth();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (user) {
@@ -47,6 +49,14 @@ export function PlaylistManager() {
       fetchAvailableAudio();
     }
   }, [user]);
+
+  // Autostart from query param ?start=<playlistId>
+  useEffect(() => {
+    const id = searchParams?.get('start');
+    if (!id || playlists.length === 0) return;
+    const p = playlists.find((x) => x.id === id);
+    if (p) startPlaylist(p);
+  }, [searchParams, playlists]);
 
   // Audio event handlers
   useEffect(() => {
@@ -491,7 +501,7 @@ export function PlaylistManager() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Playlists</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Meditation Guides</h2>
         <Button
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="flex items-center space-x-2"

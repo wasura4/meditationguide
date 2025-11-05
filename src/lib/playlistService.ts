@@ -21,6 +21,8 @@ export interface PlaylistDoc {
   createdAt: Date;
   updatedAt: Date;
   createdBy: string; // admin uid
+  thumbnailUrl?: string;
+  authorName?: string;
 }
 
 interface PlaylistFirestore {
@@ -32,6 +34,8 @@ interface PlaylistFirestore {
   updatedAt?: Timestamp;
   createdBy?: string;
   userId?: string;
+  thumbnailUrl?: string;
+  authorName?: string;
 }
 
 export class PlaylistService {
@@ -52,6 +56,8 @@ export class PlaylistService {
         createdAt: data.createdAt?.toDate?.() || new Date(),
         updatedAt: data.updatedAt?.toDate?.() || new Date(),
         createdBy: data.createdBy || data.userId || '',
+        thumbnailUrl: data.thumbnailUrl,
+        authorName: data.authorName,
       });
     });
     return items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -72,6 +78,8 @@ export class PlaylistService {
         createdAt: data.createdAt?.toDate?.() || new Date(),
         updatedAt: data.updatedAt?.toDate?.() || new Date(),
         createdBy: data.createdBy || data.userId || '',
+        thumbnailUrl: data.thumbnailUrl,
+        authorName: data.authorName,
       });
     });
     return items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -107,5 +115,27 @@ export class PlaylistService {
 
   static async remove(id: string): Promise<void> {
     await deleteDoc(doc(db, this.COLLECTION, id));
+  }
+
+  static async getById(id: string): Promise<PlaylistDoc | null> {
+    const snap = await getDocs(query(collection(db, this.COLLECTION)));
+    let result: PlaylistDoc | null = null;
+    snap.forEach((d) => {
+      if (d.id !== id) return;
+      const data = d.data() as PlaylistFirestore;
+      result = {
+        id: d.id,
+        name: data.name || '',
+        description: data.description || '',
+        audioFiles: (data.audioFiles as KamatahanAudio[]) || [],
+        isPublic: Boolean(data.isPublic),
+        createdAt: data.createdAt?.toDate?.() || new Date(),
+        updatedAt: data.updatedAt?.toDate?.() || new Date(),
+        createdBy: data.createdBy || data.userId || '',
+        thumbnailUrl: data.thumbnailUrl,
+        authorName: data.authorName,
+      };
+    });
+    return result;
   }
 }
