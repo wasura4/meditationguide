@@ -1,7 +1,7 @@
 'use client';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getSelection, $isRangeSelection, UNDO_COMMAND, REDO_COMMAND, CAN_UNDO_COMMAND, CAN_REDO_COMMAND } from 'lexical';
+import { $getSelection, $isRangeSelection, UNDO_COMMAND, REDO_COMMAND } from 'lexical';
 import {
   $createHeadingNode,
   HeadingTagType,
@@ -37,11 +37,17 @@ export default function ToolbarPlugin() {
       editorState.read(() => {
         updateToolbar();
         
-        // Check undo/redo availability
-        const historyState = (editorState as any)._history;
-        if (historyState) {
-          setCanUndo(historyState.undoStack?.length > 0 || false);
-          setCanRedo(historyState.redoStack?.length > 0 || false);
+        // Check undo/redo availability from editor history
+        try {
+          const historyState = (editorState as any)._history;
+          if (historyState) {
+            setCanUndo((historyState.undoStack?.length || 0) > 0);
+            setCanRedo((historyState.redoStack?.length || 0) > 0);
+          }
+        } catch (error) {
+          // If history state is not accessible, enable buttons (HistoryPlugin will handle it)
+          setCanUndo(true);
+          setCanRedo(true);
         }
       });
     });
