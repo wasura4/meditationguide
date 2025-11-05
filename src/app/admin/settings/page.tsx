@@ -33,7 +33,6 @@ export default function AdminSettingsPage() {
         console.error('Error loading settings:', error);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSaveSettings = async () => {

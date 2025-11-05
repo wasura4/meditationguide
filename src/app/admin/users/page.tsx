@@ -26,20 +26,6 @@ export default function AdminUsersPage() {
 
   const pageSize = 20;
 
-  useEffect(() => {
-    if (hasPermission('users', 'read')) {
-      loadUsers();
-    }
-  }, [currentPage, hasPermission, loadUsers]);
-
-  useEffect(() => {
-    if (searchTerm) {
-      searchUsers();
-    } else {
-      loadUsers();
-    }
-  }, [searchTerm, loadUsers, searchUsers]);
-
   const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -82,6 +68,20 @@ export default function AdminUsersPage() {
       setLoading(false);
     }
   }, [searchTerm, showToast]);
+
+  useEffect(() => {
+    if (hasPermission('users', 'read')) {
+      loadUsers();
+    }
+  }, [currentPage, hasPermission, loadUsers]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      searchUsers();
+    } else {
+      loadUsers();
+    }
+  }, [searchTerm, loadUsers, searchUsers]);
 
   const loadUserSessions = async (userId: string) => {
     try {
