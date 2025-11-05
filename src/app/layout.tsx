@@ -1,10 +1,11 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { APP_CONFIG } from "@/constants";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { cookies } from "next/headers";
 import { ToastProvider } from "@/components/ui/toast";
 import { ThemeSettingsProvider } from "@/contexts/ThemeSettingsContext";
 import { AppChrome } from "@/components/app/AppChrome";
@@ -36,13 +37,15 @@ export const viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const initialLang = (cookieStore.get("lang")?.value as "en" | "si") || "en";
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html lang={initialLang} className="scroll-smooth" suppressHydrationWarning>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -54,7 +57,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased touch-manipulation`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
-          <LanguageProvider>
+          <LanguageProvider initialLanguage={initialLang}>
             <ThemeSettingsProvider>
               <ToastProvider>
                 <AppChrome>{children}</AppChrome>
@@ -67,3 +70,4 @@ export default function RootLayout({
     </html>
   );
 }
+

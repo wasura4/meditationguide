@@ -41,8 +41,10 @@ const mergeTranslations = (base: Record<string, unknown>, translations: Map<stri
   return result;
 };
 
-export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>('en');
+interface LanguageProviderProps { children: ReactNode; initialLanguage?: Language; }
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, initialLanguage }) => {
+  const [language, setLanguageState] = useState<Language>(initialLanguage || 'en');
   const [translations, setTranslations] = useState<Translations>({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -157,3 +159,5 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     </LanguageContext.Provider>
   );
 };
+
+
