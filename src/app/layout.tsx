@@ -6,6 +6,8 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ToastProvider } from "@/components/ui/toast";
+import { ThemeSettingsProvider } from "@/contexts/ThemeSettingsContext";
+import { AppChrome } from "@/components/app/AppChrome";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,11 +54,13 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased touch-manipulation`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <LanguageProvider>
+          <LanguageProvider>
+            <ThemeSettingsProvider>
               <ToastProvider>
-                {children}
+                <AppChrome>{children}</AppChrome>
               </ToastProvider>
-            </LanguageProvider>
+            </ThemeSettingsProvider>
+          </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -14,6 +14,8 @@ import { $getRoot, FORMAT_TEXT_COMMAND } from 'lexical';
 import { $createLinkNode } from '@lexical/link';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { INSERT_TABLE_COMMAND } from '@lexical/table';
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
+import { INSERT_POLL_COMMAND } from './plugins/PollPlugin';
 import { useCallback, useEffect, useState } from 'react';
 
 export default function ToolbarPlugin() {
@@ -114,7 +116,7 @@ export default function ToolbarPlugin() {
   };
 
   const insertStickyNote = () => {
-    const htmlString = `<div class="sticky-note">Sticky note: jot quick ideas here…</div>`;
+    const htmlString = `<div class="sticky-note">Sticky note: jot quick ideas hereÃ¢â‚¬Â¦</div>`;
     editor.update(() => {
       const parser = new DOMParser();
       const dom = parser.parseFromString(htmlString, 'text/html');
@@ -129,28 +131,22 @@ export default function ToolbarPlugin() {
   };
 
   const insertPoll = () => {
-    const htmlString = `
-      <div class="poll-block" style="border:1px solid var(--border);border-radius:8px;padding:12px;margin:10px 0;background:var(--background)">
-        <div style="font-weight:600;margin-bottom:8px">Poll question…</div>
-        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:6px">
-          <li><label><input type="radio" name="poll"> Option A</label></li>
-          <li><label><input type="radio" name="poll"> Option B</label></li>
-          <li><label><input type="radio" name="poll"> Option C</label></li>
-        </ul>
-      </div>
-    `;
-    editor.update(() => {
-      const parser = new DOMParser();
-      const dom = parser.parseFromString(htmlString, 'text/html');
-      const nodes = $generateNodesFromDOM(editor, dom);
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        selection.insertNodes(nodes);
-      } else {
-        $getRoot().append(...nodes);
-      }
-    });
-  };const insertYouTube = () => {
+  const question = prompt('Poll question:', 'What do you think?');
+  if (!question) return;
+  const a = prompt('Option 1:', 'Option A');
+  const b = prompt('Option 2:', 'Option B');
+  const cOpt = prompt('Option 3 (optional):', '') || '';
+  const dOpt = prompt('Option 4 (optional):', '') || '';
+  const options = [a, b, cOpt, dOpt].filter(Boolean) as string[];
+  
+  editor.dispatchCommand(INSERT_POLL_COMMAND, { question, options });
+};
+
+  const insertHorizontalRule = () => {
+    editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
+  };
+
+  const insertYouTube = () => {
     const url = prompt('Enter YouTube video URL:');
     if (url) {
       // Extract video ID
@@ -193,7 +189,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Undo"
       >
-        <span className="format">â†¶</span>
+        <span className="format">ÃƒÂ¢Ã¢â‚¬Â Ã‚Â¶</span>
       </button>
       <button
         type="button"
@@ -202,7 +198,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Redo"
       >
-        <span className="format">â†·</span>
+        <span className="format">ÃƒÂ¢Ã¢â‚¬Â Ã‚Â·</span>
       </button>
       <div className="divider" />
       <button
@@ -294,7 +290,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Bullet List"
       >
-        <span className="format bullet-list">â€¢ List</span>
+        <span className="format bullet-list">ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ List</span>
       </button>
       <button
         type="button"
@@ -305,13 +301,19 @@ export default function ToolbarPlugin() {
         <span className="format numbered-list">1. List</span>
       </button>
       <div className="divider" />
+      <button type="button" onClick={insertTable} className="toolbar-item" aria-label="Insert Table"><span className="format">Table</span></button>
+      <button type="button" onClick={insertCollapsible} className="toolbar-item" aria-label="Insert Collapsible"><span className="format">Collapsible</span></button>
+      <button type="button" onClick={insertStickyNote} className="toolbar-item" aria-label="Insert Sticky Note"><span className="format">Sticky</span></button>
+      <button type="button" onClick={insertPoll} className="toolbar-item" aria-label="Insert Poll"><span className="format">Poll</span></button>
+      <button type="button" onClick={insertHorizontalRule} className="toolbar-item" aria-label="Insert Horizontal Rule"><span className="format">â€” HR</span></button>
+      <div className="divider" />
       <button
         type="button"
         onClick={insertLink}
         className="toolbar-item"
         aria-label="Insert Link"
       >
-        <span className="format link">ðŸ”— Link</span>
+        <span className="format link">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â€ Link</span>
       </button>
       <button
         type="button"
@@ -319,7 +321,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item youtube-button"
         aria-label="Insert YouTube Video"
       >
-        <span className="format youtube">▶️ YouTube</span>
+        <span className="format youtube">Ã¢â€“Â¶Ã¯Â¸Â YouTube</span>
       </button>
       <style jsx>{`
         .toolbar {
@@ -393,6 +395,7 @@ export default function ToolbarPlugin() {
     </div>
   );
 }
+
 
 
 

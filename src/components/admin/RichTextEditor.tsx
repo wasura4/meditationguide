@@ -8,10 +8,13 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+// import removed
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import ErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
+import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
+import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
@@ -21,6 +24,8 @@ import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import ToolbarPlugin from './ToolbarPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import { YouTubeNode } from './nodes/YouTubeNode';
+import PollPlugin from './plugins/PollPlugin';
+import { PollNode } from './nodes/PollNode';
 
 interface RichTextEditorProps {
   value: string;
@@ -97,9 +102,11 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
       TableNode,
       TableRowNode,
       TableCellNode,
+      HorizontalRuleNode,
       AutoLinkNode,
       LinkNode,
       YouTubeNode,
+      PollNode,
     ],
   };
 
@@ -118,8 +125,10 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
             <AutoFocusPlugin />
             <LinkPlugin />
             <ListPlugin />
+            <HorizontalRulePlugin />
             <TablePlugin />
             <YouTubePlugin />
+            <PollPlugin />
             <OnChange onChange={onChange} />
             <InitialContent value={value} />
           </div>

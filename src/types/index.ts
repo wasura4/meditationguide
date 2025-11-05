@@ -19,6 +19,10 @@ export interface UserPreferences {
   timeFormat: '12h' | '24h';
   defaultMeditationType: string;
   language: 'en' | 'si';
+  appearance?: {
+    accent: 'green' | 'blue' | 'violet' | 'amber' | 'rose' | 'teal';
+    radius: number; // px
+  };
   notifications: {
     sessionEnd: boolean;
     dailyReminder: boolean;

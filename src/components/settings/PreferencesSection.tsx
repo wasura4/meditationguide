@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
+import { useThemeSettings } from '@/contexts/ThemeSettingsContext';
 import { Button } from '@/components/ui/button';
 
 interface PreferencesSectionProps {
@@ -17,6 +19,8 @@ export interface AppPreferences {
 }
 
 export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePreferences }) => {
+  const { theme } = useTheme();
+  const { accent, radius, setAccent, setRadius, setMode } = useThemeSettings();
   const [preferences, setPreferences] = useState<AppPreferences>({
     theme: 'auto',
     timeFormat: '12h',
@@ -107,6 +111,29 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
       </div>
 
       <div className="space-y-6">
+        {/* Appearance (live, persisted) */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">Appearance</label>
+          <div className="mb-3 flex gap-2">
+            {(['light','dark','system'] as const).map(m => (
+              <Button key={m} size="sm" variant={theme===m? 'default':'outline'} onClick={() => setMode(m)}>
+                {m}
+              </Button>
+            ))}
+          </div>
+          <div className="mb-3">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Accent</p>
+            <div className="grid grid-cols-6 gap-2">
+              {(['green','blue','violet','amber','rose','teal'] as Array<'green'|'blue'|'violet'|'amber'|'rose'|'teal'>).map((a) => (
+                <button key={a} onClick={() => setAccent(a)} className={`h-8 rounded-md border ${accent===a? 'ring-2 ring-primary':''}`} style={{ background: 'var(--primary)' }} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Radius: {radius}px</p>
+            <input type="range" min={4} max={20} value={radius} onChange={(e)=> setRadius(parseInt(e.target.value))} />
+          </div>
+        </div>
         {/* Theme Preference */}
         <div>
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
@@ -125,7 +152,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
               >
                 <div className="text-center">
                   <div className="text-2xl mb-1">
-                    {theme === 'light' ? '☀️' : theme === 'dark' ? '🌙' : '🔄'}
+                    {theme === 'light' ? 'â˜€ï¸' : theme === 'dark' ? 'ðŸŒ™' : 'ðŸ”„'}
                   </div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white capitalize">
                     {theme}
@@ -201,8 +228,8 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
           </label>
           <div className="grid grid-cols-2 gap-3">
             {([
-              { code: 'en', name: 'English', flag: '🇺🇸' },
-              { code: 'si', name: 'සිංහල', flag: '🇱🇰' }
+              { code: 'en', name: 'English', flag: 'ðŸ‡ºðŸ‡¸' },
+              { code: 'si', name: 'à·ƒà·’à¶‚à·„à¶½', flag: 'ðŸ‡±ðŸ‡°' }
             ]).map((lang) => (
               <button
                 key={lang.code}

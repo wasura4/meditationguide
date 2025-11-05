@@ -149,13 +149,13 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
             </span>
           </div>
 
-          {/* Read Button */}
+          {/* Learn Button */}
           <Button
             variant="outline"
             size="sm"
             className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
           >
-            Read Post
+            Learn
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

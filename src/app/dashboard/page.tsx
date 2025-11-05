@@ -8,6 +8,9 @@ import { useRouter } from 'next/navigation';
 import { MeditationService } from '@/lib/meditationService';
 import { MeditationSession } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { DhammaService } from '@/lib/dhammaService';
+import { DhammaPost } from '@/types/admin';
+import { DhammaPostCard } from '@/components/dhamma';
 
 interface DashboardStats {
   totalSessions: number;
@@ -37,6 +40,7 @@ export default function DashboardPage() {
   const { t } = useLanguage();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recommended, setRecommended] = useState<DhammaPost[]>([]);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -87,6 +91,11 @@ export default function DashboardPage() {
         const recentSessions = allSessions
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
           .slice(0, 5);
+
+        try {
+          const posts = await DhammaService.getPublishedPosts();
+          setRecommended(posts.slice(0, 4));
+        } catch {}
 
         setStats({
           totalSessions: userStats.totalSessions,
@@ -510,7 +519,24 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Recent Sessions */}
+        {/* Recommended Articles */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recommended For You</h2>
+            <button onClick={() => router.push('/dhamma')} className="text-sm text-primary">View All</button>
+          </div>
+          {recommended.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {recommended.map((post) => (
+                <DhammaPostCard key={post.id} post={post} onClick={() => router.push('/dhamma')} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No articles yet.</p>
+          )}
+        </div>
+
+        {/* Recent Sessions */}
           {stats?.recentSessions && stats.recentSessions.length > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Sessions</h3>
