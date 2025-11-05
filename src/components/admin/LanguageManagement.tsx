@@ -1,0 +1,337 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { LanguageService, Translation } from '@/lib/languageService';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { useToast } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+import enTranslations from '@/i18n/locales/en/common.json';
+
+interface TranslationRow {
+  key: string;
+  english: string;
+  sinhala: string;
+  category: string;
+}
+
+export const LanguageManagement: React.FC = () => {
+  const { adminUser } = useAdminAuth();
+  const { showToast } = useToast();
+  const [translations, setTranslations] = useState<Translation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>('');
+
+  useEffect(() => {
+    loadTranslations();
+  }, []);
+
+  const loadTranslations = async () => {
+    try {
+      setLoading(true);
+      const dbTranslations = await LanguageService.getAllTranslations();
+      
+      // Get all keys from English translations
+      const allKeys = getAllKeys(enTranslations);
+      
+      // Create translation rows
+      const translationMap = new Map<string, Translation>();
+      dbTranslations.forEach(t => translationMap.set(t.key, t));
+
+      const translationRows: Translation[] = allKeys.map(key => {
+        const existing = translationMap.get(key);
+        const englishValue = getNestedValue(enTranslations, key);
+        return existing || {
+          id: '',
+          key,
+          english: englishValue || key,
+          sinhala: '',
+          category: getCategoryFromKey(key),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: adminUser?.id || '',
+        } as Translation;
+      });
+
+      setTranslations(translationRows);
+    } catch (error) {
+      console.error('Error loading translations:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load translations',
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveTranslation = async (key: string, sinhala: string) => {
+    try {
+      setSaving(true);
+      const translation = translations.find(t => t.key === key);
+      if (!translation) return;
+
+      await LanguageService.saveTranslation({
+        id: translation.id || undefined,
+        key,
+        english: translation.english,
+        sinhala,
+        category: translation.category,
+        updatedBy: adminUser?.id || '',
+      });
+
+      showToast({
+        type: 'success',
+        title: 'Success',
+        message: 'Translation saved successfully',
+        duration: 3000,
+      });
+
+      await loadTranslations();
+      setEditingKey(null);
+    } catch (error) {
+      console.error('Error saving translation:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to save translation',
+        duration: 5000,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = (key: string, currentValue: string) => {
+    setEditingKey(key);
+    setEditValue(currentValue);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingKey(null);
+    setEditValue('');
+  };
+
+  const filteredTranslations = translations.filter(t => {
+    const matchesSearch = t.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.english.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.sinhala.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || t.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = Array.from(new Set(translations.map(t => t.category))).sort();
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b9e7a] mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading translations...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Language Management</h2>
+          <p className="text-gray-600 mt-1">Manage Sinhala translations for all application text</p>
+        </div>
+        <Button
+          onClick={loadTranslations}
+          variant="outline"
+          size="sm"
+        >
+          Refresh
+        </Button>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search
+            </label>
+            <input
+              type="text"
+              placeholder="Search by key, English, or Sinhala..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+            >
+              <option value="all">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Translations Table */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Key
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  English
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Sinhala (සිංහල)
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredTranslations.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                    No translations found
+                  </td>
+                </tr>
+              ) : (
+                filteredTranslations.map((translation) => (
+                  <tr key={translation.key} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-mono text-gray-900">
+                        {translation.key}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900">
+                        {translation.english}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {editingKey === translation.key ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                            placeholder="Enter Sinhala translation..."
+                            autoFocus
+                          />
+                          <Button
+                            onClick={() => handleSaveTranslation(translation.key, editValue)}
+                            size="sm"
+                            disabled={saving}
+                            className="bg-[#6b9e7a] hover:bg-[#5a8a68] text-white"
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            onClick={handleCancelEdit}
+                            size="sm"
+                            variant="outline"
+                            disabled={saving}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-900">
+                          {translation.sinhala || (
+                            <span className="text-gray-400 italic">Not translated</span>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                        {translation.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {editingKey === translation.key ? null : (
+                        <Button
+                          onClick={() => handleEdit(translation.key, translation.sinhala)}
+                          size="sm"
+                          variant="outline"
+                        >
+                          {translation.sinhala ? 'Edit' : 'Add'}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Info */}
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="text-sm text-gray-600">
+            Showing {filteredTranslations.length} of {translations.length} translations
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Helper function to get all keys from nested object
+function getAllKeys(obj: Record<string, unknown>, prefix = ''): string[] {
+  const keys: string[] = [];
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+        keys.push(...getAllKeys(obj[key] as Record<string, unknown>, fullKey));
+      } else {
+        keys.push(fullKey);
+      }
+    }
+  }
+  return keys;
+}
+
+// Helper function to get nested value from object
+function getNestedValue(obj: Record<string, unknown>, key: string): string {
+  const keys = key.split('.');
+  let value: unknown = obj;
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = (value as Record<string, unknown>)[k];
+    } else {
+      return '';
+    }
+  }
+  return typeof value === 'string' ? value : '';
+}
+
+// Helper function to get category from key
+function getCategoryFromKey(key: string): string {
+  const parts = key.split('.');
+  return parts[0] || 'common';
+}
+

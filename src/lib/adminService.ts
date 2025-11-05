@@ -1,13 +1,13 @@
-import { collection, query, where, getDocs, getDoc, doc, updateDoc, deleteDoc, orderBy, limit, startAfter, Timestamp } from 'firebase/firestore';
+import { collection, query, getDocs, getDoc, doc, updateDoc, orderBy, limit, startAfter, Timestamp, QueryDocumentSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { User } from '@/types';
-import { AdminUser, AdminStats, AdminAuditLog } from '@/types/admin';
+import { AdminStats } from '@/types/admin';
 import { MeditationService } from './meditationService';
 import { MeditationSession } from '@/types';
 
 export class AdminService {
   // Get all users with pagination
-  static async getUsers(pageSize: number = 50, lastDoc?: any): Promise<{ users: User[]; lastDoc: any }> {
+  static async getUsers(pageSize: number = 50, lastDoc?: QueryDocumentSnapshot): Promise<{ users: User[]; lastDoc: QueryDocumentSnapshot | undefined }> {
     try {
       let q = query(
         collection(db, 'users'),
@@ -47,7 +47,9 @@ export class AdminService {
         } as User);
       });
 
-      const lastDocument = querySnapshot.docs[querySnapshot.docs.length - 1];
+      const lastDocument = querySnapshot.docs.length > 0 
+        ? querySnapshot.docs[querySnapshot.docs.length - 1] 
+        : undefined;
       return { users, lastDoc: lastDocument };
     } catch (error) {
       console.error('Error fetching users:', error);

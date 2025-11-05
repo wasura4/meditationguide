@@ -143,10 +143,14 @@ export const THEME = {
  */
 export const getThemeColor = (path: string): string => {
   const keys = path.split('.');
-  let value: any = THEME;
+  let value: unknown = THEME;
   
   for (const key of keys) {
-    value = value?.[key];
+    if (value && typeof value === 'object' && key in value) {
+      value = (value as Record<string, unknown>)[key];
+    } else {
+      return '';
+    }
     if (value === undefined) return '';
   }
   

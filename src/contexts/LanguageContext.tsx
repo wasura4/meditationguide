@@ -25,6 +25,22 @@ interface Translations {
   [key: string]: unknown;
 }
 
+// Helper function to merge translations
+const mergeTranslations = (base: any, translations: Map<string, string>, prefix = ''): any => {
+  const result: any = {};
+  for (const key in base) {
+    if (base.hasOwnProperty(key)) {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      if (typeof base[key] === 'object' && base[key] !== null && !Array.isArray(base[key])) {
+        result[key] = mergeTranslations(base[key], translations, fullKey);
+      } else {
+        result[key] = translations.get(fullKey) || base[key];
+      }
+    }
+  }
+  return result;
+};
+
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>('en');
   const [translations, setTranslations] = useState<Translations>({});
@@ -35,8 +51,39 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     const loadTranslations = async () => {
       try {
         setIsLoading(true);
-        const translationModule = await import(`@/i18n/locales/${language}/common.json`);
-        setTranslations(translationModule.default);
+        
+        if (language === 'si') {
+          // Load Sinhala translations from Firebase
+          try {
+            const { LanguageService } = await import('@/lib/languageService');
+            const dbTranslations = await LanguageService.getAllTranslations();
+            
+            // Load base English translations
+            const enModule = await import('@/i18n/locales/en/common.json');
+            const enTranslations = enModule.default;
+            
+            // Create a map of translations
+            const translationMap = new Map<string, string>();
+            dbTranslations.forEach(t => {
+              if (t.sinhala) {
+                translationMap.set(t.key, t.sinhala);
+              }
+            });
+            
+            // Merge English and Sinhala translations
+            const mergedTranslations = mergeTranslations(enTranslations, translationMap);
+            setTranslations(mergedTranslations);
+          } catch (error) {
+            console.error('Failed to load Firebase translations:', error);
+            // Fallback to static Sinhala translations
+            const translationModule = await import(`@/i18n/locales/${language}/common.json`);
+            setTranslations(translationModule.default);
+          }
+        } else {
+          // Load English translations
+          const translationModule = await import(`@/i18n/locales/${language}/common.json`);
+          setTranslations(translationModule.default);
+        }
       } catch (error) {
         console.error(`Failed to load ${language} translations:`, error);
         // Fallback to English

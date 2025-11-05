@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { LanguageManagement } from '@/components/admin/LanguageManagement';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { AdminUser } from '@/types/admin';
 export default function AdminSettingsPage() {
   const { adminUser, hasPermission } = useAdminAuth();
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'system' | 'languages'>('system');
   const [settings, setSettings] = useState({
     emailNotifications: true,
     systemMaintenance: false,
@@ -101,23 +103,55 @@ export default function AdminSettingsPage() {
               <h1 className="text-2xl font-bold text-gray-900">Admin Settings</h1>
               <p className="text-gray-600 mt-1">Configure system settings and preferences</p>
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={handleResetSettings}
-                variant="outline"
-                size="sm"
-              >
-                Reset to Default
-              </Button>
-              <Button
-                onClick={handleSaveSettings}
-                disabled={loading}
-                className="bg-[#6b9e7a] hover:bg-[#5a8a68] text-white"
-              >
-                {loading ? 'Saving...' : 'Save Settings'}
-              </Button>
-            </div>
+            {activeTab === 'system' && (
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleResetSettings}
+                  variant="outline"
+                  size="sm"
+                >
+                  Reset to Default
+                </Button>
+                <Button
+                  onClick={handleSaveSettings}
+                  disabled={loading}
+                  className="bg-[#6b9e7a] hover:bg-[#5a8a68] text-white"
+                >
+                  {loading ? 'Saving...' : 'Save Settings'}
+                </Button>
+              </div>
+            )}
           </div>
+
+          {/* Tab Navigation */}
+          <div className="bg-white rounded-xl p-1 shadow-lg border border-gray-200 inline-flex">
+            <button
+              onClick={() => setActiveTab('system')}
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'system'
+                  ? 'bg-[#6b9e7a] text-white'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              System Settings
+            </button>
+            <button
+              onClick={() => setActiveTab('languages')}
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'languages'
+                  ? 'bg-[#6b9e7a] text-white'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Languages
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'languages' ? (
+            <LanguageManagement />
+          ) : (
+            <>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Settings */}
@@ -386,6 +420,8 @@ export default function AdminSettingsPage() {
               </div>
             </div>
           </div>
+        </>
+        )}
         </div>
       </AdminLayout>
     </AdminProtectedRoute>
