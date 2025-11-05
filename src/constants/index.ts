@@ -1,3 +1,6 @@
+// Export theme configuration
+export { THEME, getThemeColor } from './theme';
+
 // App Configuration
 export const APP_CONFIG = {
   name: 'Meditation Guide',

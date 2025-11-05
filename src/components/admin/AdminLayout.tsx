@@ -59,33 +59,33 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         >
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75"></div>
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50"></div>
         </div>
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-[#6b9e7a] rounded-lg flex items-center justify-center">
               <span className="text-white text-lg">🕉️</span>
             </div>
-            <h1 className="ml-3 text-xl font-bold text-gray-900 dark:text-white">
+            <h1 className="ml-3 text-xl font-bold text-gray-900">
               Nirvanaya Admin
             </h1>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            className="lg:hidden p-2 text-gray-600 hover:text-gray-900"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -107,8 +107,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
                   href={item.href}
                   className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-[#f0f7f4] dark:bg-[#2d4a3a]/20 text-[#4a7365] dark:text-[#7fb88c]'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-[#f0f7f4] dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-[#f0f7f4] text-[#4a7365]'
+                      : 'text-gray-700 hover:bg-[#f0f7f4] hover:text-gray-900'
                   }`}
                 >
                   <span className="mr-3 text-lg">{item.icon}</span>
@@ -120,7 +120,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
         </nav>
 
         {/* Admin Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-[#6b9e7a] rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-semibold">
@@ -128,10 +128,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
               </span>
             </div>
             <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <p className="text-sm font-medium text-gray-900">
                 {adminUser?.displayName}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+              <p className="text-xs text-gray-500 capitalize">
                 {adminUser?.role?.replace('_', ' ')}
               </p>
             </div>
@@ -139,7 +139,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+              className="text-gray-600 hover:text-red-600"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -152,24 +152,24 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                className="lg:hidden p-2 text-gray-600 hover:text-gray-900"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h2 className="ml-2 lg:ml-0 text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="ml-2 lg:ml-0 text-lg font-semibold text-gray-900">
                 {navigation.find(item => item.href === currentPage)?.name || 'Admin Panel'}
               </h2>
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-gray-600">
                 Welcome back, {adminUser?.displayName}
               </span>
               <Button

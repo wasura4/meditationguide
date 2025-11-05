@@ -41,6 +41,71 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   }, []);
 
+  // Clear timer state from localStorage
+  const clearTimerState = () => {
+    localStorage.removeItem('meditation_timer_state');
+  };
+
+  // Handle session completion (for both completed and stopped sessions)
+  const handleSessionEnd = useCallback(async (status: 'completed' | 'abandoned') => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    setIsRunning(false);
+    setIsPaused(false);
+
+    // Clear timer state from localStorage
+    clearTimerState();
+
+    // Create session data
+    const typeName = meditationTypeName || meditationType;
+    const sessionData: Omit<MeditationSession, 'id'> = {
+      userId: user?.id || 'anonymous',
+      typeId: meditationType,
+      typeName: typeName,
+      startTime: startTime || new Date(),
+      endTime: new Date(),
+      duration: Math.max(1, Math.ceil(elapsed / 60)), // Convert to minutes, minimum 1 minute
+      status,
+      tags: [meditationType],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    try {
+      // Save session to Firestore and get the generated ID
+      const savedSessionId = await MeditationService.saveSession(sessionData);
+      console.log(`Session ${status} successfully:`, savedSessionId);
+      
+      // Create the complete session object with the generated ID
+      const session: MeditationSession = {
+        ...sessionData,
+        id: savedSessionId,
+      };
+      
+      // Call completion callback
+      if (onSessionComplete) {
+        onSessionComplete(session);
+      }
+    } catch (error) {
+      console.error(`Failed to save ${status} session:`, error);
+      // Still call completion callback even if save fails, but with temporary ID
+      const session: MeditationSession = {
+        ...sessionData,
+        id: sessionId,
+      };
+      if (onSessionComplete) {
+        onSessionComplete(session);
+      }
+    }
+  }, [sessionId, user?.id, meditationType, meditationTypeName, startTime, elapsed, onSessionComplete]);
+
+  // Complete session function
+  const completeSession = useCallback(() => {
+    handleSessionEnd('completed');
+  }, [handleSessionEnd]);
+
   // Load timer state from localStorage on mount
   useEffect(() => {
     const savedTimerState = localStorage.getItem('meditation_timer_state');
@@ -74,16 +139,16 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
             intervalRef.current = setInterval(() => {
               const currentTime = Date.now();
               const newElapsed = Math.floor((currentTime - startTimeRef.current) / 1000);
-              setElapsed(prev => {
-                const updated = Math.min(newElapsed, total);
+              setElapsed((_prev) => {
+                const updated = Math.min(newElapsed, state.total);
                 lastUpdateRef.current = currentTime;
 
                 // Save state periodically
-                saveTimerState(updated, total, true, false, new Date(state.startTime), state.sessionId);
+                saveTimerState(updated, state.total, true, false, new Date(state.startTime), state.sessionId);
 
-                if (updated >= total) {
+                if (updated >= state.total) {
                   completeSession();
-                  return total;
+                  return state.total;
                 }
                 return updated;
               });
@@ -120,11 +185,6 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       isCompleted: false
     };
     localStorage.setItem('meditation_timer_state', JSON.stringify(state));
-  };
-
-  // Clear timer state from localStorage
-  const clearTimerState = () => {
-    localStorage.removeItem('meditation_timer_state');
   };
 
   // Handle visibility change (tab switching, screen off)
@@ -178,66 +238,6 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       return () => clearInterval(saveInterval);
     }
   }, [isRunning, isPaused, elapsed, total, startTime, sessionId]);
-
-  // Handle session completion (for both completed and stopped sessions)
-  const handleSessionEnd = useCallback(async (status: 'completed' | 'abandoned') => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    
-    setIsRunning(false);
-    setIsPaused(false);
-
-    // Clear timer state from localStorage
-    clearTimerState();
-
-    // Create session data
-    const typeName = meditationTypeName || meditationType;
-    const sessionData: Omit<MeditationSession, 'id'> = {
-      userId: user?.id || 'anonymous',
-      typeId: meditationType,
-      typeName: typeName,
-      startTime: startTime || new Date(),
-      endTime: new Date(),
-      duration: Math.max(1, Math.ceil(elapsed / 60)), // Convert to minutes, minimum 1 minute
-      status,
-      tags: [meditationType],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    
-    try {
-      // Save session to Firestore and get the generated ID
-      const sessionId = await MeditationService.saveSession(sessionData);
-      console.log(`Session ${status} successfully:`, sessionId);
-      
-      // Create the complete session object with the generated ID
-      const session: MeditationSession = {
-        ...sessionData,
-        id: sessionId,
-      };
-      
-      // Call completion callback
-      if (onSessionComplete) {
-        onSessionComplete(session);
-      }
-    } catch (error) {
-      console.error(`Failed to save ${status} session:`, error);
-      // Still call completion callback even if save fails, but with temporary ID
-      const session: MeditationSession = {
-        ...sessionData,
-        id: sessionId,
-      };
-      if (onSessionComplete) {
-        onSessionComplete(session);
-      }
-    }
-  }, [sessionId, user?.id, meditationType, meditationTypeName, startTime, elapsed, onSessionComplete, clearTimerState]);
-
-  // Complete session function (defined first to avoid dependency issues)
-  const completeSession = useCallback(() => {
-    handleSessionEnd('completed');
-  }, [handleSessionEnd]);
 
   // Timer logic
   const startTimer = useCallback(() => {

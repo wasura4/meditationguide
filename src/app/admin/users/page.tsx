@@ -1,0 +1,356 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { AdminService } from '@/lib/adminService';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { useToast } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+import { User } from '@/types';
+import { MeditationSession } from '@/types';
+
+export default function AdminUsersPage() {
+  const { hasPermission } = useAdminAuth();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userSessions, setUserSessions] = useState<MeditationSession[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [lastDoc, setLastDoc] = useState<any>(null);
+  const { showToast } = useToast();
+
+  const pageSize = 20;
+
+  useEffect(() => {
+    if (hasPermission('users', 'read')) {
+      loadUsers();
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      searchUsers();
+    } else {
+      loadUsers();
+    }
+  }, [searchTerm]);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const result = await AdminService.getUsers(pageSize, currentPage > 1 ? lastDoc : undefined);
+      if (currentPage === 1) {
+        setUsers(result.users);
+      } else {
+        setUsers(prev => [...prev, ...result.users]);
+      }
+      setLastDoc(result.lastDoc);
+      setHasMore(result.users.length === pageSize);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load users',
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const searchUsers = async () => {
+    try {
+      setLoading(true);
+      const results = await AdminService.searchUsers(searchTerm);
+      setUsers(results);
+      setHasMore(false);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to search users',
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserSessions = async (userId: string) => {
+    try {
+      setLoadingSessions(true);
+      const sessions = await AdminService.getUserSessions(userId, 50);
+      setUserSessions(sessions);
+    } catch (error) {
+      console.error('Error loading user sessions:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load user sessions',
+        duration: 5000,
+      });
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const handleUserClick = (user: User) => {
+    setSelectedUser(user);
+    loadUserSessions(user.id);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to deactivate this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await AdminService.deleteUser(userId);
+      showToast({
+        type: 'success',
+        title: 'Success',
+        message: 'User deactivated successfully',
+        duration: 3000,
+      });
+      setUsers(users.filter(u => u.id !== userId));
+      if (selectedUser?.id === userId) {
+        setSelectedUser(null);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to deactivate user',
+        duration: 5000,
+      });
+    }
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  if (!hasPermission('users', 'read')) {
+    return (
+      <AdminProtectedRoute>
+        <AdminLayout currentPage="/admin/users">
+          <div className="text-center py-12">
+            <p className="text-gray-600">You don't have permission to view users.</p>
+          </div>
+        </AdminLayout>
+      </AdminProtectedRoute>
+    );
+  }
+
+  return (
+    <AdminProtectedRoute>
+      <AdminLayout currentPage="/admin/users">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+              <p className="text-gray-600 mt-1">Manage and monitor all platform users</p>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search users by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Users List */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Users ({users.length})
+                  </h2>
+                </div>
+
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6b9e7a] mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Loading users...</p>
+                  </div>
+                ) : users.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500">No users found</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-200">
+                    {users.map((user) => (
+                      <div
+                        key={user.id}
+                        onClick={() => handleUserClick(user)}
+                        className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                          selectedUser?.id === user.id ? 'bg-[#f0f7f4]' : ''
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 bg-[#6b9e7a] rounded-full flex items-center justify-center">
+                              <span className="text-white text-sm font-semibold">
+                                {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                              </span>
+                            </div>
+                            <div className="ml-4">
+                              <p className="text-sm font-medium text-gray-900">
+                                {user.displayName || 'No Name'}
+                              </p>
+                              <p className="text-sm text-gray-500">{user.email}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-gray-500">
+                              Joined {formatDate(user.createdAt)}
+                            </span>
+                            {hasPermission('users', 'delete') && (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteUser(user.id);
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {!searchTerm && hasMore && (
+                  <div className="px-6 py-4 border-t border-gray-200">
+                    <Button
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Load More
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* User Details */}
+            <div className="lg:col-span-1">
+              {selectedUser ? (
+                <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">User Details</h2>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-[#6b9e7a] rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span className="text-white text-xl font-semibold">
+                          {selectedUser.displayName?.charAt(0).toUpperCase() || selectedUser.email?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {selectedUser.displayName || 'No Name'}
+                      </p>
+                      <p className="text-sm text-gray-500">{selectedUser.email}</p>
+                    </div>
+
+                    <div className="space-y-3 pt-4 border-t border-gray-200">
+                      <div>
+                        <p className="text-xs text-gray-500">User ID</p>
+                        <p className="text-sm font-mono text-gray-900">{selectedUser.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Joined</p>
+                        <p className="text-sm text-gray-900">{formatDate(selectedUser.createdAt)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Last Updated</p>
+                        <p className="text-sm text-gray-900">{formatDate(selectedUser.updatedAt)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Theme</p>
+                        <p className="text-sm text-gray-900 capitalize">
+                          {selectedUser.preferences?.theme || 'light'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Language</p>
+                        <p className="text-sm text-gray-900 uppercase">
+                          {selectedUser.preferences?.language || 'en'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-200">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">Meditation Sessions</h3>
+                      {loadingSessions ? (
+                        <div className="text-center py-4">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6b9e7a] mx-auto"></div>
+                        </div>
+                      ) : userSessions.length > 0 ? (
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {userSessions.slice(0, 10).map((session) => (
+                            <div key={session.id} className="p-2 bg-gray-50 rounded text-xs">
+                              <p className="font-medium text-gray-900">{session.typeName}</p>
+                              <p className="text-gray-500">
+                                {session.duration} min • {formatDate(session.createdAt)}
+                              </p>
+                            </div>
+                          ))}
+                          {userSessions.length > 10 && (
+                            <p className="text-xs text-gray-500 text-center">
+                              +{userSessions.length - 10} more sessions
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 text-center py-4">No sessions yet</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                  <p className="text-gray-500">Select a user to view details</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
+    </AdminProtectedRoute>
+  );
+}
+
