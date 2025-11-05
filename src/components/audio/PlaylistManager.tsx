@@ -110,53 +110,48 @@ export function PlaylistManager() {
     };
   }, [currentPlaylist, currentTrackIndex, isPlaying, showToast]);
 
-  const fetchPlaylists = async () => {
-    try {
-      setLoading(true);
-      console.log('🔍 Fetching playlists for user:', user?.id);
-      
+  const fetchPlaylists = async () => {    try {      setLoading(true);
       const playlistsRef = collection(db, 'playlists');
-      // Remove orderBy to avoid composite index requirement
-      // const q = query(
-      //   playlistsRef,
-      //   where('userId', '==', user?.id),
-      //   orderBy('createdAt', 'desc')
-      // );
-      const q = query(
-        playlistsRef,
-        where('userId', '==', user?.id)
-      );
-      
-      console.log('🔍 Playlists query:', q);
-      const querySnapshot = await getDocs(q);
-      
-      console.log('📊 Playlists query snapshot size:', querySnapshot.size);
-      console.log('📊 Playlists query snapshot empty:', querySnapshot.empty);
-      
-      const userPlaylists: Playlist[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        console.log('🎵 Playlist found:', { id: doc.id, name: data.name, userId: data.userId });
-        userPlaylists.push({ id: doc.id, ...data } as Playlist);
+      const qMine = query(playlistsRef, where('userId', '==', user?.id));
+      const snapMine = await getDocs(qMine);
+      const mine: Playlist[] = [];
+      snapMine.forEach((d) => {
+        const raw = d.data() as Record<string, unknown>;
+        mine.push({
+          id: d.id,
+          name: String(raw.name || ''),
+          description: String(raw.description || ''),
+          audioFiles: (raw.audioFiles as KamatahanAudio[]) || [],
+          isPublic: Boolean(raw.isPublic),
+          createdAt: (raw.createdAt as Date) || new Date(),
+          updatedAt: (raw.updatedAt as Date) || new Date(),
+          userId: String(raw.userId || ''),
+        });
       });
-      
-      // Sort playlists by createdAt in JavaScript instead
-      const sortedPlaylists = userPlaylists.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      
-      console.log('🎵 Total playlists found:', sortedPlaylists.length);
-      setPlaylists(sortedPlaylists);
-    } catch (error) {
-      console.error('❌ Error fetching playlists:', error);
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message: 'Failed to load playlists. Please try again.',
-        duration: 3000
+
+      const qPublic = query(playlistsRef, where('isPublic', '==', true));
+      const snapPublic = await getDocs(qPublic);
+      const pub: Playlist[] = [];
+      snapPublic.forEach((d) => {
+        const raw = d.data() as Record<string, unknown>;
+        pub.push({
+          id: d.id,
+          name: String(raw.name || ''),
+          description: String(raw.description || ''),
+          audioFiles: (raw.audioFiles as KamatahanAudio[]) || [],
+          isPublic: Boolean(raw.isPublic),
+          createdAt: (raw.createdAt as Date) || new Date(),
+          updatedAt: (raw.updatedAt as Date) || new Date(),
+          userId: String(raw.userId || ''),
+        });
       });
-    } finally {
-      setLoading(false);
+      const mergedMap = new Map<string, Playlist>();
+      [...pub, ...mine].forEach(p => mergedMap.set(p.id, p));
+      const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setPlaylists(merged);
+    } catch (error) {      console.error('Error fetching playlists:', error);
+      showToast({ type: 'error', title: 'Error', message: 'Failed to load playlists. Please try again.', duration: 3000 });
+    } finally {      setLoading(false);
     }
   };
 
@@ -831,3 +826,5 @@ export function PlaylistManager() {
     </div>
   );
 }
+
+

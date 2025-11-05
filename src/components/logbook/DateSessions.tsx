@@ -157,7 +157,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
                 {/* Notes */}
                 {session.notes && (
                   <div className="mb-3">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 italic line-clamp-3 break-words">
                       &quot;{session.notes}&quot;
                     </p>
                   </div>

@@ -342,6 +342,11 @@ export class AdminService {
         });
       }
 
+      // Content stats
+      const audioSnapshot = await getDocs(query(collection(db, 'kamatahan_audio')));
+      const postsSnapshot = await getDocs(query(collection(db, 'dhamma_posts')));
+      const dhammaViewCount = postsSnapshot.docs.reduce((sum, d) => sum + (d.data().viewCount || 0), 0);
+
       return {
         users: {
           total: totalUsers,
@@ -367,9 +372,9 @@ export class AdminService {
           popularTypes,
         },
         content: {
-          audioFiles: 0, // TODO: Get from audio collection
-          dhammaPosts: 0, // TODO: Get from dhamma_posts collection
-          totalViews: 0, // TODO: Get from analytics
+          audioFiles: audioSnapshot.size,
+          dhammaPosts: postsSnapshot.size,
+          totalViews: dhammaViewCount,
         },
         trends: {
           userGrowth: userGrowthTrend,
@@ -433,4 +438,3 @@ export class AdminService {
     }
   }
 }
-
