@@ -12,7 +12,7 @@ import { Table } from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
-import Details from '@tiptap/extension-details';
+// Collapsible handled via raw <details> HTML insertion for v3
 
 interface TiptapEditorProps {
   value: string;
@@ -35,7 +35,6 @@ export default function TiptapEditor({ value, onChange, placeholder = 'Write you
       TableRow,
       TableHeader,
       TableCell,
-      Details.configure({ persist: true }),
     ],
     content: value || '<p></p>',
     onUpdate: ({ editor }) => {

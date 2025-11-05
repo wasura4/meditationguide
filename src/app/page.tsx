@@ -330,6 +330,19 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Bottom Language Switcher */}
+      <div className="py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/80 backdrop-blur border border-slate-200 rounded-2xl p-6 flex items-center justify-between flex-col sm:flex-row gap-4">
+            <div className="text-center sm:text-left">
+              <h3 className="text-lg font-semibold text-slate-900">{t('common.language')}</h3>
+              <p className="text-slate-600 text-sm">Choose your preferred language.</p>
+            </div>
+            <LanguageSwitcher />
+          </div>
+        </div>
+      </div>
+
       {/* CTA Section */}
       <div className="py-24 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
