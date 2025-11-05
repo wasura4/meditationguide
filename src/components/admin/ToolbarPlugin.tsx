@@ -10,8 +10,9 @@ import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
-import { $createParagraphNode, $getRoot, FORMAT_TEXT_COMMAND } from 'lexical';
+import { $getRoot, FORMAT_TEXT_COMMAND } from 'lexical';
 import { $createLinkNode } from '@lexical/link';
+import { $generateNodesFromDOM } from '@lexical/html';
 import { useCallback, useEffect, useState } from 'react';
 
 export default function ToolbarPlugin() {
@@ -79,11 +80,23 @@ export default function ToolbarPlugin() {
       
       if (videoId) {
         editor.update(() => {
-          const root = $getRoot();
-          const paragraph = $createParagraphNode();
-          const embed = `<div class="youtube-embed"><iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-          paragraph.append(embed);
-          root.append(paragraph);
+          const selection = $getSelection();
+          const htmlString = `<div class="youtube-embed"><iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+          
+          // Parse HTML string into DOM
+          const parser = new DOMParser();
+          const dom = parser.parseFromString(htmlString, 'text/html');
+          
+          // Convert DOM to Lexical nodes
+          const nodes = $generateNodesFromDOM(editor, dom);
+          
+          // Insert at selection or append to root
+          if ($isRangeSelection(selection)) {
+            selection.insertNodes(nodes);
+          } else {
+            const root = $getRoot();
+            root.append(...nodes);
+          }
         });
       } else {
         alert('Invalid YouTube URL');
