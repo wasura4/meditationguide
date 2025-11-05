@@ -1,17 +1,23 @@
-﻿rules_version = '2';
+# Firestore Security Rules (Copy-Paste)
+
+Copy the full block below into Firebase Console → Firestore Database → Rules and click Publish.
+
+```rules
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isSignedIn() { return request.auth != null }
     function isAdmin() {
-      return isSignedIn() && exists(/databases//documents/admin_users/);
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
     }
 
-    // Users can read/write their own data
+    // Users can read/write their own profile
     match /users/{userId} {
       allow read, write: if request.auth.uid == userId;
     }
 
-    // Users can read/write their own meditation sessions
+    // Meditation sessions (owner only)
     match /meditation_sessions/{sessionId} {
       allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
       allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
@@ -19,70 +25,78 @@ service cloud.firestore {
       allow delete: if isSignedIn() && request.auth.uid == resource.data.userId;
     }
 
-    // Admin users collection - secure access
+    // Admin users
     match /admin_users/{adminId} {
       allow read: if isSignedIn() && request.auth.uid == adminId;
       allow write: if isSignedIn() && request.auth.uid == adminId;
     }
 
-    // Kamatahan audio - admins manage, anyone can read metadata
+    // Kamatahan audio (public read, admin write)
     match /kamatahan_audio/{audioId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Dhamma posts - admins manage, anyone can read published posts
+    // Dhamma posts (public read, admin write)
     match /dhamma_posts/{postId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
     // Playlists (Meditation Guides)
-    // - Public guides are readable by anyone
-    // - Users can manage their own (resource.data.userId == uid)
-    // - Admins can create/update/delete any
     match /playlists/{playlistId} {
+      // Anyone can read public guides; owners and admins can read
       allow read: if resource.data.isPublic == true
-                  || (isSignedIn() && (
-                       resource.data.userId == request.auth.uid
-                       || isAdmin()
-                     ));
+                  || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()));
 
-      allow create: if isSignedIn() && (
-                      request.resource.data.userId == request.auth.uid
-                      || isAdmin()
-                    );
+      // Create: owner creating their own OR admin
+      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
 
-      allow update, delete: if isSignedIn() && (
-                              resource.data.userId == request.auth.uid
-                              || isAdmin()
-                            );
+      // Update/Delete: owner OR admin
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
-    // Audio listens (per‑play events used for counts)
+    // Audio listens (for play counts)
     match /audio_listens/{listenId} {
-      allow read: if true;
+      allow read: if true;         // needed for aggregate count()
       allow create: if isSignedIn();
       allow update, delete: if false;
     }
 
-    // Meditation types - admins manage, anyone can read
+    // Meditation types (public read, admin write)
     match /meditation_types/{typeId} {
       allow read: if true;
       allow write: if isAdmin();
     }
   }
 }
+```
 
-// Optional: Firebase Storage rules for cover photo uploads
-/*
+## Storage Rules (Cover Photo Uploads)
+
+Copy this block into Firebase Console → Storage → Rules if you want admin-only uploads to `playlist_covers/` and public read.
+
+```rules
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null }
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/(default)/documents/admin_users/$(request.auth.uid));
+    }
+
+    // Guide cover photos
     match /playlist_covers/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && exists(/databases/(default)/documents/admin_users/);
+      allow write: if isAdmin();
+    }
+
+    // Optional: keep other reads public (adjust as needed)
+    match /{allPaths=**} {
+      allow read: if true;
     }
   }
 }
-*/
+```
+
