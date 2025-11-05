@@ -83,9 +83,10 @@ export class MeditationTypeService {
         });
 
         return types;
-      } catch (indexError: any) {
+      } catch (indexError: unknown) {
         // If composite index is missing, fallback to client-side filtering
-        if (indexError.code === 'failed-precondition' || indexError.message?.includes('index')) {
+        const error = indexError as { code?: string; message?: string };
+        if (error.code === 'failed-precondition' || error.message?.includes('index')) {
           console.warn('Composite index missing, using client-side filter:', indexError);
           
           // Get all types and filter client-side
@@ -112,7 +113,7 @@ export class MeditationTypeService {
 
           return types;
         }
-        throw indexError;
+        throw error;
       }
     } catch (error) {
       console.error('Error fetching active meditation types:', error);

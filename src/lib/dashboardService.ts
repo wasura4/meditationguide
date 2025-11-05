@@ -1,6 +1,6 @@
 import { MeditationService } from './meditationService';
 import { MeditationSession } from '@/types';
-import { startOfWeek, endOfWeek, subWeeks, startOfDay, endOfDay, isWithinInterval, format } from 'date-fns';
+import { startOfWeek, endOfWeek, subWeeks, isWithinInterval, format } from 'date-fns';
 
 export interface DashboardStats {
   totalSessions: number;
@@ -246,7 +246,7 @@ export class DashboardService {
 
       const totalSessions = allSessions.length;
       
-      return Object.entries(typeCounts).map(([typeId, data]) => ({
+      return Object.entries(typeCounts).map(([, data]) => ({
         type: data.name,
         sessions: data.sessions,
         minutes: data.minutes,

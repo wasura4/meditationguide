@@ -166,7 +166,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isRunning, isPaused, elapsed, total, startTime, sessionId]);
+  }, [isRunning, isPaused, elapsed, total, startTime, sessionId, completeSession]);
 
   // Periodic state saving
   useEffect(() => {
@@ -253,7 +253,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
         const currentTime = Date.now();
         const newElapsed = Math.floor((currentTime - startTimeRef.current) / 1000);
 
-        setElapsed(prev => {
+        setElapsed((_prev) => {
           const updated = Math.min(newElapsed, total);
           lastUpdateRef.current = currentTime;
 
@@ -303,7 +303,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
         const currentTime = Date.now();
         const newElapsed = Math.floor((currentTime - startTimeRef.current) / 1000);
 
-        setElapsed(prev => {
+        setElapsed((_prev) => {
           const updated = Math.min(newElapsed, total);
           lastUpdateRef.current = currentTime;
 

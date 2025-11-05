@@ -39,12 +39,12 @@ export default function ToolbarPlugin() {
         
         // Check undo/redo availability from editor history
         try {
-          const historyState = (editorState as any)._history;
+          const historyState = (editorState as { _history?: { undoStack?: unknown[]; redoStack?: unknown[] } })._history;
           if (historyState) {
             setCanUndo((historyState.undoStack?.length || 0) > 0);
             setCanRedo((historyState.redoStack?.length || 0) > 0);
           }
-        } catch (error) {
+        } catch {
           // If history state is not accessible, enable buttons (HistoryPlugin will handle it)
           setCanUndo(true);
           setCanRedo(true);
