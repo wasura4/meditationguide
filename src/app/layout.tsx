@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { ToastProvider } from "@/components/ui/toast";
 import { ThemeSettingsProvider } from "@/contexts/ThemeSettingsContext";
 import { AppChrome } from "@/components/app/AppChrome";
+import { PlayerProvider } from "@/contexts/PlayerContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,7 +61,9 @@ export default async function RootLayout({
           <LanguageProvider initialLanguage={initialLang}>
             <ThemeSettingsProvider>
               <ToastProvider>
-                <AppChrome>{children}</AppChrome>
+                <PlayerProvider>
+                  <AppChrome>{children}</AppChrome>
+                </PlayerProvider>
               </ToastProvider>
             </ThemeSettingsProvider>
           </LanguageProvider>

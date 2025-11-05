@@ -9,6 +9,7 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, o
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { recordAudioListen } from '@/lib/metricsService';
+import { usePlayer } from '@/contexts/PlayerContext';
 
 interface Playlist {
   id: string;
@@ -44,6 +45,7 @@ export function PlaylistManager() {
   const { showToast } = useToast();
   const { user } = useAuth();
   const searchParams = useSearchParams();
+  const player = usePlayer();
 
   useEffect(() => {
     if (user) {
@@ -65,7 +67,7 @@ export function PlaylistManager() {
     const audioElement = audioRef.current;
     if (!audioElement || !currentPlaylist) return;
 
-    const currentTrack = currentPlaylist.audioFiles[currentTrackIndex];
+    const currentTrack = (currentPlaylist as any).audioFiles[currentTrackIndex];
     if (!currentTrack) return;
 
     // Set audio source
@@ -75,7 +77,7 @@ export function PlaylistManager() {
     const updateDuration = () => setDuration(audioElement.duration);
     const handleEnded = () => {
       // Auto-play next track when current track ends
-      if (currentTrackIndex < currentPlaylist.audioFiles.length - 1) {
+      if (currentTrackIndex < (currentPlaylist as any).audioFiles.length - 1) {
         nextTrack();
       } else {
         // Playlist finished
@@ -83,14 +85,14 @@ export function PlaylistManager() {
         showToast({
           type: 'info',
           title: 'Playlist Complete',
-          message: `${currentPlaylist.name} has finished playing.`,
+          message: `${(currentPlaylist as any).name} has finished playing.`,
           duration: 3000
         });
       }
     };
     const handlePlay = () => {
       // Count a listen once per track per page session to avoid spam on pause/resume
-      const track = currentPlaylist.audioFiles[currentTrackIndex];
+      const track = (currentPlaylist as any).audioFiles[currentTrackIndex];
       if (!track?.id) return;
       if (!listenedThisSessionRef.current.has(track.id)) {
         listenedThisSessionRef.current.add(track.id);
@@ -387,9 +389,10 @@ export function PlaylistManager() {
       return;
     }
 
-    setCurrentPlaylist(playlist);
+    player.start({ id: playlist.id, name: playlist.name, audioFiles: playlist.audioFiles });
+    setCurrentPlaylist(null);
     setCurrentTrackIndex(0);
-    setIsPlaying(true);
+    setIsPlaying(false);
     
     showToast({
       type: 'success',
@@ -415,7 +418,7 @@ export function PlaylistManager() {
   const nextTrack = () => {
     if (!currentPlaylist) return;
     
-    const nextIndex = (currentTrackIndex + 1) % currentPlaylist.audioFiles.length;
+    const nextIndex = (currentTrackIndex + 1) % (currentPlaylist as any).audioFiles.length;
     setCurrentTrackIndex(nextIndex);
     setCurrentTime(0);
     
@@ -433,7 +436,7 @@ export function PlaylistManager() {
     if (!currentPlaylist) return;
     
     const prevIndex = currentTrackIndex === 0 
-      ? currentPlaylist.audioFiles.length - 1 
+      ? (currentPlaylist as any).audioFiles.length - 1 
       : currentTrackIndex - 1;
     setCurrentTrackIndex(prevIndex);
     setCurrentTime(0);
@@ -637,20 +640,20 @@ export function PlaylistManager() {
       )}
 
       {/* Sticky Mini Player (Spotify-like) */}
-      {currentPlaylist && (
+      {false && (
         <div className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md px-3 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.15)]">
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="h-12 w-12 rounded-md bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center font-semibold">
-                  {(currentPlaylist.audioFiles[currentTrackIndex]?.title || 'â€¢').charAt(0).toUpperCase()}
+                  {((currentPlaylist as any).audioFiles[currentTrackIndex]?.title || 'â€¢').charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate">
-                    {currentPlaylist.audioFiles[currentTrackIndex]?.title || 'Untitled'}
+                    {(currentPlaylist as any).audioFiles[currentTrackIndex]?.title || 'Untitled'}
                   </div>
                   <div className="text-xs text-muted-foreground truncate">
-                    {currentPlaylist.name} â€¢ Track {currentTrackIndex + 1} of {currentPlaylist.audioFiles.length}
+                    {(currentPlaylist as any).name} â€¢ Track {currentTrackIndex + 1} of {(currentPlaylist as any).audioFiles.length}
                   </div>
                 </div>
               </div>
@@ -856,5 +859,7 @@ export function PlaylistManager() {
     </div>
   );
 }
+
+
 
 
