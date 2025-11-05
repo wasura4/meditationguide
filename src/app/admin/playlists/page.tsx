@@ -7,8 +7,9 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { KamatahanAudio } from '@/types/admin';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { collection, getDocs, query } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { PlaylistService, PlaylistDoc } from '@/lib/playlistService';
 
 const AdminPlaylistsPage: React.FC = () => {
@@ -25,6 +26,9 @@ const AdminPlaylistsPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [authorName, setAuthorName] = useState('');
   const canWrite = hasPermission('audio', 'create') || hasPermission('audio', 'update');
 
   useEffect(() => {
@@ -63,6 +67,9 @@ const AdminPlaylistsPage: React.FC = () => {
     setDescription('');
     setIsPublic(true);
     setSelectedIds([]);
+    setCoverFile(null);
+    setCoverPreview(null);
+    setAuthorName('');
   };
 
   const createPlaylist = async () => {
@@ -74,12 +81,22 @@ const AdminPlaylistsPage: React.FC = () => {
     try {
       setSaving(true);
       const selection = audioFiles.filter((a) => selectedIds.includes(a.id));
+      // Upload cover if provided
+      let thumbnailUrl: string | undefined;
+      if (coverFile) {
+        const path = `playlist_covers/${Date.now()}_${coverFile.name}`;
+        const r = ref(storage, path);
+        await uploadBytes(r, coverFile);
+        thumbnailUrl = await getDownloadURL(r);
+      }
       const id = await PlaylistService.create({
         name,
         description,
         audioFiles: selection,
         createdBy: adminUser.id,
         isPublic,
+        thumbnailUrl,
+        authorName: authorName || undefined,
       });
       const fresh = await PlaylistService.getAll();
       setPlaylists(fresh);
@@ -147,6 +164,20 @@ const AdminPlaylistsPage: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <button type="button" onClick={() => setIsPublic(true)} className={`px-3 py-2 rounded-md border ${isPublic ? 'border-primary text-primary' : 'border-input text-muted-foreground'}`}>Public</button>
                     <button type="button" onClick={() => setIsPublic(false)} className={`px-3 py-2 rounded-md border ${!isPublic ? 'border-primary text-primary' : 'border-input text-muted-foreground'}`}>Private</button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Author</label>
+                  <input value={authorName} onChange={(e) => setAuthorName(e.target.value)} placeholder="e.g., Rev Ariyananda Thero" className="w-full rounded-md border border-input bg-background px-3 py-2" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Cover Photo</label>
+                  <div className="flex items-center gap-3">
+                    <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0] || null; setCoverFile(f); setCoverPreview(f ? URL.createObjectURL(f) : null); }} />
+                    {coverPreview && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={coverPreview} alt="preview" className="h-12 w-12 rounded object-cover border border-border" />
+                    )}
                   </div>
                 </div>
               </div>
@@ -240,6 +271,9 @@ const AdminPlaylistsPage: React.FC = () => {
 };
 
 export default AdminPlaylistsPage;
+
+
+
 
 
 

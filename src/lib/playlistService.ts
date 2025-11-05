@@ -91,6 +91,8 @@ export class PlaylistService {
     audioFiles: KamatahanAudio[];
     createdBy: string;
     isPublic?: boolean;
+    thumbnailUrl?: string;
+    authorName?: string;
   }): Promise<string> {
     const docRef = await addDoc(collection(db, this.COLLECTION), {
       name: params.name.trim(),
@@ -100,6 +102,8 @@ export class PlaylistService {
       createdBy: params.createdBy,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
+      thumbnailUrl: params.thumbnailUrl || null,
+      authorName: params.authorName || null,
     });
     return docRef.id;
   }
