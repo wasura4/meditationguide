@@ -117,6 +117,20 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
                 </a>
               );
             })}
+            {canAccess('audio:read') && (
+              <a
+                key="nav-playlists"
+                href="/admin/playlists"
+                className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  currentPagePath === '/admin/playlists'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                }`}
+              >
+                <span className="mr-3 text-lg">🎼</span>
+                Playlists
+              </a>
+            )}
           </div>
         </nav>
 
