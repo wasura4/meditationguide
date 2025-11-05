@@ -51,7 +51,10 @@ const AdminPlaylistsPage: React.FC = () => {
     const ref = collection(db, 'kamatahan_audio');
     const snap = await getDocs(query(ref));
     const items: KamatahanAudio[] = [];
-    snap.forEach((d) => items.push({ id: d.id, ...(d.data() as unknown as KamatahanAudio) }));
+    snap.forEach((d) => {
+      const data = d.data() as Omit<KamatahanAudio, 'id'>;
+      items.push({ ...data, id: d.id });
+    });
     return items;
   };
 
