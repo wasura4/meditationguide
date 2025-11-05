@@ -24,7 +24,12 @@ export default function DhammaPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4]">\r\n        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4]">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold text-gray-900">{t('dhamma.title')}</h1>
+            <p className="text-gray-600">{t('dhamma.posts')}</p>
+          </div>
           {/* Tab Navigation */}
           <div className="flex justify-center mb-8">
             <div className="bg-white rounded-lg p-1 shadow-sm border border-gray-200">
@@ -102,5 +107,8 @@ export default function DhammaPage() {
     </ProtectedRoute>
   );
 }
+
+
+
 
 
