@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
 import React, { useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useToast } from '@/components/ui/toast';
 
 interface AdminLayoutProps {
@@ -21,13 +22,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
   const currentPagePath = currentPage || '/admin/dashboard';
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: '📊', permission: 'analytics:read' },
-    { name: 'Meditation Types', href: '/admin/types', icon: '🧘‍♀️', permission: 'content:read' },
-    { name: 'Audio Management', href: '/admin/audio', icon: '🎵', permission: 'audio:read' },
-    { name: 'Dhamma Content', href: '/admin/dhamma', icon: '📖', permission: 'dhamma:read' },
-    { name: 'User Management', href: '/admin/users', icon: '👥', permission: 'users:read' },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: '🏠', permission: 'analytics:read' },
+    { name: 'Types', href: '/admin/types', icon: '🧘', permission: 'content:read' },
+    { name: 'Audio', href: '/admin/audio', icon: '🎧', permission: 'audio:read' },
+    { name: 'Dhamma', href: '/admin/dhamma', icon: '📚', permission: 'dhamma:read' },
+    { name: 'Users', href: '/admin/users', icon: '👤', permission: 'users:read' },
     { name: 'Analytics', href: '/admin/analytics', icon: '📈', permission: 'analytics:read' },
-    { name: 'Settings', href: '/admin/settings', icon: '⚙️', permission: 'settings:read' },
+    { name: 'Settings', href: '/admin/settings', icon: '⚙', permission: 'settings:read' },
   ];
 
   const handleLogout = async () => {
@@ -59,33 +60,33 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         >
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-50"></div>
+          <div className="fixed inset-0 bg-black/50"></div>
         </div>
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-lg border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+        <div className="flex items-center justify-between h-16 px-6 border-b border-border">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-[#6b9e7a] rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg">🕉️</span>
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg">N</span>
             </div>
-            <h1 className="ml-3 text-xl font-bold text-gray-900">
+            <h1 className="ml-3 text-xl font-bold">
               Nirvanaya Admin
             </h1>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 text-gray-600 hover:text-gray-900"
+            className="lg:hidden p-2 hover:text-foreground"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -107,8 +108,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
                   href={item.href}
                   className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-[#f0f7f4] text-[#4a7365]'
-                      : 'text-gray-700 hover:bg-[#f0f7f4] hover:text-gray-900'
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   }`}
                 >
                   <span className="mr-3 text-lg">{item.icon}</span>
@@ -120,18 +121,18 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
         </nav>
 
         {/* Admin Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-[#6b9e7a] rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-semibold">
                 {adminUser?.displayName?.charAt(0).toUpperCase() || 'A'}
               </span>
             </div>
             <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium">
                 {adminUser?.displayName}
               </p>
-              <p className="text-xs text-gray-500 capitalize">
+              <p className="text-xs text-muted-foreground capitalize">
                 {adminUser?.role?.replace('_', ' ')}
               </p>
             </div>
@@ -139,7 +140,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="text-gray-600 hover:text-red-600"
+              className="hover:text-destructive"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -152,24 +153,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <div className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
+        <div className="sticky top-0 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md border-b border-border">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 text-gray-600 hover:text-gray-900"
+                className="lg:hidden p-2 hover:text-foreground"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h2 className="ml-2 lg:ml-0 text-lg font-semibold text-gray-900">
+              <h2 className="ml-2 lg:ml-0 text-lg font-semibold">
                 {navigation.find(item => item.href === currentPage)?.name || 'Admin Panel'}
               </h2>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeToggle />
+              <span className="text-sm text-muted-foreground">
                 Welcome back, {adminUser?.displayName}
               </span>
               <Button
@@ -189,6 +191,28 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
             {children}
           </div>
         </main>
+      </div>
+
+      {/* Bottom tab bar (mobile) */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md">
+        <nav className="grid grid-cols-5">
+          {navigation
+            .filter((item) => canAccess(item.permission))
+            .slice(0, 5)
+            .map((item) => {
+              const isActive = currentPagePath === item.href;
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`flex flex-col items-center justify-center py-2 text-xs ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="mt-0.5">{item.name}</span>
+                </a>
+              );
+            })}
+        </nav>
       </div>
     </div>
   );
