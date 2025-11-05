@@ -67,7 +67,7 @@ export function PlaylistManager() {
     const audioElement = audioRef.current;
     if (!audioElement || !currentPlaylist) return;
 
-    const currentTrack = (currentPlaylist as any).audioFiles[currentTrackIndex];
+    const currentTrack = currentPlaylist.audioFiles[currentTrackIndex];
     if (!currentTrack) return;
 
     // Set audio source
@@ -77,7 +77,7 @@ export function PlaylistManager() {
     const updateDuration = () => setDuration(audioElement.duration);
     const handleEnded = () => {
       // Auto-play next track when current track ends
-      if (currentTrackIndex < (currentPlaylist as any).audioFiles.length - 1) {
+      if (currentTrackIndex < (currentPlaylist?.audioFiles.length || 0) - 1) {
         nextTrack();
       } else {
         // Playlist finished
@@ -85,14 +85,14 @@ export function PlaylistManager() {
         showToast({
           type: 'info',
           title: 'Playlist Complete',
-          message: `${(currentPlaylist as any).name} has finished playing.`,
+          message: `${currentPlaylist.name} has finished playing.`,
           duration: 3000
         });
       }
     };
     const handlePlay = () => {
       // Count a listen once per track per page session to avoid spam on pause/resume
-      const track = (currentPlaylist as any).audioFiles[currentTrackIndex];
+      const track = currentPlaylist.audioFiles[currentTrackIndex];
       if (!track?.id) return;
       if (!listenedThisSessionRef.current.has(track.id)) {
         listenedThisSessionRef.current.add(track.id);
@@ -418,7 +418,7 @@ export function PlaylistManager() {
   const nextTrack = () => {
     if (!currentPlaylist) return;
     
-    const nextIndex = (currentTrackIndex + 1) % (currentPlaylist as any).audioFiles.length;
+    const nextIndex = (currentTrackIndex + 1) % (currentPlaylist?.audioFiles.length || 0);
     setCurrentTrackIndex(nextIndex);
     setCurrentTime(0);
     
@@ -436,7 +436,7 @@ export function PlaylistManager() {
     if (!currentPlaylist) return;
     
     const prevIndex = currentTrackIndex === 0 
-      ? (currentPlaylist as any).audioFiles.length - 1 
+      ? (currentPlaylist?.audioFiles.length || 0) - 1 
       : currentTrackIndex - 1;
     setCurrentTrackIndex(prevIndex);
     setCurrentTime(0);
@@ -638,127 +638,6 @@ export function PlaylistManager() {
           </div>
         </div>
       )}
-
-      {/* Sticky Mini Player (Spotify-like) */}
-      {false && (
-        <div className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md px-3 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.15)]">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="h-12 w-12 rounded-md bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center font-semibold">
-                  {((currentPlaylist as any).audioFiles[currentTrackIndex]?.title || 'â€¢').charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium truncate">
-                    {(currentPlaylist as any).audioFiles[currentTrackIndex]?.title || 'Untitled'}
-                  </div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {(currentPlaylist as any).name} â€¢ Track {currentTrackIndex + 1} of {(currentPlaylist as any).audioFiles.length}
-                  </div>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" onClick={stopPlaylist}>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </Button>
-            </div>
-
-          {/* Audio Controls */}
-          <div className="space-y-2">
-            {/* Play/Pause, Previous, Next */}
-            <div className="flex items-center justify-center gap-3">
-              <Button
-                onClick={previousTrack}
-                variant="outline"
-                size="sm"
-                className="w-9 h-9 p-0"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </Button>
-              
-              <Button
-                onClick={togglePlayPause}
-                size="sm"
-                className="w-10 h-10 rounded-full p-0"
-              >
-                {isPlaying ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                )}
-              </Button>
-              
-              <Button
-                onClick={nextTrack}
-                variant="outline"
-                size="sm"
-                className="w-9 h-9 p-0"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Button>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="flex items-center gap-3 mt-1">
-              <span className="text-[10px] text-muted-foreground w-8 text-right font-mono">{formatTime(currentTime)}</span>
-              <input
-                type="range"
-                min="0"
-                max={duration || 0}
-                value={currentTime}
-                onChange={handleSeek}
-                className="flex-1 h-1.5 bg-muted rounded-full appearance-none cursor-pointer"
-              />
-              <span className="text-[10px] text-muted-foreground w-8 font-mono">{formatTime(duration)}</span>
-            </div>
-
-            {/* Volume Control */}
-            <div className="flex items-center justify-center space-x-2">
-              <Button
-                onClick={toggleMute}
-                variant="ghost"
-                size="sm"
-                className="p-1 h-8 w-8"
-              >
-                {isMuted || volume === 0 ? (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                  </svg>
-                ) : volume < 0.5 ? (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                )}
-              </Button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={handleVolumeChange}
-                className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-          </div>
-
-          {/* Hidden Audio Element */}
-          <audio ref={audioRef} preload="metadata" />
-        </div>
-        </div>
-      )}
       {playlists.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -859,6 +738,10 @@ export function PlaylistManager() {
     </div>
   );
 }
+
+
+
+
 
 
 
