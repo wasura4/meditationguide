@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
@@ -82,7 +82,7 @@ const AdminPlaylistsPage: React.FC = () => {
       setPlaylists(fresh);
       setFormOpen(false);
       resetForm();
-      showToast({ type: 'success', title: 'Playlist created', message: `Created "${name}". });
+      showToast({ type: 'success', title: 'Playlist created', message: `Created "${name}".` });
     } catch (e) {
       console.error('Create playlist failed', e);
       showToast({ type: 'error', title: 'Error', message: 'Failed to create playlist.' });
@@ -102,7 +102,7 @@ const AdminPlaylistsPage: React.FC = () => {
   };
 
   const remove = async (p: PlaylistDoc) => {
-    if (!confirm(`Delete playlist “${p.name}”?`)) return;
+    if (!confirm(`Delete playlist "${p.name}"?`)) return;
     try {
       await PlaylistService.remove(p.id);
       setPlaylists((prev) => prev.filter((x) => x.id !== p.id));
@@ -169,7 +169,7 @@ const AdminPlaylistsPage: React.FC = () => {
                         />
                         <div className="flex-1">
                           <div className="font-medium">{a.title}</div>
-                          <div className="text-xs text-muted-foreground">{a.language?.toUpperCase()} • {a.category}</div>
+                          <div className="text-xs text-muted-foreground">{a.language?.toUpperCase()} â€¢ {a.category}</div>
                         </div>
                         <div className="text-xs text-muted-foreground">{Math.round((a.duration || 0) / 60)}m</div>
                       </label>
@@ -198,7 +198,7 @@ const AdminPlaylistsPage: React.FC = () => {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">Loading…</td></tr>
+                  <tr><td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">Loadingâ€¦</td></tr>
                 ) : playlists.length === 0 ? (
                   <tr><td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">No playlists yet.</td></tr>
                 ) : (
@@ -237,5 +237,7 @@ const AdminPlaylistsPage: React.FC = () => {
 };
 
 export default AdminPlaylistsPage;
+
+
 
 
