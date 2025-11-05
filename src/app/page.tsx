@@ -113,6 +113,10 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
+              <div className="mt-6">
+                <h4 className="text-sm font-semibold text-slate-300 mb-2">{t('common.language')}</h4>
+                <LanguageSwitcher />
+              </div>
             </div>
           )}
         </div>
