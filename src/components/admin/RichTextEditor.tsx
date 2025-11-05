@@ -5,6 +5,7 @@ import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -18,6 +19,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $getRoot } from 'lexical';
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import ToolbarPlugin from './ToolbarPlugin';
+import YouTubePlugin from './plugins/YouTubePlugin';
+import { YouTubeNode } from './nodes/YouTubeNode';
 
 interface RichTextEditorProps {
   value: string;
@@ -96,6 +99,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
       TableCellNode,
       AutoLinkNode,
       LinkNode,
+      YouTubeNode,
     ],
   };
 
@@ -114,6 +118,8 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
             <AutoFocusPlugin />
             <LinkPlugin />
             <ListPlugin />
+            <TablePlugin />
+            <YouTubePlugin />
             <OnChange onChange={onChange} />
             <InitialContent value={value} />
           </div>
@@ -238,6 +244,41 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
         }
         .editor-text-underline {
           text-decoration: underline;
+        }
+        /* Sticky note and collapsible styles for inserted blocks */
+        .sticky-note {
+          background: #fff3bf;
+          color: #4a4a4a;
+          border: 1px solid #ffe08a;
+          border-left-width: 6px;
+          border-radius: 8px;
+          padding: 12px 14px;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+          margin: 10px 0;
+        }
+        .dark .sticky-note {
+          background: #3a2f00;
+          border-color: #7a5f00;
+          color: #f1e9c6;
+        }
+        details.collapsible {
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          margin: 10px 0;
+          background: var(--muted);
+        }
+        details.collapsible > summary {
+          cursor: pointer;
+          padding: 10px 12px;
+          font-weight: 600;
+          list-style: none;
+        }
+        details.collapsible[open] > div {
+          padding: 10px 12px 12px 12px;
+          background: var(--background);
+          border-top: 1px solid var(--border);
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
         }
       `}</style>
     </div>

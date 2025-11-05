@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getSelection, $isRangeSelection, UNDO_COMMAND, REDO_COMMAND } from 'lexical';
@@ -13,6 +13,7 @@ import {
 import { $getRoot, FORMAT_TEXT_COMMAND } from 'lexical';
 import { $createLinkNode } from '@lexical/link';
 import { $generateNodesFromDOM } from '@lexical/html';
+import { INSERT_TABLE_COMMAND } from '@lexical/table';
 import { useCallback, useEffect, useState } from 'react';
 
 export default function ToolbarPlugin() {
@@ -85,7 +86,71 @@ export default function ToolbarPlugin() {
     }
   };
 
-  const insertYouTube = () => {
+    const insertTable = () => {
+    editor.dispatchCommand(INSERT_TABLE_COMMAND, {
+      rows: 3,
+      columns: 3,
+      includeHeaders: false,
+    } as unknown as never);
+  };
+
+  const insertCollapsible = () => {
+    const htmlString = `
+      <details class="collapsible"><summary>Section title</summary><div>
+        Replace this with your content.
+      </div></details>
+    `;
+    editor.update(() => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(htmlString, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        selection.insertNodes(nodes);
+      } else {
+        $getRoot().append(...nodes);
+      }
+    });
+  };
+
+  const insertStickyNote = () => {
+    const htmlString = `<div class="sticky-note">Sticky note: jot quick ideas here…</div>`;
+    editor.update(() => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(htmlString, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        selection.insertNodes(nodes);
+      } else {
+        $getRoot().append(...nodes);
+      }
+    });
+  };
+
+  const insertPoll = () => {
+    const htmlString = `
+      <div class="poll-block" style="border:1px solid var(--border);border-radius:8px;padding:12px;margin:10px 0;background:var(--background)">
+        <div style="font-weight:600;margin-bottom:8px">Poll question…</div>
+        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:6px">
+          <li><label><input type="radio" name="poll"> Option A</label></li>
+          <li><label><input type="radio" name="poll"> Option B</label></li>
+          <li><label><input type="radio" name="poll"> Option C</label></li>
+        </ul>
+      </div>
+    `;
+    editor.update(() => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(htmlString, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        selection.insertNodes(nodes);
+      } else {
+        $getRoot().append(...nodes);
+      }
+    });
+  };const insertYouTube = () => {
     const url = prompt('Enter YouTube video URL:');
     if (url) {
       // Extract video ID
@@ -128,7 +193,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Undo"
       >
-        <span className="format">↶</span>
+        <span className="format">â†¶</span>
       </button>
       <button
         type="button"
@@ -137,7 +202,40 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Redo"
       >
-        <span className="format">↷</span>
+        <span className="format">â†·</span>
+      </button>
+      <div className="divider" />
+      <button
+        type="button"
+        onClick={insertTable}
+        className="toolbar-item"
+        aria-label="Insert Table"
+      >
+        <span className="format">Table</span>
+      </button>
+      <button
+        type="button"
+        onClick={insertCollapsible}
+        className="toolbar-item"
+        aria-label="Insert Collapsible"
+      >
+        <span className="format">Collapsible</span>
+      </button>
+      <button
+        type="button"
+        onClick={insertStickyNote}
+        className="toolbar-item"
+        aria-label="Insert Sticky Note"
+      >
+        <span className="format">Sticky</span>
+      </button>
+      <button
+        type="button"
+        onClick={insertPoll}
+        className="toolbar-item"
+        aria-label="Insert Poll"
+      >
+        <span className="format">Poll</span>
       </button>
       <div className="divider" />
       <button
@@ -196,7 +294,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Bullet List"
       >
-        <span className="format bullet-list">• List</span>
+        <span className="format bullet-list">â€¢ List</span>
       </button>
       <button
         type="button"
@@ -213,7 +311,7 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Insert Link"
       >
-        <span className="format link">🔗 Link</span>
+        <span className="format link">ðŸ”— Link</span>
       </button>
       <button
         type="button"
@@ -295,3 +393,8 @@ export default function ToolbarPlugin() {
     </div>
   );
 }
+
+
+
+
+
