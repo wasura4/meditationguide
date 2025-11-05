@@ -1,18 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { LanguageService, Translation } from '@/lib/languageService';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import enTranslations from '@/i18n/locales/en/common.json';
 
-interface TranslationRow {
-  key: string;
-  english: string;
-  sinhala: string;
-  category: string;
-}
 
 export const LanguageManagement: React.FC = () => {
   const { adminUser } = useAdminAuth();
@@ -25,11 +19,7 @@ export const LanguageManagement: React.FC = () => {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
 
-  useEffect(() => {
-    loadTranslations();
-  }, []);
-
-  const loadTranslations = async () => {
+  const loadTranslations = useCallback(async () => {
     try {
       setLoading(true);
       const dbTranslations = await LanguageService.getAllTranslations();
@@ -68,7 +58,11 @@ export const LanguageManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminUser?.id, showToast]);
+
+  useEffect(() => {
+    loadTranslations();
+  }, [loadTranslations]);
 
   const handleSaveTranslation = async (key: string, sinhala: string) => {
     try {

@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, setDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface Translation {

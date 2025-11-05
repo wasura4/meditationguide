@@ -26,13 +26,13 @@ interface Translations {
 }
 
 // Helper function to merge translations
-const mergeTranslations = (base: any, translations: Map<string, string>, prefix = ''): any => {
-  const result: any = {};
+const mergeTranslations = (base: Record<string, unknown>, translations: Map<string, string>, prefix = ''): Record<string, unknown> => {
+  const result: Record<string, unknown> = {};
   for (const key in base) {
     if (base.hasOwnProperty(key)) {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       if (typeof base[key] === 'object' && base[key] !== null && !Array.isArray(base[key])) {
-        result[key] = mergeTranslations(base[key], translations, fullKey);
+        result[key] = mergeTranslations(base[key] as Record<string, unknown>, translations, fullKey);
       } else {
         result[key] = translations.get(fullKey) || base[key];
       }

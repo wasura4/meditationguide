@@ -7,7 +7,6 @@ import { LanguageManagement } from '@/components/admin/LanguageManagement';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
-import { AdminUser } from '@/types/admin';
 
 export default function AdminSettingsPage() {
   const { adminUser, hasPermission } = useAdminAuth();
@@ -29,11 +28,12 @@ export default function AdminSettingsPage() {
     const savedSettings = localStorage.getItem('admin_settings');
     if (savedSettings) {
       try {
-        setSettings({ ...settings, ...JSON.parse(savedSettings) });
+        setSettings(prev => ({ ...prev, ...JSON.parse(savedSettings) }));
       } catch (error) {
         console.error('Error loading settings:', error);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSaveSettings = async () => {
@@ -86,7 +86,7 @@ export default function AdminSettingsPage() {
       <AdminProtectedRoute>
         <AdminLayout currentPage="/admin/settings">
           <div className="text-center py-12">
-            <p className="text-gray-600">You don't have permission to view settings.</p>
+            <p className="text-gray-600">You don&apos;t have permission to view settings.</p>
           </div>
         </AdminLayout>
       </AdminProtectedRoute>

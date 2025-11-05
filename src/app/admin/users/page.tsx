@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { QueryDocumentSnapshot } from 'firebase/firestore';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminService } from '@/lib/adminService';
@@ -20,7 +21,7 @@ export default function AdminUsersPage() {
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [lastDoc, setLastDoc] = useState<any>(null);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null);
   const { showToast } = useToast();
 
   const pageSize = 20;
@@ -29,7 +30,7 @@ export default function AdminUsersPage() {
     if (hasPermission('users', 'read')) {
       loadUsers();
     }
-  }, [currentPage]);
+  }, [currentPage, hasPermission, loadUsers]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -37,9 +38,9 @@ export default function AdminUsersPage() {
     } else {
       loadUsers();
     }
-  }, [searchTerm]);
+  }, [searchTerm, loadUsers, searchUsers]);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const result = await AdminService.getUsers(pageSize, currentPage > 1 ? lastDoc : undefined);
@@ -61,9 +62,9 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pageSize, currentPage, lastDoc, showToast]);
 
-  const searchUsers = async () => {
+  const searchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const results = await AdminService.searchUsers(searchTerm);
@@ -80,7 +81,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, showToast]);
 
   const loadUserSessions = async (userId: string) => {
     try {
@@ -146,7 +147,7 @@ export default function AdminUsersPage() {
       <AdminProtectedRoute>
         <AdminLayout currentPage="/admin/users">
           <div className="text-center py-12">
-            <p className="text-gray-600">You don't have permission to view users.</p>
+            <p className="text-gray-600">You don&apos;t have permission to view users.</p>
           </div>
         </AdminLayout>
       </AdminProtectedRoute>

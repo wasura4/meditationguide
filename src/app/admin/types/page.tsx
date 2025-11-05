@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ export default function AdminMeditationTypesPage() {
   const { showToast } = useToast();
 
   // Load meditation types
-  const loadTypes = async () => {
+  const loadTypes = useCallback(async () => {
     try {
       setLoading(true);
       const allTypes = await MeditationTypeService.getAllTypes();
@@ -35,11 +35,11 @@ export default function AdminMeditationTypesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     loadTypes();
-  }, []);
+  }, [loadTypes]);
 
   const handleCreateType = async (formData: FormData) => {
     try {

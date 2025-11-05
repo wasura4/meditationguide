@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminService } from '@/lib/adminService';
@@ -52,11 +52,7 @@ export default function AdminAnalyticsPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
   const { showToast } = useToast();
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [timeRange]);
-
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const data = await AdminService.getAdminAnalytics(timeRange);
@@ -72,14 +68,18 @@ export default function AdminAnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange, showToast]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
 
   if (!hasPermission('analytics', 'read')) {
     return (
       <AdminProtectedRoute>
         <AdminLayout currentPage="/admin/analytics">
           <div className="text-center py-12">
-            <p className="text-gray-600">You don't have permission to view analytics.</p>
+            <p className="text-gray-600">You don&apos;t have permission to view analytics.</p>
           </div>
         </AdminLayout>
       </AdminProtectedRoute>
