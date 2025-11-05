@@ -150,6 +150,8 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
           outline: 0;
           padding: 15px 10px;
           color: rgb(17 24 39);
+          word-wrap: break-word;
+          overflow-wrap: break-word;
         }
         .dark .editor-input {
           color: rgb(243 244 246);
@@ -171,9 +173,15 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
           color: rgb(107 114 128);
         }
         .editor-paragraph {
+          display: block;
           margin: 0;
           margin-bottom: 8px;
           position: relative;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        .editor-paragraph:last-child {
+          margin-bottom: 0;
         }
         .editor-heading-h1 {
           font-size: 24px;

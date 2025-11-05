@@ -61,26 +61,59 @@ export class MeditationTypeService {
   // Get all active meditation types (public)
   static async getActiveTypes(): Promise<MeditationType[]> {
     try {
-      const q = query(
-        collection(db, this.COLLECTION),
-        where('isActive', '==', true),
-        orderBy('order', 'asc')
-      );
+      // Try with composite index first (isActive + order)
+      try {
+        const q = query(
+          collection(db, this.COLLECTION),
+          where('isActive', '==', true),
+          orderBy('order', 'asc')
+        );
 
-      const querySnapshot = await getDocs(q);
-      const types: MeditationType[] = [];
+        const querySnapshot = await getDocs(q);
+        const types: MeditationType[] = [];
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        types.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-        } as MeditationType);
-      });
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          types.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate() || new Date(),
+            updatedAt: data.updatedAt?.toDate() || new Date(),
+          } as MeditationType);
+        });
 
-      return types;
+        return types;
+      } catch (indexError: any) {
+        // If composite index is missing, fallback to client-side filtering
+        if (indexError.code === 'failed-precondition' || indexError.message?.includes('index')) {
+          console.warn('Composite index missing, using client-side filter:', indexError);
+          
+          // Get all types and filter client-side
+          const allTypesQuery = query(
+            collection(db, this.COLLECTION),
+            orderBy('order', 'asc')
+          );
+          
+          const allSnapshot = await getDocs(allTypesQuery);
+          const types: MeditationType[] = [];
+
+          allSnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Only include active types
+            if (data.isActive === true) {
+              types.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate() || new Date(),
+                updatedAt: data.updatedAt?.toDate() || new Date(),
+              } as MeditationType);
+            }
+          });
+
+          return types;
+        }
+        throw indexError;
+      }
     } catch (error) {
       console.error('Error fetching active meditation types:', error);
       throw new Error('Failed to fetch meditation types');

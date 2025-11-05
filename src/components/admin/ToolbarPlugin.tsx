@@ -1,7 +1,7 @@
 'use client';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getSelection, $isRangeSelection } from 'lexical';
+import { $getSelection, $isRangeSelection, UNDO_COMMAND, REDO_COMMAND, CAN_UNDO_COMMAND, CAN_REDO_COMMAND } from 'lexical';
 import {
   $createHeadingNode,
   HeadingTagType,
@@ -20,6 +20,8 @@ export default function ToolbarPlugin() {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -34,6 +36,13 @@ export default function ToolbarPlugin() {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
         updateToolbar();
+        
+        // Check undo/redo availability
+        const historyState = (editorState as any)._history;
+        if (historyState) {
+          setCanUndo(historyState.undoStack?.length > 0 || false);
+          setCanRedo(historyState.redoStack?.length > 0 || false);
+        }
       });
     });
   }, [editor, updateToolbar]);
@@ -106,6 +115,25 @@ export default function ToolbarPlugin() {
 
   return (
     <div className="toolbar">
+      <button
+        type="button"
+        onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
+        disabled={!canUndo}
+        className="toolbar-item"
+        aria-label="Undo"
+      >
+        <span className="format">↶</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
+        disabled={!canRedo}
+        className="toolbar-item"
+        aria-label="Redo"
+      >
+        <span className="format">↷</span>
+      </button>
+      <div className="divider" />
       <button
         type="button"
         onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
@@ -216,11 +244,15 @@ export default function ToolbarPlugin() {
           background-color: rgb(55 65 81);
           color: rgb(243 244 246);
         }
-        .toolbar-item:hover {
+        .toolbar-item:hover:not(:disabled) {
           background-color: rgb(243 244 246);
         }
-        .dark .toolbar-item:hover {
+        .dark .toolbar-item:hover:not(:disabled) {
           background-color: rgb(75 85 99);
+        }
+        .toolbar-item:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
         .toolbar-item.active {
           background-color: rgb(59 130 246);
