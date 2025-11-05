@@ -291,10 +291,10 @@ export default function LogbookPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-black dark:via-[#0a0a0a] dark:to-[#1a1a1a]">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        `<header className="bg-white sticky top-0 z-10 dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-screen-md md:max-w-3xl mx-auto px-4">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap gap-2 justify-between items-center py-3">
+              <div className="flex items-center space-x-2">
                 <button
                   onClick={() => router.push('/dashboard')}
                   className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -307,9 +307,9 @@ export default function LogbookPage() {
                   Meditation Logbook
                 </h1>
               </div>
-                                 <div className="flex items-center space-x-4">
+                                 <div className="flex items-center space-x-2">
                      {/* View Mode Toggle */}
-                     <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                     <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1 overflow-hidden">
                        <button
                          onClick={() => {
                            setViewMode('list');
@@ -544,11 +544,11 @@ export default function LogbookPage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                 >
                   <option value="all">All Ratings</option>
-                  <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
-                  <option value="4">4 Stars ⭐⭐⭐⭐</option>
-                  <option value="3">3 Stars ⭐⭐⭐</option>
-                  <option value="2">2 Stars ⭐⭐</option>
-                  <option value="1">1 Star ⭐</option>
+                  <option value="5">5 Stars ?????</option>
+                  <option value="4">4 Stars ?????</option>
+                  <option value="3">3 Stars ?????</option>
+                  <option value="2">2 Stars ?????</option>
+                  <option value="1">1 Star ?????</option>
                 </select>
               </div>
             </div>
@@ -851,3 +851,5 @@ export default function LogbookPage() {
     </ProtectedRoute>
   );
 }
+
+
