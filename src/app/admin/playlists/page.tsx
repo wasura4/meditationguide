@@ -51,7 +51,7 @@ const AdminPlaylistsPage: React.FC = () => {
     const ref = collection(db, 'kamatahan_audio');
     const snap = await getDocs(query(ref));
     const items: KamatahanAudio[] = [];
-    snap.forEach((d) => items.push({ id: d.id, ...(d.data() as any) }));
+    snap.forEach((d) => items.push({ id: d.id, ...(d.data() as unknown as KamatahanAudio) }));
     return items;
   };
 
@@ -82,7 +82,7 @@ const AdminPlaylistsPage: React.FC = () => {
       setPlaylists(fresh);
       setFormOpen(false);
       resetForm();
-      showToast({ type: 'success', title: 'Playlist created', message: `Created “${name}”.` });
+      showToast({ type: 'success', title: 'Playlist created', message: `Created "${name}". });
     } catch (e) {
       console.error('Create playlist failed', e);
       showToast({ type: 'error', title: 'Error', message: 'Failed to create playlist.' });
@@ -237,4 +237,5 @@ const AdminPlaylistsPage: React.FC = () => {
 };
 
 export default AdminPlaylistsPage;
+
 

@@ -1,4 +1,4 @@
-import { 
+import {
   collection,
   addDoc,
   updateDoc,
@@ -23,6 +23,17 @@ export interface PlaylistDoc {
   createdBy: string; // admin uid
 }
 
+interface PlaylistFirestore {
+  name?: string;
+  description?: string;
+  audioFiles?: KamatahanAudio[];
+  isPublic?: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+  createdBy?: string;
+  userId?: string;
+}
+
 export class PlaylistService {
   private static COLLECTION = 'playlists';
 
@@ -31,7 +42,7 @@ export class PlaylistService {
     const snap = await getDocs(q);
     const items: PlaylistDoc[] = [];
     snap.forEach((d) => {
-      const data = d.data() as any;
+      const data = d.data() as PlaylistFirestore;
       items.push({
         id: d.id,
         name: data.name || '',
@@ -51,7 +62,7 @@ export class PlaylistService {
     const snap = await getDocs(q);
     const items: PlaylistDoc[] = [];
     snap.forEach((d) => {
-      const data = d.data() as any;
+      const data = d.data() as PlaylistFirestore;
       items.push({
         id: d.id,
         name: data.name || '',
@@ -87,10 +98,11 @@ export class PlaylistService {
 
   static async update(id: string, updates: Partial<Omit<PlaylistDoc, 'id' | 'createdAt'>>): Promise<void> {
     const ref = doc(db, this.COLLECTION, id);
-    await updateDoc(ref, {
+    const updateData: Record<string, unknown> = {
       ...updates,
       updatedAt: Timestamp.now(),
-    } as any);
+    };
+    await updateDoc(ref, updateData);
   }
 
   static async remove(id: string): Promise<void> {
