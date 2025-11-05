@@ -32,6 +32,8 @@ export interface KamatahanAudio {
   uploadedBy: string; // admin ID
   createdAt: Date;
   updatedAt: Date;
+  // Optional analytics field (not directly written by users)
+  listenCount?: number;
 }
 
 export interface DhammaPost {

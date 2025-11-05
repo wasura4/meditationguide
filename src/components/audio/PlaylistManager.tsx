@@ -8,6 +8,7 @@ import { KamatahanAudio } from '@/types/admin';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
+import { recordAudioListen } from '@/lib/metricsService';
 
 interface Playlist {
   id: string;
@@ -38,6 +39,7 @@ export function PlaylistManager() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const listenedThisSessionRef = useRef<Set<string>>(new Set());
   
   const { showToast } = useToast();
   const { user } = useAuth();
@@ -86,6 +88,15 @@ export function PlaylistManager() {
         });
       }
     };
+    const handlePlay = () => {
+      // Count a listen once per track per page session to avoid spam on pause/resume
+      const track = currentPlaylist.audioFiles[currentTrackIndex];
+      if (!track?.id) return;
+      if (!listenedThisSessionRef.current.has(track.id)) {
+        listenedThisSessionRef.current.add(track.id);
+        recordAudioListen(track.id, user?.id);
+      }
+    };
     const handleError = (e: Event) => {
       console.error('âŒ Audio playback error:', e);
       setIsPlaying(false);
@@ -102,6 +113,7 @@ export function PlaylistManager() {
     audioElement.addEventListener('timeupdate', updateTime);
     audioElement.addEventListener('loadedmetadata', updateDuration);
     audioElement.addEventListener('ended', handleEnded);
+    audioElement.addEventListener('play', handlePlay);
     audioElement.addEventListener('error', handleError);
 
     // Auto-play if playlist is active
@@ -117,8 +129,9 @@ export function PlaylistManager() {
       audioElement.removeEventListener('loadedmetadata', updateDuration);
       audioElement.removeEventListener('ended', handleEnded);
       audioElement.removeEventListener('error', handleError);
+      audioElement.removeEventListener('play', handlePlay);
     };
-  }, [currentPlaylist, currentTrackIndex, isPlaying, showToast]);
+  }, [currentPlaylist, currentTrackIndex, isPlaying, showToast, user?.id]);
 
   const fetchPlaylists = async () => {    try {      setLoading(true);
       const playlistsRef = collection(db, 'playlists');

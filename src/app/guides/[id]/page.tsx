@@ -1,27 +1,34 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { PlaylistDoc, PlaylistService } from '@/lib/playlistService';
-import Link from 'next/link';
 
-export default function GuideDetailPage({ params }: { params: { id: string } }) {
+// Accept Promise params to satisfy this repo's generated Next types
+export default function GuideDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { id } = params;
   const [guide, setGuide] = useState<PlaylistDoc | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resolvedId, setResolvedId] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+    params.then((p) => { if (mounted) setResolvedId(p.id); });
+    return () => { mounted = false; };
+  }, [params]);
+
+  useEffect(() => {
+    if (!resolvedId) return;
     const load = async () => {
       try {
-        const g = await PlaylistService.getById(id);
+        const g = await PlaylistService.getById(resolvedId);
         setGuide(g);
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [id]);
+  }, [resolvedId]);
 
   if (loading) {
     return <div className="p-6">Loading…</div>;
@@ -71,4 +78,3 @@ export default function GuideDetailPage({ params }: { params: { id: string } }) 
     </div>
   );
 }
-
