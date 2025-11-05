@@ -288,16 +288,28 @@ export function PlaylistManager() {
   };
 
   const deletePlaylist = async (playlistId: string) => {
+    const target = playlists.find(p => p.id === playlistId);
+    // Only allow deleting playlists created by this user (not admin-created/public)
+    if (!target || target.userId !== user?.id) {
+      showToast({
+        type: 'warning',
+        title: 'Not Allowed',
+        message: 'You can only delete playlists you created.',
+        duration: 3000,
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this playlist?')) return;
 
     try {
       await deleteDoc(doc(db, 'playlists', playlistId));
-      
+
       showToast({
         type: 'success',
         title: 'Success',
         message: 'Playlist deleted successfully!',
-        duration: 3000
+        duration: 3000,
       });
 
       fetchPlaylists();
@@ -307,7 +319,7 @@ export function PlaylistManager() {
         type: 'error',
         title: 'Error',
         message: 'Failed to delete playlist. Please try again.',
-        duration: 3000
+        duration: 3000,
       });
     }
   };
