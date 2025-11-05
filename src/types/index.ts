@@ -35,7 +35,7 @@ export interface MeditationType {
   id: string;
   name: string;
   description: string;
-  category: 'theravada' | 'traditional' | 'modern' | 'specialized';
+  category: 'vipassana' | 'samatha' | 'kasina' | 'mindfulness';
   defaultDuration: number; // in minutes
   isActive: boolean;
   order: number;

@@ -52,7 +52,7 @@ export default function AdminMeditationTypesPage() {
       const typeData = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        category: categoryValue as 'theravada' | 'traditional' | 'modern' | 'specialized',
+        category: categoryValue as 'vipassana' | 'samatha' | 'kasina' | 'mindfulness',
         defaultDuration: parseInt(formData.get('defaultDuration') as string),
         order: types.length + 1,
         isActive,
@@ -85,7 +85,7 @@ export default function AdminMeditationTypesPage() {
       const updates = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        category: categoryValue as 'theravada' | 'traditional' | 'modern' | 'specialized',
+        category: categoryValue as 'vipassana' | 'samatha' | 'kasina' | 'mindfulness',
         defaultDuration: parseInt(formData.get('defaultDuration') as string),
         isActive: formData.get('isActive') === 'on',
         tags: (formData.get('tags') as string).split(',').map(tag => tag.trim()).filter(tag => tag),

@@ -1,16 +1,18 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DhammaPost } from '@/types/admin';
 
 interface DhammaPostCardProps {
   post: DhammaPost;
-  onClick: () => void;
+  onClick?: () => void;
   featured?: boolean;
 }
 
 export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCardProps) {
+  const router = useRouter();
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -46,7 +48,7 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
           ? 'border-yellow-300 dark:border-yellow-600 shadow-yellow-100 dark:shadow-yellow-900/20' 
           : 'border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600'
       }`}
-      onClick={onClick}
+      onClick={onClick || (() => router.push(`/dhamma/${post.id}`))}
     >
       {/* Featured Badge */}
       {featured && (
@@ -154,6 +156,7 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
             variant="outline"
             size="sm"
             className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
+            onClick={(e) => { e.stopPropagation(); router.push(`/dhamma/${post.id}`); }}
           >
             Learn
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

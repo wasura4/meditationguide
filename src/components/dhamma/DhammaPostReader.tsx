@@ -252,9 +252,10 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
 
         {/* Post Content */}
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
-            {renderContent(post.content)}
-          </div>
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
         </div>
 
         {/* Post Footer */}

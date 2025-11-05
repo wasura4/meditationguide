@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -528,7 +528,7 @@ export default function DashboardPage() {
           {recommended.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {recommended.map((post) => (
-                <DhammaPostCard key={post.id} post={post} onClick={() => router.push('/dhamma')} />
+                <DhammaPostCard key={post.id} post={post} onClick={() => router.push(`/dhamma/${post.id}`)} />
               ))}
             </div>
           ) : (
@@ -552,13 +552,13 @@ export default function DashboardPage() {
                       <div>
                         <div className="font-medium text-gray-900 dark:text-white">{session.typeName}</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {session.createdAt.toLocaleDateString()} • {session.duration} min
+                          {session.createdAt.toLocaleDateString()} â€¢ {session.duration} min
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {session.status === 'completed' ? '✅' : '⏸️'} {session.status}
+                        {session.status === 'completed' ? 'âœ…' : 'â¸ï¸'} {session.status}
                       </div>
                     </div>
                   </div>

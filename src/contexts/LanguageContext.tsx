@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
@@ -127,7 +127,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
+    setLanguageState(lang); if (typeof document!=="undefined") { document.documentElement.setAttribute("lang", lang); document.cookie = `lang=${lang}; path=/; max-age=${60*60*24*365}`; }
     // Save to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('nirvanaya-language', lang);

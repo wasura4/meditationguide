@@ -31,6 +31,15 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // hydrate from cache to avoid long spinners
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('adminUser');
+      if (cached && !adminUser) {
+        try { setAdminUser(JSON.parse(cached)); setLoading(false); } catch {}
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -43,18 +52,18 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
           
           if (adminDoc.exists()) {
             const adminData = adminDoc.data() as AdminUser;
-            setAdminUser(adminData);
+            setAdminUser(adminData); if (typeof window!=="undefined") localStorage.setItem("adminUser", JSON.stringify(adminData));
           } else {
             // User is not an admin, sign them out
             await signOut(auth);
-            setAdminUser(null);
+            setAdminUser(null); if (typeof window!=="undefined") localStorage.removeItem("adminUser");
           }
         } catch (err) {
           console.error('Error checking admin status:', err);
           setError('Failed to verify admin status');
         }
       } else {
-        setAdminUser(null);
+        setAdminUser(null); if (typeof window!=="undefined") localStorage.removeItem("adminUser");
       }
       
       setLoading(false);
@@ -102,7 +111,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
   const logout = async () => {
     try {
       await signOut(auth);
-      setAdminUser(null);
+      setAdminUser(null); if (typeof window!=="undefined") localStorage.removeItem("adminUser");
     } catch (err) {
       console.error('Logout error:', err);
       setError('Failed to logout');

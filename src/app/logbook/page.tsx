@@ -276,7 +276,7 @@ export default function LogbookPage() {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-black dark:via-[#0a0a0a] dark:to-[#1a1a1a]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-screen-md md:max-w-3xl mx-auto px-4 py-6 pb-24">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b9e7a] mx-auto"></div>
               <p className="mt-4 text-gray-600 dark:text-gray-300">Loading your meditation history...</p>
@@ -292,7 +292,7 @@ export default function LogbookPage() {
       <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-black dark:via-[#0a0a0a] dark:to-[#1a1a1a]">
         {/* Header */}
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-screen-md md:max-w-3xl mx-auto px-4">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-4">
                 <button
@@ -391,7 +391,7 @@ export default function LogbookPage() {
         </header>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-screen-md md:max-w-3xl mx-auto px-4 py-6 pb-24">
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">

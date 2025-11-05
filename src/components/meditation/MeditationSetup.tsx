@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { TIMER_SETTINGS, MEDITATION_CATEGORY_DETAILS } from '@/constants';
+import { TIMER_SETTINGS } from '@/constants';
+import { MEDITATION_CATEGORY_DETAILS_UI } from '@/constants/meditation-ui';
 import { MeditationTypeService } from '@/lib/meditationTypeService';
 import { MeditationType } from '@/types';
 import { useToast } from '@/components/ui/toast';
@@ -143,7 +144,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
           >
             🌟 All Types
           </Button>
-          {MEDITATION_CATEGORY_DETAILS.map((category) => (
+          {MEDITATION_CATEGORY_DETAILS_UI.map((category) => (
             <Button
               key={category.id}
               onClick={() => handleCategorySelect(category.id)}
