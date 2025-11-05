@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Button } from '@/components/ui/button';
 import { NAV_ITEMS } from '@/constants';
 
@@ -72,7 +71,6 @@ export const UserNavigation: React.FC = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
-            <LanguageSwitcher />
             <div className="hidden md:flex items-center space-x-3">
               <span className="text-sm text-gray-600">
                 {user?.displayName || 'User'}

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { UserNavigation } from '@/components/layout/UserNavigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { DhammaContentLibrary } from '@/components/dhamma/DhammaContentLibrary';
@@ -25,24 +24,7 @@ export default function DhammaPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4]">
-        <UserNavigation />
-        
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                📚 {t('dhamma.title')}
-              </h1>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                {t('dhamma.posts')}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4]">\r\n        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Tab Navigation */}
           <div className="flex justify-center mb-8">
             <div className="bg-white rounded-lg p-1 shadow-sm border border-gray-200">
@@ -120,3 +102,5 @@ export default function DhammaPage() {
     </ProtectedRoute>
   );
 }
+
+
