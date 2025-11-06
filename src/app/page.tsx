@@ -26,9 +26,9 @@ export default function Home() {
     return <div className="min-h-screen bg-background" />;
   }
 
-  // If user is signed in, redirect to dashboard (client‑side)
+  // If user is signed in, redirect to dashboard (clientâ€‘side)
   if (!loading && user) {
-    // Use replace so back button doesn’t return to home
+    // Use replace so back button doesnâ€™t return to home
     router.replace('/dashboard');
   }
 
@@ -451,7 +451,7 @@ export default function Home() {
           <div className="border-t border-slate-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-slate-400 text-sm">
-                � {new Date().getFullYear()} {APP_CONFIG.name}. {t('footer.copyright', { author: APP_CONFIG.author })}.
+                © {new Date().getFullYear()} {APP_CONFIG.name}. {t('footer.copyright', { author: APP_CONFIG.author })}.
               </p>
               <p className="text-slate-500 text-sm mt-4 md:mt-0">
                 {t('footer.blessing')}
