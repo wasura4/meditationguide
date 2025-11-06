@@ -690,7 +690,7 @@ export function PlaylistManager() {
             .map((playlist) => (
             <div
               key={playlist.id}
-              className="group rounded-xl bg-gradient-to-b from-zinc-800/30 to-zinc-900/60 backdrop-blur border border-zinc-700/40 overflow-hidden hover:border-zinc-500/50 transition-colors"
+              className="group rounded-2xl bg-gradient-to-b from-zinc-800/30 to-zinc-900/60 backdrop-blur border border-zinc-700/40 overflow-hidden hover:border-zinc-500/50 transition-colors shadow-sm"
             >
               {/* Cover */}
               <div className="relative aspect-square w-full bg-zinc-800">
@@ -706,11 +706,13 @@ export function PlaylistManager() {
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 via-indigo-500/30 to-blue-500/30" />
                 )}
-                {/* Floating Start button */}
+                {/* Subtle bottom gradient for legibility */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
+                {/* Start button (always visible on mobile) */}
                 <button
                   aria-label="Start"
                   onClick={() => startPlaylist(playlist)}
-                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-[var(--primary)] text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm font-semibold"
+                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-[var(--primary)] text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-sm font-semibold"
                 >
                   Start
                 </button>
@@ -727,7 +729,10 @@ export function PlaylistManager() {
                   </span>
                 </div>
                 {playlist.authorName && (
-                  <div className="mt-1 text-xs text-zinc-400">{playlist.authorName}</div>
+                  <div className="mt-1 text-xs text-zinc-400 line-clamp-1">{playlist.authorName}</div>
+                )}
+                {playlist.description && (
+                  <div className="mt-1 text-xs text-zinc-400 line-clamp-2">{playlist.description}</div>
                 )}
                 <div className="mt-2 text-xs text-zinc-400">
                   {playlist.audioFiles.length} track{playlist.audioFiles.length !== 1 ? 's' : ''}
