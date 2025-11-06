@@ -712,9 +712,19 @@ export function PlaylistManager() {
                 <button
                   aria-label="Start"
                   onClick={() => startPlaylist(playlist)}
-                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-[var(--primary)] text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-sm font-semibold"
+                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-[var(--primary)] text-white shadow-lg opacity-100 md:hidden transition-opacity text-sm font-semibold"
                 >
                   Start
+                </button>
+                {/* Desktop Play overlay (appears on hover) */}
+                <button
+                  aria-label="Play"
+                  onClick={() => startPlaylist(playlist)}
+                  className="hidden md:flex items-center justify-center absolute inset-0 m-auto h-12 w-12 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z"></path>
+                  </svg>
                 </button>
               </div>
 
