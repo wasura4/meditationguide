@@ -60,13 +60,20 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
     // Create session data
     const typeName = meditationTypeName || meditationType;
+    const endedAt = new Date();
+    const startedAt = startTime ?? (startTimeRef.current ? new Date(startTimeRef.current) : new Date());
+    // Compute duration both from state (elapsed seconds) and from wall clock, use the larger to avoid undercounting
+    const minutesFromElapsed = Math.max(1, Math.round(elapsed / 60));
+    const minutesFromClock = Math.max(1, Math.round((endedAt.getTime() - startedAt.getTime()) / 60000));
+    const durationMinutes = Math.max(minutesFromElapsed, minutesFromClock);
+
     const sessionData: Omit<MeditationSession, 'id'> = {
       userId: user?.id || 'anonymous',
       typeId: meditationType,
       typeName: typeName,
-      startTime: startTime || new Date(),
-      endTime: new Date(),
-      duration: Math.max(1, Math.ceil(elapsed / 60)), // Convert to minutes, minimum 1 minute
+      startTime: startedAt,
+      endTime: endedAt,
+      duration: durationMinutes, // in minutes
       status,
       tags: [meditationType],
       createdAt: new Date(),
