@@ -120,8 +120,12 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const hasPermission = (resource: string, action: string): boolean => {
     if (!adminUser) return false;
-    
-    const permission = adminUser.permissions.find(p => p.resource === resource);
+    // Super admins always have access
+    if (adminUser.role === 'super_admin') return true;
+    // Legacy admin docs may not have a permissions array — default allow
+    const perms = adminUser.permissions || [];
+    if (perms.length === 0) return true;
+    const permission = perms.find(p => p.resource === resource);
     return permission ? permission.actions.includes(action as 'create' | 'read' | 'update' | 'delete') : false;
   };
 
