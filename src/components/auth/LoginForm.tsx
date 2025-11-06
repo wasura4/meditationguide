@@ -164,7 +164,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Error Message */}
         {error && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="p-4 bg-[var(--color-status-error)]/10 dark:bg-[var(--color-status-error)]/20 border border-[var(--color-status-error)] dark:border-[var(--color-status-error)] rounded-lg">
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
           </div>
         )}
@@ -240,7 +240,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <button
             type="button"
             onClick={onSwitchToRegister}
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+            className="text-[var(--primary)] dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
           >
             Sign up here
           </button>
@@ -249,3 +249,4 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     </div>
   );
 };
+

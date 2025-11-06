@@ -205,8 +205,8 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
   
   if (!hasPermission('audio', 'create')) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">
+      <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
+        <p className="text-[var(--color-status-error)]">
           You do not have permission to upload audio files. 
           <br />
           <small>Debug: Admin user exists: {adminUser ? 'Yes' : 'No'}</small>
@@ -222,8 +222,8 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload New Audio</h3>
       
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-3 mb-4">
+          <p className="text-[var(--color-status-error)] text-sm">{error}</p>
         </div>
       )}
       
@@ -258,7 +258,7 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
             {selectedFile ? (
               <div>
                 <p className="text-green-800 font-medium">{selectedFile.name}</p>
-                <p className="text-sm text-green-600">
+                <p className="text-sm text-[var(--primary)]">
                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </p>
                 <Button
@@ -406,3 +406,4 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
 };
 
 export default AudioUploadForm;
+

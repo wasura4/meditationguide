@@ -130,8 +130,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+              <div className="p-3 bg-[var(--color-status-error)]/10 dark:bg-[var(--color-status-error)]/20 border border-[var(--color-status-error)] dark:border-[var(--color-status-error)] rounded-lg">
+                <p className="text-sm text-[var(--color-status-error)] dark:text-[var(--color-status-error)]">{error}</p>
               </div>
             )}
 
@@ -170,3 +170,4 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     </div>
   );
 };
+

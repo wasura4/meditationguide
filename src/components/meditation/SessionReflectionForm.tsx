@@ -24,8 +24,8 @@ export const SessionReflectionForm: React.FC<SessionReflectionFormProps> = ({
   const [newInsight, setNewInsight] = useState('');
 
   const moodOptions = [
-    { value: 'excellent', label: 'Excellent', emoji: '🌟', color: 'text-green-600' },
-    { value: 'good', label: 'Good', emoji: '😊', color: 'text-blue-600' },
+    { value: 'excellent', label: 'Excellent', emoji: '🌟', color: 'text-[var(--primary)]' },
+    { value: 'good', label: 'Good', emoji: '😊', color: 'text-[var(--primary)]' },
     { value: 'neutral', label: 'Neutral', emoji: '😐', color: 'text-gray-600' },
     { value: 'challenging', label: 'Challenging', emoji: '😰', color: 'text-yellow-600' },
     { value: 'difficult', label: 'Difficult', emoji: '😓', color: 'text-red-600' },
@@ -76,8 +76,8 @@ export const SessionReflectionForm: React.FC<SessionReflectionFormProps> = ({
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
       <div className="text-center mb-8">
-        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-20 h-20 bg-muted dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-10 h-10 text-[var(--primary)] dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -167,7 +167,7 @@ export const SessionReflectionForm: React.FC<SessionReflectionFormProps> = ({
                              onClick={() => setMood(option.value as 'excellent' | 'good' | 'neutral' | 'challenging' | 'difficult')}
               className={`p-3 rounded-lg border-2 transition-all ${
                 mood === option.value
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
                   : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
               }`}
             >
@@ -207,7 +207,7 @@ export const SessionReflectionForm: React.FC<SessionReflectionFormProps> = ({
               </span>
               <button
                 onClick={() => removeDistraction(index)}
-                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                className="p-2 text-red-500 hover:bg-[var(--color-status-error)]/10 dark:hover:bg-red-900/20 rounded-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -249,7 +249,7 @@ export const SessionReflectionForm: React.FC<SessionReflectionFormProps> = ({
               </span>
               <button
                 onClick={() => removeInsight(index)}
-                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                className="p-2 text-red-500 hover:bg-[var(--color-status-error)]/10 dark:hover:bg-red-900/20 rounded-lg"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -304,3 +304,4 @@ export const SessionReflectionForm: React.FC<SessionReflectionFormProps> = ({
     </div>
   );
 };
+

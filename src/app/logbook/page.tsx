@@ -581,8 +581,8 @@ export default function LogbookPage() {
           {viewMode === 'list' && (
             <div className="space-y-4">
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <p className="text-red-800 dark:text-red-200">{error}</p>
+              <div className="bg-[var(--color-status-error)]/10 dark:bg-[var(--color-status-error)]/20 border border-[var(--color-status-error)] dark:border-[var(--color-status-error)] rounded-lg p-4">
+                <p className="text-[var(--color-status-error)] dark:text-[var(--color-status-error)]">{error}</p>
               </div>
             )}
 
@@ -683,7 +683,7 @@ export default function LogbookPage() {
                             {session.distractions.map((distraction, index) => (
                               <span
                                 key={index}
-                                className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-full"
+                                className="px-2 py-1 text-xs bg-red-100 dark:bg-[var(--color-status-error)]/20 text-red-700 dark:text-red-300 rounded-full"
                               >
                                 {distraction}
                               </span>
@@ -696,7 +696,7 @@ export default function LogbookPage() {
                             {session.insights.map((insight, index) => (
                               <span
                                 key={index}
-                                className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full"
+                                className="px-2 py-1 text-xs bg-muted dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full"
                               >
                                 ðŸ’¡ {insight}
                               </span>
@@ -712,7 +712,7 @@ export default function LogbookPage() {
                         onClick={() => handleDeleteSession(session.id)}
                         variant="outline"
                         size="sm"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        className="text-red-600 hover:text-red-700 hover:bg-[var(--color-status-error)]/10 dark:hover:bg-red-900/20"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -810,3 +810,4 @@ export default function LogbookPage() {
     </ProtectedRoute>
   );
 }
+

@@ -99,7 +99,7 @@ function ToastItem({ toast, onHide }: { toast: Toast; onHide: (id: string) => vo
       case 'success':
         return 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200';
       case 'error':
-        return 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200';
+        return 'bg-[var(--color-status-error)]/10 border-[var(--color-status-error)] text-[var(--color-status-error)] dark:bg-[var(--color-status-error)]/20 dark:border-[var(--color-status-error)] dark:text-[var(--color-status-error)]';
       case 'warning':
         return 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200';
       case 'info':
@@ -172,3 +172,4 @@ function ToastItem({ toast, onHide }: { toast: Toast; onHide: (id: string) => vo
     </div>
   );
 }
+

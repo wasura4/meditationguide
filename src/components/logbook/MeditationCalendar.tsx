@@ -113,7 +113,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
           
           <button
             onClick={goToToday}
-            className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+            className="px-3 py-1 text-sm text-[var(--primary)] dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
           >
             Today
           </button>
@@ -168,7 +168,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
                   : 'text-gray-400 dark:text-gray-500'
                 }
                 ${isSelectedDate 
-                  ? 'bg-blue-100 dark:bg-blue-900/20 border-2 border-blue-500' 
+                  ? 'bg-muted dark:bg-blue-900/20 border-2 border-[var(--primary)]' 
                   : ''
                 }
                 ${isTodayDate && !isSelectedDate 
@@ -184,7 +184,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
                   ? 'text-gray-900 dark:text-white' 
                   : 'text-gray-400 dark:text-gray-500'
                 }
-                ${isTodayDate ? 'text-blue-600 dark:text-blue-400' : ''}
+                ${isTodayDate ? 'text-[var(--primary)] dark:text-blue-400' : ''}
               `}>
                 {format(day, 'd')}
               </div>
@@ -198,7 +198,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
                   </div>
                   
                   {/* Total Minutes */}
-                  <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                  <div className="text-xs text-[var(--primary)] dark:text-green-400 font-medium">
                     {totalMinutes}m
                   </div>
                   
@@ -212,7 +212,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
                           ${session.status === 'completed' 
                             ? 'bg-green-500' 
                             : session.status === 'abandoned' 
-                            ? 'bg-red-500' 
+                            ? 'bg-[var(--color-status-error)]/100' 
                             : 'bg-yellow-500'
                           }
                         `}
@@ -247,7 +247,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
             <span className="text-gray-600 dark:text-gray-400">Completed</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-[var(--color-status-error)]/100 rounded-full"></div>
             <span className="text-gray-600 dark:text-gray-400">Abandoned</span>
           </div>
           <div className="flex items-center space-x-2">
@@ -259,3 +259,4 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
     </div>
   );
 };
+

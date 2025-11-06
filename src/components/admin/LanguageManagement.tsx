@@ -260,7 +260,7 @@ export const LanguageManagement: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-muted text-blue-800">
                         {translation.category}
                       </span>
                     </td>
@@ -328,4 +328,5 @@ function getCategoryFromKey(key: string): string {
   const parts = key.split('.');
   return parts[0] || 'common';
 }
+
 

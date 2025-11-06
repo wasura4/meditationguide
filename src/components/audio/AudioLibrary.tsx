@@ -170,7 +170,7 @@ export function AudioLibrary() {
             <div key={audio.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
               {/* Audio Thumbnail */}
               <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 flex items-center justify-center">
-                <svg className="w-16 h-16 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-16 h-16 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                 </svg>
               </div>
@@ -192,10 +192,10 @@ export function AudioLibrary() {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                  <span className="text-xs bg-muted dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
                     {audio.category}
                   </span>
-                  <span className="text-xs bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                  <span className="text-xs bg-muted dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
                     {audio.language}
                   </span>
                 </div>
@@ -210,3 +210,4 @@ export function AudioLibrary() {
     </div>
   );
 }
+

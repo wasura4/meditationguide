@@ -19,7 +19,7 @@ export function GuideCard({ guide }: { guide: PlaylistDoc }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
       </div>
       <div className="p-4">
-        <div className="text-[11px] font-medium text-green-600 dark:text-green-400">Meditation Guide</div>
+        <div className="text-[11px] font-medium text-[var(--primary)] dark:text-green-400">Meditation Guide</div>
         <div className="mt-1 text-base font-semibold line-clamp-1">{guide.name}</div>
         {guide.authorName && (
           <div className="text-xs text-muted-foreground mt-0.5">{guide.authorName}</div>
@@ -30,4 +30,5 @@ export function GuideCard({ guide }: { guide: PlaylistDoc }) {
     </Link>
   );
 }
+
 

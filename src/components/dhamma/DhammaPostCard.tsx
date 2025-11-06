@@ -23,11 +23,11 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      meditation: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
-      buddhism: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200',
-      philosophy: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200',
+      meditation: 'bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
+      buddhism: 'bg-muted text-purple-800 dark:bg-purple-900/20 dark:text-purple-200',
+      philosophy: 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-200',
       practice: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200',
-      teachings: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200'
+      teachings: 'bg-red-100 text-[var(--color-status-error)] dark:bg-[var(--color-status-error)]/20 dark:text-[var(--color-status-error)]'
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
   };
@@ -67,10 +67,10 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
           />
         ) : (
           <div className="text-center">
-            <svg className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 text-[var(--primary)] dark:text-purple-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.523 18.246 19 16.5 19c-1.746 0-3.332-.477-4.5-1.253" />
             </svg>
-            <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">Dhamma Teaching</p>
+            <p className="text-sm text-[var(--primary)] dark:text-purple-400 font-medium">Dhamma Teaching</p>
           </div>
         )}
         
@@ -141,8 +141,8 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
         {/* Author */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center">
-              <svg className="w-3 h-3 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-6 h-6 bg-muted dark:bg-purple-900/20 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-[var(--primary)] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
@@ -155,7 +155,7 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
           <Button
             variant="outline"
             size="sm"
-            className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
+            className="text-[var(--primary)] border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
             onClick={(e) => { e.stopPropagation(); router.push(`/dhamma/${post.id}`); }}
           >
             Learn
@@ -168,3 +168,4 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
     </div>
   );
 }
+

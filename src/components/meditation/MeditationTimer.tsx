@@ -503,7 +503,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
                 variant="ghost"
                 size="sm"
                 className={`px-3 py-1 text-xs ${
-                  total === minutes * 60 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : ''
+                  total === minutes * 60 ? 'bg-muted text-blue-700 dark:bg-blue-900 dark:text-blue-300' : ''
                 }`}
               >
                 {minutes}m
@@ -515,4 +515,5 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     </div>
   );
 };
+
 

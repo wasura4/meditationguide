@@ -56,7 +56,7 @@ export default function ContactPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
               <Link
                 href="/"
-                className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 w-full sm:w-auto text-center sm:text-left"
+                className="text-slate-600 dark:text-slate-300 hover:text-[var(--primary)] dark:hover:text-blue-400 transition-colors px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 w-full sm:w-auto text-center sm:text-left"
               >
                 Home
               </Link>
@@ -97,7 +97,7 @@ export default function ContactPage() {
               {submitStatus === 'success' && (
                 <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                   <div className="flex items-center">
-                    <svg className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[var(--primary)] dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     <span className="text-green-800 dark:text-green-200 font-medium">
@@ -210,18 +210,18 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-bold mb-4">About {APP_CONFIG.name}</h3>
-                <p className="text-blue-100 leading-relaxed mb-6">
+                <p className="text-[color:rgba(255,255,255,0.8)] leading-relaxed mb-6">
                   We are dedicated to making meditation accessible to everyone. Our platform combines 
                   ancient wisdom with modern technology to help you cultivate mindfulness, wisdom, and inner peace.
                 </p>
                 <div className="flex items-center space-x-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold">10,000+</div>
-                    <div className="text-blue-100 text-sm">Active Users</div>
+                    <div className="text-[color:rgba(255,255,255,0.8)] text-sm">Active Users</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">24/7</div>
-                    <div className="text-blue-100 text-sm">Support</div>
+                    <div className="text-[color:rgba(255,255,255,0.8)] text-sm">Support</div>
                   </div>
                 </div>
               </div>
@@ -234,8 +234,8 @@ export default function ContactPage() {
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 bg-muted dark:bg-blue-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     </div>
@@ -247,8 +247,8 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 bg-muted dark:bg-green-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[var(--primary)] dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
@@ -260,15 +260,15 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 bg-muted dark:bg-purple-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[var(--primary)] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </div>
                     <div>
                       <h4 className="font-semibold text-slate-900 dark:text-white mb-1">Help Center</h4>
                       <p className="text-slate-600 dark:text-slate-300">Browse our comprehensive guides</p>
-                      <Link href="/help" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                      <Link href="/help" className="text-[var(--primary)] dark:text-blue-400 hover:underline text-sm">
                         Visit Help Center →
                       </Link>
                     </div>
@@ -318,3 +318,4 @@ export default function ContactPage() {
     </div>
   );
 }
+

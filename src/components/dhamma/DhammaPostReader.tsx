@@ -32,11 +32,11 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      meditation: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
-      buddhism: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200',
-      philosophy: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200',
+      meditation: 'bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
+      buddhism: 'bg-muted text-purple-800 dark:bg-purple-900/20 dark:text-purple-200',
+      philosophy: 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-200',
       practice: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200',
-      teachings: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200'
+      teachings: 'bg-red-100 text-[var(--color-status-error)] dark:bg-[var(--color-status-error)]/20 dark:text-[var(--color-status-error)]'
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
   };
@@ -312,3 +312,4 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
     </div>
   );
 }
+

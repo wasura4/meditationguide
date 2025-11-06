@@ -295,7 +295,7 @@ export default function AdminMeditationTypesPage() {
                       name="isActive"
                       id="isActive"
                       defaultChecked={editingType?.isActive ?? true}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-[var(--primary)] focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <label htmlFor="isActive" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                       Active (visible to users)
@@ -382,7 +382,7 @@ export default function AdminMeditationTypesPage() {
                                 {type.tags.map((tag, index) => (
                                   <span
                                     key={index}
-                                    className="px-2 py-1 text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full"
+                                    className="px-2 py-1 text-xs bg-muted dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full"
                                   >
                                     #{tag}
                                   </span>
@@ -418,7 +418,7 @@ export default function AdminMeditationTypesPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleDeleteType(type.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            className="text-red-600 hover:text-red-700 hover:bg-[var(--color-status-error)]/10 dark:hover:bg-red-900/20"
                           >
                             Delete
                           </Button>
@@ -435,3 +435,4 @@ export default function AdminMeditationTypesPage() {
     </AdminProtectedRoute>
   );
 }
+

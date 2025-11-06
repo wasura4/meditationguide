@@ -64,7 +64,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
         {/* Daily Stats */}
         <div className="flex space-x-4">
           <div className="text-center">
-            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+            <div className="text-lg font-bold text-[var(--primary)] dark:text-green-400">
               {completedSessions}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">Completed</div>
@@ -76,7 +76,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
             <div className="text-xs text-gray-600 dark:text-gray-400">Abandoned</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+            <div className="text-lg font-bold text-[var(--primary)] dark:text-blue-400">
               {totalMinutes}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">Minutes</div>
@@ -102,9 +102,9 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
                     <span className={`
                       px-2 py-1 text-xs font-medium rounded-full
                       ${session.status === 'completed' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                        ? 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-400' 
                         : session.status === 'abandoned' 
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' 
+                        ? 'bg-red-100 text-[var(--color-status-error)] dark:bg-[var(--color-status-error)]/20 dark:text-red-400' 
                         : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
                       }
                     `}>
@@ -171,7 +171,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
                       {session.distractions.map((distraction, index) => (
                         <span
                           key={index}
-                          className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-full"
+                          className="px-2 py-1 text-xs bg-red-100 dark:bg-[var(--color-status-error)]/20 text-red-700 dark:text-red-300 rounded-full"
                         >
                           {distraction}
                         </span>
@@ -184,7 +184,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
                       {session.insights.map((insight, index) => (
                         <span
                           key={index}
-                          className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full"
+                          className="px-2 py-1 text-xs bg-muted dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full"
                         >
                           💡 {insight}
                         </span>
@@ -200,7 +200,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
                   onClick={() => onDeleteSession(session.id)}
                   variant="outline"
                   size="sm"
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  className="text-red-600 hover:text-red-700 hover:bg-[var(--color-status-error)]/10 dark:hover:bg-red-900/20"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -214,3 +214,4 @@ export const DateSessions: React.FC<DateSessionsProps> = ({
     </div>
   );
 };
+

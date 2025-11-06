@@ -83,7 +83,7 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
-                <div className="p-3 bg-blue-100 rounded-lg">
+                <div className="p-3 bg-muted rounded-lg">
                   <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
 
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
-                <div className="p-3 bg-green-100 rounded-lg">
+                <div className="p-3 bg-muted rounded-lg">
                   <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
 
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
-                <div className="p-3 bg-purple-100 rounded-lg">
+                <div className="p-3 bg-muted rounded-lg">
                   <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                   </svg>
@@ -254,21 +254,21 @@ export default function AdminDashboardPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between py-2 border-b border-gray-100">
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                  <div className="w-2 h-2 bg-[var(--primary)] rounded-full mr-3"></div>
                   <span className="text-gray-600">New user registered</span>
                 </div>
                 <span className="text-sm text-gray-500">2 minutes ago</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-gray-100">
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                  <div className="w-2 h-2 bg-[var(--primary)] rounded-full mr-3"></div>
                   <span className="text-gray-600">Audio file uploaded</span>
                 </div>
                 <span className="text-sm text-gray-500">15 minutes ago</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-gray-100">
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                  <div className="w-2 h-2 bg-[var(--primary)] rounded-full mr-3"></div>
                   <span className="text-gray-600">Dhamma post published</span>
                 </div>
                 <span className="text-sm text-gray-500">1 hour ago</span>
@@ -280,4 +280,5 @@ export default function AdminDashboardPage() {
     </AdminProtectedRoute>
   );
 }
+
 

@@ -167,8 +167,8 @@ const AudioLibrary: React.FC<AudioLibraryProps> = ({ onRefresh }) => {
 
   if (!hasPermission('audio', 'read')) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">You do not have permission to view audio files.</p>
+      <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
+        <p className="text-[var(--color-status-error)]">You do not have permission to view audio files.</p>
       </div>
     );
   }
@@ -232,8 +232,8 @@ const AudioLibrary: React.FC<AudioLibraryProps> = ({ onRefresh }) => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-3">
+          <p className="text-[var(--color-status-error)] text-sm">{error}</p>
         </div>
       )}
 
@@ -282,7 +282,7 @@ const AudioLibrary: React.FC<AudioLibraryProps> = ({ onRefresh }) => {
                   </h4>
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     audio.status === 'active' 
-                      ? 'bg-green-100 text-green-800' 
+                      ? 'bg-muted text-green-800' 
                       : 'bg-gray-100 text-gray-800'
                   }`}>
                     {audio.status}
@@ -481,3 +481,4 @@ const AudioLibrary: React.FC<AudioLibraryProps> = ({ onRefresh }) => {
 };
 
 export default AudioLibrary;
+

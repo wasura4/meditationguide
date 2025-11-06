@@ -123,8 +123,8 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
 
   if (!adminUser) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">You must be logged in as an admin to manage Dhamma posts.</p>
+      <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
+        <p className="text-[var(--color-status-error)]">You must be logged in as an admin to manage Dhamma posts.</p>
       </div>
     );
   }
@@ -132,8 +132,8 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+        <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
+          <p className="text-[var(--color-status-error)]">{error}</p>
         </div>
       )}
 
@@ -283,7 +283,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
               type="checkbox"
               checked={formData.featured}
               onChange={(e) => handleInputChange('featured', e.target.checked)}
-              className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="mr-2 rounded border-gray-300 text-[var(--primary)] focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Feature this post
@@ -319,13 +319,13 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
           {formData.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200"
+              className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted dark:bg-blue-900/20 text-blue-800 dark:text-blue-200"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                className="ml-2 text-[var(--primary)] dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
               >
                 ×
               </button>
@@ -388,3 +388,4 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
     </form>
   );
 }
+

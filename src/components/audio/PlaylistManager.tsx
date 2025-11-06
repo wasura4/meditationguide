@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -104,7 +104,7 @@ export function PlaylistManager() {
       }
     };
     const handleError = (e: Event) => {
-      console.error('âŒ Audio playback error:', e);
+      console.error('❌ Audio playback error:', e);
       setIsPlaying(false);
       showToast({
         type: 'error',
@@ -125,7 +125,7 @@ export function PlaylistManager() {
     // Auto-play if playlist is active
     if (isPlaying) {
       audioElement.play().catch((error) => {
-        console.error('âŒ Error playing audio:', error);
+        console.error('❌ Error playing audio:', error);
         setIsPlaying(false);
       });
     }
@@ -190,26 +190,26 @@ export function PlaylistManager() {
 
   const fetchAvailableAudio = async () => {
     try {
-      console.log('ðŸ” Fetching available audio for playlist creation...');
+      console.log('🔍 Fetching available audio for playlist creation...');
       const audioRef = collection(db, 'kamatahan_audio');
       // Remove orderBy to avoid potential index issues
       // const q = query(audioRef, orderBy('uploadDate', 'desc'));
       const q = query(audioRef);
       const querySnapshot = await getDocs(q);
       
-      console.log('ðŸ“Š Available audio query snapshot size:', querySnapshot.size);
+      console.log('📊 Available audio query snapshot size:', querySnapshot.size);
       
       const audio: KamatahanAudio[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        console.log('ðŸŽµ Available audio file:', { id: doc.id, title: data.title, category: data.category });
+        console.log('🎵 Available audio file:', { id: doc.id, title: data.title, category: data.category });
         audio.push({ id: doc.id, ...data } as KamatahanAudio);
       });
       
-      console.log('ðŸŽµ Total available audio files:', audio.length);
+      console.log('🎵 Total available audio files:', audio.length);
       setAvailableAudio(audio);
     } catch (error) {
-      console.error('âŒ Error fetching available audio:', error);
+      console.error('❌ Error fetching available audio:', error);
     }
   };
 
@@ -226,7 +226,7 @@ export function PlaylistManager() {
 
     // Check if user is authenticated
     if (!user?.id) {
-      console.error('âŒ No user ID available for playlist creation');
+      console.error('❌ No user ID available for playlist creation');
       showToast({
         type: 'error',
         title: 'Authentication Error',
@@ -236,7 +236,7 @@ export function PlaylistManager() {
       return;
     }
 
-    console.log('ðŸŽµ Creating playlist with data:', {
+    console.log('🎵 Creating playlist with data:', {
       name: newPlaylist.name,
       description: newPlaylist.description,
       isPublic: newPlaylist.isPublic,
@@ -248,7 +248,7 @@ export function PlaylistManager() {
     try {
       const selectedAudioFiles = availableAudio.filter(audio => selectedAudio.includes(audio.id));
       
-      console.log('ðŸŽµ Selected audio files:', selectedAudioFiles.map(a => ({ id: a.id, title: a.title })));
+      console.log('🎵 Selected audio files:', selectedAudioFiles.map(a => ({ id: a.id, title: a.title })));
       
       const playlistData = {
         name: newPlaylist.name.trim(),
@@ -260,17 +260,17 @@ export function PlaylistManager() {
         userId: user?.id
       };
 
-      console.log('ðŸŽµ Final playlist data:', playlistData);
+      console.log('🎵 Final playlist data:', playlistData);
       
       // Test if we can access the playlists collection
-      console.log('ðŸ” Testing access to playlists collection...');
+      console.log('🔍 Testing access to playlists collection...');
       const playlistsRef = collection(db, 'playlists');
-      console.log('ðŸ” Playlists collection reference:', playlistsRef);
+      console.log('🔍 Playlists collection reference:', playlistsRef);
       
       // Try to add the document
-      console.log('ðŸ” Attempting to add playlist document...');
+      console.log('🔍 Attempting to add playlist document...');
       const docRef = await addDoc(playlistsRef, playlistData);
-      console.log('âœ… Playlist created successfully with ID:', docRef.id);
+      console.log('✅ Playlist created successfully with ID:', docRef.id);
       
       showToast({
         type: 'success',
@@ -284,19 +284,19 @@ export function PlaylistManager() {
       setShowCreateForm(false);
       fetchPlaylists();
     } catch (error) {
-      console.error('âŒ Error creating playlist:', error);
+      console.error('❌ Error creating playlist:', error);
       
       // Log detailed error information
       if (error instanceof Error) {
-        console.error('âŒ Error name:', error.name);
-        console.error('âŒ Error message:', error.message);
-        console.error('âŒ Error stack:', error.stack);
+        console.error('❌ Error name:', error.name);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error stack:', error.stack);
       }
       
       // Check if it's a Firestore permission error
       if (error && typeof error === 'object' && 'code' in error) {
-        console.error('âŒ Firestore error code:', (error as { code: string }).code);
-        console.error('âŒ Firestore error details:', (error as { details?: string }).details);
+        console.error('❌ Firestore error code:', (error as { code: string }).code);
+        console.error('❌ Firestore error details:', (error as { details?: string }).details);
       }
       
       // Show more specific error message
@@ -358,7 +358,7 @@ export function PlaylistManager() {
   };
 
   const toggleAudioSelection = (audioId: string) => {
-    console.log('ðŸŽµ Toggling audio selection:', {
+    console.log('🎵 Toggling audio selection:', {
       audioId,
       currentSelection: selectedAudio,
       willAdd: !selectedAudio.includes(audioId)
@@ -369,7 +369,7 @@ export function PlaylistManager() {
         ? prev.filter(id => id !== audioId)
         : [...prev, audioId];
       
-      console.log('ðŸŽµ New audio selection:', newSelection);
+      console.log('🎵 New audio selection:', newSelection);
       return newSelection;
     });
   };
@@ -593,7 +593,7 @@ export function PlaylistManager() {
                 type="checkbox"
                 checked={newPlaylist.isPublic}
                 onChange={(e) => setNewPlaylist(prev => ({ ...prev, isPublic: e.target.checked }))}
-                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                className="rounded border-gray-300 text-[var(--primary)] focus:ring-purple-500"
               />
               <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Make playlist public</span>
             </label>
@@ -631,14 +631,14 @@ export function PlaylistManager() {
                     type="checkbox"
                     checked={selectedAudio.includes(audio.id)}
                     onChange={() => toggleAudioSelection(audio.id)}
-                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    className="rounded border-gray-300 text-[var(--primary)] focus:ring-purple-500"
                   />
                   <div className="ml-3 flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {audio.title}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {audio.category} â€¢ {audio.language}
+                      {audio.category} • {audio.language}
                     </p>
                   </div>
                 </label>
@@ -665,8 +665,8 @@ export function PlaylistManager() {
       )}
       {playlists.length === 0 ? (
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-muted dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-[var(--primary)] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
           </div>
@@ -740,6 +740,7 @@ export function PlaylistManager() {
     </div>
   );
 }
+
 
 
 

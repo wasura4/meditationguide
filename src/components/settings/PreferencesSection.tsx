@@ -146,7 +146,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 onClick={() => handlePreferenceChange('theme', theme)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.theme === theme
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
@@ -175,7 +175,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 onClick={() => handlePreferenceChange('timeFormat', format)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.timeFormat === format
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
@@ -204,7 +204,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 onClick={() => handlePreferenceChange('defaultDuration', duration)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.defaultDuration === duration
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
@@ -236,7 +236,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 onClick={() => handlePreferenceChange('language', lang.code as 'en' | 'si')}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.language === lang.code
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
@@ -303,3 +303,4 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
     </div>
   );
 };
+

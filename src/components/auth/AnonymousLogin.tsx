@@ -53,7 +53,7 @@ export const AnonymousLogin: React.FC<AnonymousLoginProps> = ({
       <div className="space-y-6">
         {/* Benefits */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+          <h3 className="font-semibold text-blue-900 dark:text-[color:rgba(255,255,255,0.8)] mb-2">
             What you can do as a guest:
           </h3>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
@@ -80,7 +80,7 @@ export const AnonymousLogin: React.FC<AnonymousLoginProps> = ({
 
         {/* Error Message */}
         {error && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="p-4 bg-[var(--color-status-error)]/10 dark:bg-[var(--color-status-error)]/20 border border-[var(--color-status-error)] dark:border-[var(--color-status-error)] rounded-lg">
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
           </div>
         )}
@@ -137,3 +137,4 @@ export const AnonymousLogin: React.FC<AnonymousLoginProps> = ({
     </div>
   );
 };
+

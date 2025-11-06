@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
@@ -216,7 +216,7 @@ const AdminPlaylistsPage: React.FC = () => {
                         />
                         <div className="flex-1">
                           <div className="font-medium">{a.title}</div>
-                          <div className="text-xs text-muted-foreground">{a.language?.toUpperCase()} â€¢ {a.category}</div>
+                          <div className="text-xs text-muted-foreground">{a.language?.toUpperCase()} • {a.category}</div>
                         </div>
                         <div className="text-xs text-muted-foreground">{Math.round((a.duration || 0) / 60)}m</div>
                       </label>
@@ -245,7 +245,7 @@ const AdminPlaylistsPage: React.FC = () => {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">Loadingâ€¦</td></tr>
+                  <tr><td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">Loading…</td></tr>
                 ) : playlists.length === 0 ? (
                   <tr><td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">No playlists yet.</td></tr>
                 ) : (
@@ -254,7 +254,7 @@ const AdminPlaylistsPage: React.FC = () => {
                       <td className="px-3 py-2 font-medium">{p.name}</td>
                       <td className="px-3 py-2">{p.audioFiles?.length || 0}</td>
                       <td className="px-3 py-2">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${p.isPublic ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${p.isPublic ? 'bg-muted text-[var(--color-status-success)] dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>
                           {p.isPublic ? 'Public' : 'Private'}
                         </span>
                       </td>
@@ -284,6 +284,7 @@ const AdminPlaylistsPage: React.FC = () => {
 };
 
 export default AdminPlaylistsPage;
+
 
 
 

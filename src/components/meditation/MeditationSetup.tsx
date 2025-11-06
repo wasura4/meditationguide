@@ -192,7 +192,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                 onClick={() => handleTypeSelect(type.id)}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
                   selectedType === type.id
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
+                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20 shadow-lg'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
@@ -324,7 +324,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                 {selectedMeditation.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-full font-medium"
+                    className="px-3 py-1 text-xs bg-muted dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-full font-medium"
                   >
                     #{tag}
                   </span>
@@ -360,3 +360,4 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
     </div>
   );
 };
+

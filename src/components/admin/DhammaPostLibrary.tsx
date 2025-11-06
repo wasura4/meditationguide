@@ -72,7 +72,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'published': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+      case 'published': return 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-300';
       case 'draft': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
       case 'archived': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
@@ -81,10 +81,10 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'meditation': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'buddhism': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
+      case 'meditation': return 'bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
+      case 'buddhism': return 'bg-muted text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
       case 'philosophy': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-300';
-      case 'practice': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+      case 'practice': return 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-300';
       case 'teachings': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
     }
@@ -103,8 +103,8 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
 
   if (!adminUser) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">You must be logged in as an admin to manage Dhamma posts.</p>
+      <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
+        <p className="text-[var(--color-status-error)]">You must be logged in as an admin to manage Dhamma posts.</p>
       </div>
     );
   }
@@ -253,10 +253,10 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                     <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                       {post.language.toUpperCase()}
                     </span>
-                    <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
                       {post.readTime} min read
                     </span>
-                    <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-300">
                       {post.viewCount} views
                     </span>
                   </div>
@@ -298,7 +298,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                     onClick={() => handleDelete(post.id)}
                     variant="outline"
                     size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    className="text-red-600 hover:text-red-700 hover:bg-[var(--color-status-error)]/10 dark:hover:bg-red-900/20"
                     disabled={isDeleting}
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -320,3 +320,4 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
     </div>
   );
 }
+

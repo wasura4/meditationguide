@@ -29,13 +29,13 @@ export default function Home() {
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="#features" className="text-slate-600 hover:text-blue-600 transition-colors">
+              <Link href="#features" className="text-slate-600 hover:text-[var(--primary)] transition-colors">
                 {t('navigation.features')}
               </Link>
-              <Link href="#about" className="text-slate-600 hover:text-blue-600 transition-colors">
+              <Link href="#about" className="text-slate-600 hover:text-[var(--primary)] transition-colors">
                 {t('navigation.about')}
               </Link>
-              <Link href="/contact" className="text-slate-600 hover:text-blue-600 transition-colors">
+              <Link href="/contact" className="text-slate-600 hover:text-[var(--primary)] transition-colors">
                 {t('navigation.contact')}
               </Link>
             </div>
@@ -43,7 +43,7 @@ export default function Home() {
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">              <Link
                 href="/auth"
-                className="inline-flex items-center px-4 py-2 text-slate-600 hover:text-blue-600 transition-colors"
+                className="inline-flex items-center px-4 py-2 text-slate-600 hover:text-[var(--primary)] transition-colors"
               >
                 {t('auth.sign_in')}
               </Link>
@@ -77,21 +77,21 @@ export default function Home() {
               <div className="flex flex-col space-y-3">
                 <Link 
                   href="#features" 
-                  className="text-slate-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-slate-50"
+                  className="text-slate-600 hover:text-[var(--primary)] transition-colors px-3 py-2 rounded-lg hover:bg-slate-50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {t('navigation.features')}
                 </Link>
                 <Link 
                   href="#about" 
-                  className="text-slate-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-slate-50"
+                  className="text-slate-600 hover:text-[var(--primary)] transition-colors px-3 py-2 rounded-lg hover:bg-slate-50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {t('navigation.about')}
                 </Link>
                 <Link 
                   href="/contact" 
-                  className="text-slate-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-slate-50"
+                  className="text-slate-600 hover:text-[var(--primary)] transition-colors px-3 py-2 rounded-lg hover:bg-slate-50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {t('navigation.contact')}
@@ -99,7 +99,7 @@ export default function Home() {
                 <div className="pt-2 border-t border-slate-200">
                   <Link
                     href="/auth"
-                    className="block w-full text-center px-4 py-2 text-slate-600 hover:text-blue-600 transition-colors"
+                    className="block w-full text-center px-4 py-2 text-slate-600 hover:text-[var(--primary)] transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {t('auth.sign_in')}
@@ -164,7 +164,7 @@ export default function Home() {
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-3xl mx-auto px-4">
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">10+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[var(--primary)] mb-2">10+</div>
                 <div className="text-sm sm:text-base text-slate-600">{t('home.stats.meditation_types')}</div>
               </div>
               <div className="text-center">
@@ -172,7 +172,7 @@ export default function Home() {
                 <div className="text-sm sm:text-base text-slate-600">{t('home.stats.available')}</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-2">100%</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[var(--primary)] mb-2">100%</div>
                 <div className="text-sm sm:text-base text-slate-600">{t('home.stats.free')}</div>
               </div>
             </div>
@@ -251,7 +251,7 @@ export default function Home() {
             </div>
 
             {/* Feature 5 */}
-            <div className="group bg-gradient-to-br from-red-50 to-red-100 p-6 sm:p-8 rounded-2xl border border-red-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="group bg-gradient-to-br from-red-50 to-red-100 p-6 sm:p-8 rounded-2xl border border-[var(--color-status-error)] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -286,7 +286,7 @@ export default function Home() {
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8">
                 {t('home.about.title')}
-                <span className="block text-blue-600">{t('home.about.subtitle')}</span>
+                <span className="block text-[var(--primary)]">{t('home.about.subtitle')}</span>
               </h2>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">
                 {t('home.about.description')}
@@ -318,11 +318,11 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold mb-4">{t('home.about.community.title')}</h3>
-                  <p className="text-blue-100 mb-6">
+                  <p className="text-[color:rgba(255,255,255,0.8)] mb-6">
                     {t('home.about.community.description')}
                   </p>
                   <div className="text-3xl font-bold">10,000+</div>
-                  <div className="text-blue-100">{t('home.about.community.active_users')}</div>
+                  <div className="text-[color:rgba(255,255,255,0.8)]">{t('home.about.community.active_users')}</div>
                 </div>
               </div>
             </div>
@@ -347,13 +347,13 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
             {t('home.cta.title')}
           </h2>
-          <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto">
+          <p className="text-xl text-[color:rgba(255,255,255,0.8)] mb-12 max-w-3xl mx-auto">
             {t('home.cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link
               href="/auth?mode=register"
-              className="inline-flex items-center justify-center px-10 py-4 bg-white text-blue-600 font-bold text-lg rounded-xl hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-2xl"
+              className="inline-flex items-center justify-center px-10 py-4 bg-white text-[var(--primary)] font-bold text-lg rounded-xl hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-2xl"
             >
               {t('home.cta.create_account')}
               <svg className="ml-3 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,7 +362,7 @@ export default function Home() {
             </Link>
             <Link
               href="/auth"
-              className="inline-flex items-center justify-center px-10 py-4 border-2 border-white text-white font-bold text-lg rounded-xl hover:bg-white hover:text-blue-600 transition-all duration-200"
+              className="inline-flex items-center justify-center px-10 py-4 border-2 border-white text-white font-bold text-lg rounded-xl hover:bg-white hover:text-[var(--primary)] transition-all duration-200"
             >
               {t('home.cta.sign_in')}
             </Link>
@@ -436,4 +436,5 @@ export default function Home() {
     </div>
   );
 }
+
 
