@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useThemeSettings } from '@/contexts/ThemeSettingsContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 
 interface PreferencesSectionProps {
@@ -21,6 +22,7 @@ export interface AppPreferences {
 export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePreferences }) => {
   const { theme } = useTheme();
   const { accent, radius, setAccent, setRadius, setMode } = useThemeSettings();
+  const { setLanguage } = useLanguage();
   const [preferences, setPreferences] = useState<AppPreferences>({
     theme: 'auto',
     timeFormat: '12h',
@@ -152,7 +154,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
               >
                 <div className="text-center">
                   <div className="text-2xl mb-1">
-                    {theme === 'light' ? 'â˜€ï¸' : theme === 'dark' ? 'ðŸŒ™' : 'ðŸ”„'}
+                    {theme === 'light' ? '??' : theme === 'dark' ? '??' : '??'}
                   </div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white capitalize">
                     {theme}
@@ -228,12 +230,12 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
           </label>
           <div className="grid grid-cols-2 gap-3">
             {([
-              { code: 'en', name: 'English', flag: 'ðŸ‡ºðŸ‡¸' },
-              { code: 'si', name: 'à·ƒà·’à¶‚à·„à¶½', flag: 'ðŸ‡±ðŸ‡°' }
+              { code: 'en', name: 'English', flag: '????' },
+              { code: 'si', name: '?????', flag: '????' }
             ]).map((lang) => (
               <button
                 key={lang.code}
-                onClick={() => handlePreferenceChange('language', lang.code as 'en' | 'si')}
+                onClick={() => { handlePreferenceChange('language', lang.code as 'en' | 'si'); setLanguage(lang.code as 'en' | 'si'); }}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.language === lang.code
                     ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
@@ -303,4 +305,6 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
     </div>
   );
 };
+
+
 

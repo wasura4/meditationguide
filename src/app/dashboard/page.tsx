@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Flame } from 'lucide-react';
@@ -554,35 +554,35 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Sessions */}
-          {stats?.recentSessions && stats.recentSessions.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Sessions</h3>
-              <div className="space-y-3">
-                {stats.recentSessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-muted dark:bg-blue-800 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">{session.typeName}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {session.createdAt.toLocaleDateString()} â€¢ {session.duration} min
-                        </div>
-                      </div>
+        {stats?.recentSessions && stats.recentSessions.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Sessions</h3>
+            <div className="space-y-3">
+              {stats.recentSessions.map((session) => (
+                <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-muted dark:bg-blue-800 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {session.status === 'completed' ? 'âœ…' : 'â¸ï¸'} {session.status}
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">{session.typeName}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {session.createdAt.toLocaleDateString()} • {session.duration} min
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {session.status === 'completed' ? '✅' : '⏱️'} {session.status}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
+        )}
 
           {/* Guest Upgrade Notice */}
           {user?.isAnonymous && (
@@ -620,4 +620,6 @@ export default function DashboardPage() {
     </ProtectedRoute>
   );
 }
+
+
 
