@@ -200,8 +200,8 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        {/* Header */}
-        <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+        {/* Header (non-sticky, simplified) */}
+        <header className="bg-white/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center h-auto sm:h-16 py-3 sm:py-0">
               <div className="flex items-center mb-3 sm:mb-0">
@@ -214,18 +214,10 @@ export default function DashboardPage() {
                   {t('dashboard.title')}
                 </h1>
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+              <div className="flex items-start sm:items-center w-full sm:w-auto">
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   {t('common.welcome')}, {user?.displayName}
                 </span>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-auto"
-                >
-                  {t('auth.sign_out')}
-                </Button>
               </div>
             </div>
           </div>
@@ -616,6 +608,14 @@ export default function DashboardPage() {
             </div>
           )}
         </main>
+        {/* Sign out moved to bottom, subtle */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+          <div className="mt-6 flex justify-center">
+            <Button onClick={handleLogout} variant="outline" size="sm" className="text-gray-600 dark:text-gray-300">
+              {t('auth.sign_out')}
+            </Button>
+          </div>
+        </div>
       </div>
     </ProtectedRoute>
   );
