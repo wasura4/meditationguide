@@ -252,6 +252,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
+  // Keep a lightweight auth cookie for server-side redirects (middleware)
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!loading && user) {
+      // 90 days
+      document.cookie = `ni_auth=1; Path=/; Max-Age=7776000; SameSite=Lax`;
+    } else if (!loading && !user) {
+      document.cookie = `ni_auth=; Path=/; Max-Age=0; SameSite=Lax`;
+    }
+  }, [loading, user]);
+
   const value: AuthContextType = {
     user,
     firebaseUser,
