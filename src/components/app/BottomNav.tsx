@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Brain, Music, BarChart3 } from "lucide-react";
+import { Home, Brain, BarChart3, GraduationCap } from "lucide-react";
 
 type Item = { href: string; key: string; icon: React.ReactNode };
 
@@ -10,7 +10,7 @@ const baseItems: Item[] = [
   { href: "/dashboard", key: "home", icon: <Home size={28} strokeWidth={2.5} /> },
   { href: "/meditate", key: "meditate", icon: <Brain size={28} strokeWidth={2.5} /> },
   { href: "/analytics", key: "analytics", icon: <BarChart3 size={28} strokeWidth={2.5} /> },
-  { href: "/kamatahan", key: "kamatahan", icon: <Music size={28} strokeWidth={2.5} /> },
+  { href: "/kamatahan", key: "kamatahan", icon: <GraduationCap size={28} strokeWidth={2.5} /> },
 ];
 
 export function BottomNav() {

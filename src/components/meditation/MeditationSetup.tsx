@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { TIMER_SETTINGS } from '@/constants';
 import { MEDITATION_CATEGORY_DETAILS_UI } from '@/constants/meditation-ui';
@@ -103,46 +103,6 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
       </div>
     );
   }
-
-  // iOS-like minutes wheel (lightweight)
-  const MinutesWheel: React.FC<{ value: number; onChange: (v: number) => void; min?: number; max?: number }> = ({ value, onChange, min = TIMER_SETTINGS.minDuration, max = TIMER_SETTINGS.maxDuration }) => {
-    const ref = useRef<HTMLDivElement | null>(null);
-    const itemH = 36; // px
-    const values = useMemo(() => Array.from({ length: max - min + 1 }, (_, i) => i + min), [min, max]);
-
-    useEffect(() => {
-      if (ref.current) {
-        const idx = Math.max(0, Math.min(values.length - 1, values.indexOf(value)));
-        ref.current.scrollTop = idx * itemH;
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ref, values.length]);
-
-    const onScroll = () => {
-      if (!ref.current) return;
-      const idx = Math.round(ref.current.scrollTop / itemH);
-      const next = values[Math.max(0, Math.min(values.length - 1, idx))];
-      if (next !== value) onChange(next);
-    };
-
-    return (
-      <div className="relative mx-auto" style={{ width: 140 }}>
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-9 rounded-md border border-border pointer-events-none" />
-        <div
-          ref={ref}
-          onScroll={onScroll}
-          className="h-40 overflow-y-auto snap-y snap-mandatory hide-scrollbar rounded-md bg-muted/40 border border-border"
-          style={{ scrollSnapType: 'y mandatory' }}
-        >
-          {values.map((v) => (
-            <div key={v} className={`h-9 grid place-items-center snap-start ${v === value ? 'text-foreground font-semibold' : 'text-muted-foreground'}`}>
-              {v} minutes
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-xl p-6 sm:p-8">
@@ -292,9 +252,24 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             ))}
           </div>
         </div>
-        {/* iOS-like minutes wheel */}
+        {/* Numeric input for precise duration */}
         <div className="text-center">
-          <MinutesWheel value={customDuration} onChange={setCustomDuration} />
+          <div className="inline-flex items-center space-x-4">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Custom Duration:
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                min={TIMER_SETTINGS.minDuration}
+                max={TIMER_SETTINGS.maxDuration}
+                value={customDuration}
+                onChange={(e) => handleDurationChange(parseInt(e.target.value) || TIMER_SETTINGS.defaultDuration)}
+                className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-300">minutes</span>
+            </div>
+          </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Range: {TIMER_SETTINGS.minDuration}-{TIMER_SETTINGS.maxDuration} minutes</p>
         </div>
       </div>

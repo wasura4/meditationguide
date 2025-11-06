@@ -27,7 +27,7 @@ export default function KamatahanPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="bg-header shadow-sm border-b border-border">
+        <header className="bg-background shadow-sm border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
