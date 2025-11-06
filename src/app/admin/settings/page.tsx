@@ -102,8 +102,16 @@ export default function AdminSettingsPage() {
               <h1 className="text-2xl font-bold text-gray-900">Admin Settings</h1>
               <p className="text-gray-600 mt-1">Configure system settings and preferences</p>
             </div>
-            {activeTab === 'system' && (
-              <div className="flex gap-2">
+            <div className="flex gap-2">
+              <Button
+                onClick={() => (window.location.href = '/admin/theme')}
+                variant="outline"
+                size="sm"
+              >
+                🎨 Theme
+              </Button>
+              {activeTab === 'system' && (
+              <>
                 <Button
                   onClick={handleResetSettings}
                   variant="outline"
@@ -118,8 +126,9 @@ export default function AdminSettingsPage() {
                 >
                   {loading ? 'Saving...' : 'Save Settings'}
                 </Button>
-              </div>
+              </>
             )}
+            </div>
           </div>
 
           {/* Tab Navigation */}
@@ -426,4 +435,3 @@ export default function AdminSettingsPage() {
     </AdminProtectedRoute>
   );
 }
-

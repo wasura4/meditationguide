@@ -254,7 +254,7 @@ export default function LogbookPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-black dark:via-[#0a0a0a] dark:to-[#1a1a1a]">
+        <div className="min-h-screen bg-background">
           <div className="max-w-screen-md md:max-w-3xl mx-auto px-4 py-6 pb-24">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b9e7a] mx-auto"></div>
@@ -268,7 +268,7 @@ export default function LogbookPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-black dark:via-[#0a0a0a] dark:to-[#1a1a1a]">
+      <div className="min-h-screen bg-background">
         {/* Header */}
         `<header className="bg-white sticky top-0 z-10 dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-screen-md md:max-w-3xl mx-auto px-4">
@@ -452,7 +452,7 @@ export default function LogbookPage() {
                   placeholder="Search sessions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
                 />
               </div>
 
@@ -464,7 +464,7 @@ export default function LogbookPage() {
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
                 >
                   <option value="all">All Types</option>
                   {DEFAULT_MEDITATION_TYPES.map(type => (
@@ -481,7 +481,7 @@ export default function LogbookPage() {
                 <select
                   value={selectedMood}
                   onChange={(e) => setSelectedMood(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
                 >
                   <option value="all">All Moods</option>
                   <option value="excellent">Excellent ðŸŒŸ</option>
@@ -500,7 +500,7 @@ export default function LogbookPage() {
                 <select
                   value={selectedRating}
                   onChange={(e) => setSelectedRating(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
                 >
                   <option value="all">All Ratings</option>
                   <option value="5">5 Stars ?????</option>
@@ -541,7 +541,7 @@ export default function LogbookPage() {
                       type="date"
                       value={customStartDate}
                       onChange={(e) => setCustomStartDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -552,7 +552,7 @@ export default function LogbookPage() {
                       type="date"
                       value={customEndDate}
                       onChange={(e) => setCustomEndDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
                     />
                   </div>
                 </>

@@ -384,7 +384,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
               cy="50"
               r="45"
               fill="none"
-              stroke="#6b9e7a"
+              stroke="currentColor"
               strokeWidth="8"
               strokeDasharray={`${2 * Math.PI * 45}`}
               strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
@@ -515,3 +515,4 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     </div>
   );
 };
+

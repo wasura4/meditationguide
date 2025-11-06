@@ -29,6 +29,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
     { name: 'Users', href: '/admin/users', icon: '👤', permission: 'users:read' },
     { name: 'Analytics', href: '/admin/analytics', icon: '📈', permission: 'analytics:read' },
     { name: 'Settings', href: '/admin/settings', icon: '⚙', permission: 'settings:read' },
+    { name: 'Theme', href: '/admin/theme', icon: '🎨', permission: 'settings:read' },
   ];
 
   const handleLogout = async () => {

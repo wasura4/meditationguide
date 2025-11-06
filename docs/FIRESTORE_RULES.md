@@ -111,7 +111,8 @@ service firebase.storage {
 
 Paste this full block into Firebase Console ? Storage ? Rules. Combines existing dhamma_posts, audio, and adds admin-only playlist_covers. Deny all others.
 
-`ules
+`
+ules
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
@@ -145,7 +146,8 @@ service firebase.storage {
     }
   }
 }
-`
+`
+
 
 ## Storage Rules (Copy-Paste FINAL)
 

@@ -179,7 +179,7 @@ export default function AdminUsersPage() {
                 placeholder="Search users by name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
               />
             </div>
           </div>
@@ -354,4 +354,5 @@ export default function AdminUsersPage() {
     </AdminProtectedRoute>
   );
 }
+
 

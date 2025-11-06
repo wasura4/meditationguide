@@ -59,7 +59,7 @@ export const UserNavigation: React.FC = () => {
                   href={item.href}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     active
-                      ? 'bg-[#6b9e7a] text-white'
+                      ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
@@ -113,7 +113,7 @@ export const UserNavigation: React.FC = () => {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       active
-                        ? 'bg-[#6b9e7a] text-white'
+                        ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                   >
