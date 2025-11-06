@@ -63,6 +63,13 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Dhamma reads (per-user reading tracking)
+    match /dhamma_reads/{readId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
     // Meditation types (public read, admin write)
     match /meditation_types/{typeId} {
       allow read: if true;
@@ -99,4 +106,3 @@ service firebase.storage {
   }
 }
 ```
-

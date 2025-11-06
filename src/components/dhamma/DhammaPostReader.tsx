@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DhammaPost } from '@/types/admin';
+import { useAuth } from '@/contexts/AuthContext';
+import { recordDhammaRead } from '@/lib/metricsService';
 
 interface DhammaPostReaderProps {
   post: DhammaPost;
@@ -12,6 +14,13 @@ interface DhammaPostReaderProps {
 export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [fontSize, setFontSize] = useState('base');
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user?.id && post?.id) {
+      recordDhammaRead(post.id, user.id);
+    }
+  }, [user?.id, post?.id]);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {

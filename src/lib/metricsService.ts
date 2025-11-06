@@ -28,3 +28,39 @@ export async function getAudioListenCount(audioId: string): Promise<number> {
   }
 }
 
+// Dhamma reads per user/post
+const READS = 'dhamma_reads';
+
+export async function recordDhammaRead(postId: string, userId: string) {
+  try {
+    await addDoc(collection(db, READS), {
+      postId,
+      userId,
+      createdAt: serverTimestamp(),
+    });
+  } catch (e) {
+    console.warn('recordDhammaRead failed', e);
+  }
+}
+
+export async function getUserAudioSessionCount(userId: string): Promise<number> {
+  try {
+    const q = query(collection(db, LISTENS), where('userId', '==', userId));
+    const snap = await getCountFromServer(q);
+    return snap.data().count || 0;
+  } catch (e) {
+    console.warn('getUserAudioSessionCount failed', e);
+    return 0;
+  }
+}
+
+export async function getUserDhammaReadsCount(userId: string): Promise<number> {
+  try {
+    const q = query(collection(db, READS), where('userId', '==', userId));
+    const snap = await getCountFromServer(q);
+    return snap.data().count || 0;
+  } catch (e) {
+    console.warn('getUserDhammaReadsCount failed', e);
+    return 0;
+  }
+}

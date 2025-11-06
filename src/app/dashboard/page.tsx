@@ -9,6 +9,7 @@ import { MeditationService } from '@/lib/meditationService';
 import { MeditationSession } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { DhammaService } from '@/lib/dhammaService';
+import { getUserAudioSessionCount, getUserDhammaReadsCount } from '@/lib/metricsService';
 import { DhammaPost } from '@/types/admin';
 import { DhammaPostCard } from '@/components/dhamma';
 
@@ -97,6 +98,12 @@ export default function DashboardPage() {
           setRecommended(posts.slice(0, 4));
         } catch {}
 
+        // Learning progress (per-user)
+        const [audioSessions, dhammaReads] = await Promise.all([
+          getUserAudioSessionCount(user.id),
+          getUserDhammaReadsCount(user.id),
+        ]);
+
         setStats({
           totalSessions: userStats.totalSessions,
           totalMinutes: userStats.totalMinutes,
@@ -105,8 +112,8 @@ export default function DashboardPage() {
           thisWeekMinutes,
           lastWeekMinutes,
           favoriteMeditationType: userStats.favoriteType || 'None yet',
-          dhammaPostsRead: 0, // TODO: Implement user reading tracking
-          audioSessions: 0, // TODO: Implement audio session tracking
+          dhammaPostsRead: dhammaReads,
+          audioSessions,
           averageSessionLength: userStats.averageSessionLength,
           weeklyGoal,
           weeklyGoalProgress,
