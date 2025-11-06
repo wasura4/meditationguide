@@ -95,16 +95,16 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+    <div className="bg-background rounded-xl p-6 shadow-lg border border-border">
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-foreground">
           Meditation Calendar
         </h3>
         <div className="flex items-center space-x-2">
           <button
             onClick={goToPreviousMonth}
-            className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -113,14 +113,14 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
           
           <button
             onClick={goToToday}
-            className="px-3 py-1 text-sm text-[var(--primary)] dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+            className="px-3 py-1 text-sm text-[var(--primary)] hover:text-[var(--primary)]/80 font-medium"
           >
             Today
           </button>
           
           <button
             onClick={goToNextMonth}
-            className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -142,7 +142,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
           <div
             key={day}
-            className="p-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400"
+            className="p-2 text-center text-sm font-medium text-muted-foreground"
           >
             {day}
           </div>
@@ -163,16 +163,13 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
               onClick={() => onDateSelect(day)}
               className={`
                 relative p-2 h-20 text-left rounded-lg transition-all
-                ${isCurrentMonthDate 
-                  ? 'hover:bg-gray-100 dark:hover:bg-gray-700' 
-                  : 'text-gray-400 dark:text-gray-500'
-                }
+                ${isCurrentMonthDate ? 'hover:bg-muted' : 'text-muted-foreground'}
                 ${isSelectedDate 
-                  ? 'bg-muted dark:bg-blue-900/20 border-2 border-[var(--primary)]' 
+                  ? 'bg-muted border-2 border-[var(--primary)]' 
                   : ''
                 }
                 ${isTodayDate && !isSelectedDate 
-                  ? 'bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-700' 
+                  ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30' 
                   : ''
                 }
               `}
@@ -180,11 +177,8 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
               {/* Date Number */}
               <div className={`
                 text-sm font-medium mb-1
-                ${isCurrentMonthDate 
-                  ? 'text-gray-900 dark:text-white' 
-                  : 'text-gray-400 dark:text-gray-500'
-                }
-                ${isTodayDate ? 'text-[var(--primary)] dark:text-blue-400' : ''}
+                ${isCurrentMonthDate ? 'text-foreground' : 'text-muted-foreground'}
+                ${isTodayDate ? 'text-[var(--primary)]' : ''}
               `}>
                 {format(day, 'd')}
               </div>
@@ -193,12 +187,12 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
               {hasSessionsToday && (
                 <div className="space-y-1">
                   {/* Session Count */}
-                  <div className="text-xs text-gray-600 dark:text-gray-300">
+                  <div className="text-xs text-muted-foreground">
                     {daySessions.length} session{daySessions.length !== 1 ? 's' : ''}
                   </div>
                   
                   {/* Total Minutes */}
-                  <div className="text-xs text-[var(--primary)] dark:text-green-400 font-medium">
+                  <div className="text-xs text-[var(--primary)] font-medium">
                     {totalMinutes}m
                   </div>
                   
@@ -210,7 +204,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
                         className={`
                           w-2 h-2 rounded-full
                           ${session.status === 'completed' 
-                            ? 'bg-green-500' 
+                            ? 'bg-[var(--primary)]' 
                             : session.status === 'abandoned' 
                             ? 'bg-[var(--color-status-error)]/100' 
                             : 'bg-yellow-500'
@@ -220,7 +214,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
                       />
                     ))}
                     {daySessions.length > 3 && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-muted-foreground">
                         +{daySessions.length - 3}
                       </div>
                     )}
@@ -230,7 +224,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
 
               {/* Empty State */}
               {!hasSessionsToday && isCurrentMonthDate && (
-                <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                <div className="text-xs text-muted-foreground mt-2">
                   No sessions
                 </div>
               )}
@@ -240,19 +234,19 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
       </div>
 
       {/* Calendar Legend */}
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="mt-6 pt-4 border-t border-border">
         <div className="flex items-center justify-center space-x-6 text-sm">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span className="text-gray-600 dark:text-gray-400">Completed</span>
+            <div className="w-3 h-3 bg-[var(--primary)] rounded-full"></div>
+            <span className="text-muted-foreground">Completed</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-[var(--color-status-error)]/100 rounded-full"></div>
-            <span className="text-gray-600 dark:text-gray-400">Abandoned</span>
+            <span className="text-muted-foreground">Abandoned</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span className="text-gray-600 dark:text-gray-400">Active/Paused</span>
+            <span className="text-muted-foreground">Active/Paused</span>
           </div>
         </div>
       </div>

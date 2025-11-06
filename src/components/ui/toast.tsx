@@ -96,8 +96,8 @@ function ToastContainer({ toasts, onHide }: { toasts: Toast[]; onHide: (id: stri
 function ToastItem({ toast, onHide }: { toast: Toast; onHide: (id: string) => void }) {
   const getToastStyles = (type: ToastType) => {
     switch (type) {
-      case 'success':
-        return 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200';
+    case 'success':
+      return 'bg-[var(--primary)]/10 border-[var(--primary)]/30 text-[var(--primary)]';
       case 'error':
         return 'bg-[var(--color-status-error)]/10 border-[var(--color-status-error)] text-[var(--color-status-error)] dark:bg-[var(--color-status-error)]/20 dark:border-[var(--color-status-error)] dark:text-[var(--color-status-error)]';
       case 'warning':

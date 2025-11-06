@@ -74,7 +74,7 @@ export default function GuideDetailPage({ params }: { params: Promise<{ id: stri
 
         <button
           onClick={() => router.push(`/kamatahan?tab=playlists&start=${guide.id}`)}
-          className="fixed bottom-6 left-6 right-6 h-12 rounded-xl bg-lime-400 text-black font-semibold shadow-lg"
+          className="fixed bottom-6 left-6 right-6 h-12 rounded-xl bg-[var(--primary)] text-white font-semibold shadow-lg"
         >
           Start
         </button>

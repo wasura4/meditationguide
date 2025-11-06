@@ -710,7 +710,7 @@ export function PlaylistManager() {
                 <button
                   aria-label="Start"
                   onClick={() => startPlaylist(playlist)}
-                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-lime-400 text-black shadow-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm font-semibold"
+                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-[var(--primary)] text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm font-semibold"
                 >
                   Start
                 </button>
