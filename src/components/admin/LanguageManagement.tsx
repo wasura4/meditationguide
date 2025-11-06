@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { LanguageService, Translation } from '@/lib/languageService';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
@@ -20,6 +22,8 @@ export const LanguageManagement: React.FC = () => {
   const [editValue, setEditValue] = useState<string>('');
   const [showMissingOnly, setShowMissingOnly] = useState(false);
   const [showChangedEnglishOnly, setShowChangedEnglishOnly] = useState(false);
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [isAdminDoc, setIsAdminDoc] = useState<boolean | null>(null);
 
   const loadTranslations = useCallback(async () => {
     setLoading(true);
@@ -71,6 +75,25 @@ export const LanguageManagement: React.FC = () => {
   useEffect(() => {
     loadTranslations();
   }, [loadTranslations]);
+
+  // Check admin doc exists for current user (debug aid)
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const uid = auth.currentUser?.uid;
+        if (!uid) {
+          setIsAdminDoc(false);
+          return;
+        }
+        const snap = await getDoc(doc(db, 'admin_users', uid));
+        setIsAdminDoc(snap.exists());
+      } catch (e) {
+        console.warn('Admin check failed', e);
+        setIsAdminDoc(null);
+      }
+    };
+    checkAdmin();
+  }, []);
 
   const handleSaveTranslation = async (key: string, sinhala: string) => {
     try {
@@ -200,8 +223,28 @@ export const LanguageManagement: React.FC = () => {
             English updated ({stats.changed})
           </label>
           <div className="text-xs text-gray-500">Total keys: {stats.total}</div>
+          <button
+            type="button"
+            onClick={() => setDebugOpen(d => !d)}
+            className="ml-2 text-xs px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+            title="Show debug info"
+          >
+            {debugOpen ? 'Hide Debug' : 'Show Debug'}
+          </button>
         </div>
       </div>
+
+      {debugOpen && (
+        <div className="text-xs text-gray-600 bg-white border border-gray-200 rounded-lg p-3">
+          <div>UID: {auth.currentUser?.uid || 'not signed in'}</div>
+          <div>Email: {auth.currentUser?.email || 'n/a'}</div>
+          <div>Admin doc exists: {isAdminDoc === null ? 'unknown' : isAdminDoc ? 'yes' : 'no'}</div>
+          <div>Project: nirvanaya-web</div>
+          {!isAdminDoc && (
+            <div className="mt-1 text-red-600">Missing admin_users/&#123;UID&#125; document will prevent writes to translations.</div>
+          )}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">

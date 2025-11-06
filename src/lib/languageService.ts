@@ -91,9 +91,13 @@ export class LanguageService {
 
       await setDoc(translationRef, translationData, { merge: true });
       return translationRef.id;
-    } catch (error) {
+    } catch (error: unknown) {
+      // Surface Firebase error details
+      const err = error as { message?: string; code?: string };
+      const msg = err?.message || 'Failed to save translation';
+      const code = err?.code ? ` (${err.code})` : '';
       console.error('Error saving translation:', error);
-      throw new Error('Failed to save translation');
+      throw new Error(`${msg}${code}`);
     }
   }
 
