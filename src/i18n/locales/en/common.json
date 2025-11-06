@@ -45,8 +45,8 @@
         "description": "Install as an app on your device for offline access, native experience, and seamless meditation practice."
       },
       "privacy_security": {
-        "description": "home.features.privacy_security.description",
-        "title": "home.features.privacy_security.title"
+        "title": "Privacy & Security",
+        "description": "Your data is yours. We store meditation sessions, preferences, and translations securely in Firebase. Admin-only areas are protected, and you can export or delete your data anytime from Settings."
       }
     },
     "about": {
