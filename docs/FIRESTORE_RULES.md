@@ -1,4 +1,4 @@
-# Firestore Security Rules (Copy-Paste)
+ï»¿# Firestore Security Rules (Copy-Paste)
 
 Copy the full block below into Firebase Console â†’ Firestore Database â†’ Rules and click Publish.
 
@@ -121,19 +121,19 @@ service firebase.storage {
         exists(/databases/(default)/documents/admin_users/);
     }
 
-    // Dhamma post images – signed-in users may upload
+    // Dhamma post images ï¿½ signed-in users may upload
     match /dhamma_posts/{imageFile} {
       allow read: if true;
       allow write: if isSignedIn();
     }
 
-    // Audio files – signed-in users may upload
+    // Audio files ï¿½ signed-in users may upload
     match /audio/{audioFile} {
       allow read: if true;
       allow write: if isSignedIn();
     }
 
-    // Playlist cover photos – admins only
+    // Playlist cover photos ï¿½ admins only
     match /playlist_covers/{allPaths=**} {
       allow read: if true;
       allow write: if isAdmin();
@@ -161,19 +161,19 @@ service firebase.storage {
         exists(/databases/(default)/documents/admin_users/$(request.auth.uid));
     }
 
-    // Dhamma post images – signed-in users may upload
+    // Dhamma post images ï¿½ signed-in users may upload
     match /dhamma_posts/{imageFile} {
       allow read: if true;
       allow write: if isSignedIn();
     }
 
-    // Audio files – signed-in users may upload
+    // Audio files ï¿½ signed-in users may upload
     match /audio/{audioFile} {
       allow read: if true;
       allow write: if isSignedIn();
     }
 
-    // Playlist cover photos – admins only
+    // Playlist cover photos ï¿½ admins only
     match /playlist_covers/{allPaths=**} {
       allow read: if true;
       allow write: if isAdmin();

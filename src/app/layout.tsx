@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { cookies } from "next/headers";
 import { ToastProvider } from "@/components/ui/toast";
 import { ThemeSettingsProvider } from "@/contexts/ThemeSettingsContext";
+import { GlobalThemeProvider } from "@/contexts/GlobalThemeProvider";
 import { AppChrome } from "@/components/app/AppChrome";
 import { PlayerProvider } from "@/contexts/PlayerContext";
 
@@ -60,11 +61,13 @@ export default async function RootLayout({
           <AuthProvider>
           <LanguageProvider initialLanguage={initialLang}>
             <ThemeSettingsProvider>
-              <ToastProvider>
-                <PlayerProvider>
-                  <AppChrome>{children}</AppChrome>
-                </PlayerProvider>
-              </ToastProvider>
+              <GlobalThemeProvider>
+                <ToastProvider>
+                  <PlayerProvider>
+                    <AppChrome>{children}</AppChrome>
+                  </PlayerProvider>
+                </ToastProvider>
+              </GlobalThemeProvider>
             </ThemeSettingsProvider>
           </LanguageProvider>
           </AuthProvider>
