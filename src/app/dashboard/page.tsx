@@ -491,6 +491,17 @@ export default function DashboardPage() {
                   </svg>
                   View Analytics
                 </Button>
+
+                <Button
+                  onClick={() => router.push('/pitaka')}
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a2 2 0 012-2h9a2 2 0 012 2v14l-4-2-4 2V5H6a2 2 0 00-2 2v12" />
+                  </svg>
+                  Read Tripitaka
+                </Button>
                 
                 <Button
                   onClick={() => router.push('/settings')}
