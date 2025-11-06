@@ -309,10 +309,9 @@ export default function MeditatePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-b from-zinc-900 via-zinc-900 to-black text-white pb-28">
+      <div className="min-h-screen bg-background text-foreground pb-28">
         {/* Hero */}
         <div className="relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_-10%,rgba(120,119,198,0.25),transparent)]" />
           <div className="relative max-w-3xl mx-auto px-5 pt-10 pb-6">
             <h1 className="text-3xl font-bold tracking-tight">
               {mode === 'setup' && 'Prepare Meditation'}
@@ -320,18 +319,18 @@ export default function MeditatePage() {
               {mode === 'reflection' && 'Session Reflection'}
               {mode === 'complete' && 'Session Complete'}
             </h1>
-            <p className="mt-2 text-sm text-zinc-300">A calm space to set up, focus, and reflect.</p>
+            <p className="mt-2 text-sm text-muted-foreground">A calm space to set up, focus, and reflect.</p>
           </div>
         </div>
 
         {/* Stepper */}
         <div className="max-w-3xl mx-auto px-5">
-          <ol className="flex items-center gap-3 text-xs text-zinc-400">
+          <ol className="flex items-center gap-3 text-xs text-muted-foreground">
             {steps.map((s, i) => (
               <li key={s.key} className="flex items-center gap-3">
-                <span className={`h-6 w-6 grid place-items-center rounded-full border ${mode===s.key ? 'bg-lime-400 text-black border-lime-400' : 'border-zinc-600'}`}>{i+1}</span>
-                <span className={`${mode===s.key ? 'text-white' : ''}`}>{s.label}</span>
-                {i < steps.length-1 && <span className="w-8 h-px bg-zinc-700 inline-block" />}
+                <span className={`h-6 w-6 grid place-items-center rounded-full border ${mode===s.key ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'border-border text-muted-foreground'}`}>{i+1}</span>
+                <span className={`${mode===s.key ? 'text-foreground' : ''}`}>{s.label}</span>
+                {i < steps.length-1 && <span className="w-8 h-px bg-border inline-block" />}
               </li>
             ))}
           </ol>
