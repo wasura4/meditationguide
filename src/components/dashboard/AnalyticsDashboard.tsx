@@ -8,7 +8,7 @@ import { MeditationSession, MeditationType } from '@/types';
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
+  PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 
@@ -234,6 +234,57 @@ export const AnalyticsDashboard: React.FC = () => {
       .sort((a, b) => b.sessions - a.sessions);
   }, [sessions, meditationTypes]);
 
+  // Additional analytics
+  const completionSplit = useMemo(() => {
+    const completed = sessions.filter(s => s.status === 'completed').length;
+    const abandoned = sessions.filter(s => s.status === 'abandoned').length;
+    const active = Math.max(sessions.length - completed - abandoned, 0);
+    return [
+      { name: 'Completed', value: completed },
+      { name: 'Abandoned', value: abandoned },
+      { name: 'Active/Paused', value: active },
+    ];
+  }, [sessions]);
+
+  const minutesByWeekday = useMemo(() => {
+    const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const buckets = Array.from({ length: 7 }, () => 0);
+    sessions.forEach(s => { buckets[new Date(s.createdAt).getDay()] += s.duration; });
+    return buckets.map((m, i) => ({ day: labels[i], minutes: m }));
+  }, [sessions]);
+
+  const minutesByHour = useMemo(() => {
+    const buckets = Array.from({ length: 24 }, () => 0);
+    sessions.forEach(s => { buckets[new Date(s.createdAt).getHours()] += s.duration; });
+    return buckets.map((m, i) => ({ hour: i, minutes: m }));
+  }, [sessions]);
+
+  const monthsTrend = useMemo(() => {
+    const now = new Date();
+    const arr: { key: string; minutes: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      arr.push({ key: format(d, 'MMM yy'), minutes: 0 });
+    }
+    sessions.forEach(s => {
+      const k = format(s.createdAt, 'MMM yy');
+      const item = arr.find(a => a.key === k);
+      if (item) item.minutes += s.duration;
+    });
+    return arr;
+  }, [sessions]);
+
+  const lengthDistribution = useMemo(() => {
+    const buckets: Record<string, number> = { '<10': 0, '10-19': 0, '20-29': 0, '30+': 0 };
+    sessions.forEach(s => {
+      if (s.duration < 10) buckets['<10']++;
+      else if (s.duration < 20) buckets['10-19']++;
+      else if (s.duration < 30) buckets['20-29']++;
+      else buckets['30+']++;
+    });
+    return Object.entries(buckets).map(([range, count]) => ({ range, count }));
+  }, [sessions]);
+
   // Chart colors
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
@@ -369,7 +420,7 @@ export const AnalyticsDashboard: React.FC = () => {
             Daily Meditation Minutes
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
+            <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="date" stroke="#9CA3AF" />
               <YAxis stroke="#9CA3AF" />
@@ -381,15 +432,8 @@ export const AnalyticsDashboard: React.FC = () => {
                   color: '#F9FAFB'
                 }}
               />
-              <Line
-                type="monotone"
-                dataKey="minutes"
-                stroke="#6b9e7a"
-                strokeWidth={3}
-                dot={{ fill: '#6b9e7a', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#6b9e7a', strokeWidth: 2 }}
-              />
-            </LineChart>
+              <Area type="monotone" dataKey="minutes" stroke="#6b9e7a" fill="#6b9e7a22" strokeWidth={3} />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
 
@@ -460,6 +504,76 @@ export const AnalyticsDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Completion split */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Completion split</h3>
+        <ResponsiveContainer width="100%" height={280}>
+          <PieChart>
+            <Pie data={completionSplit} cx="50%" cy="50%" outerRadius={90} dataKey="value" label>
+              {completionSplit.map((entry, index) => (
+                <Cell key={`cs-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Minutes by weekday */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Minutes by weekday</h3>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={minutesByWeekday}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="day" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
+            <Bar dataKey="minutes" fill="#6b9e7a" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Minutes by hour */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Minutes by hour</h3>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={minutesByHour}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="hour" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
+            <Bar dataKey="minutes" fill="#6b9e7a" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Monthly minutes last 12 months */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly minutes (last 12 months)</h3>
+        <ResponsiveContainer width="100%" height={280}>
+          <AreaChart data={monthsTrend}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="key" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
+            <Area dataKey="minutes" stroke="#6b9e7a" fill="#6b9e7a22" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Session length distribution */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Session length distribution</h3>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={lengthDistribution}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="range" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
+            <Bar dataKey="count" fill="#6b9e7a" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
       {/* Recent Activity */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
