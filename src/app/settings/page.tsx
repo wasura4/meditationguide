@@ -8,6 +8,7 @@ import { PreferencesSection, AppPreferences } from '@/components/settings/Prefer
 import { DataPrivacySection } from '@/components/settings/DataPrivacySection';
 import { EditProfileModal } from '@/components/settings/EditProfileModal';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExportData {
   user: {
@@ -25,6 +26,7 @@ interface ExportData {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'data'>('profile');
 
@@ -125,7 +127,7 @@ export default function SettingsPage() {
             {/* Quick Actions */}
             <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Quick Actions
+                {t('dashboard.actions.quick_actions')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Button
@@ -147,7 +149,7 @@ export default function SettingsPage() {
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-sm">Start Meditating</span>
+                  <span className="text-sm">{t('dashboard.actions.start_meditating')}</span>
                 </Button>
 
                 <Button
@@ -158,7 +160,7 @@ export default function SettingsPage() {
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  <span className="text-sm">View Analytics</span>
+                  <span className="text-sm">{t('dashboard.actions.view_analytics')}</span>
                 </Button>
               </div>
             </div>

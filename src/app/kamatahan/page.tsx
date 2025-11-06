@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
@@ -8,6 +9,7 @@ import { AudioLibrary } from '@/components/audio/AudioLibrary';
 import { PlaylistManager } from '@/components/audio/PlaylistManager';
 
 export default function KamatahanPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'library' | 'playlists'>('playlists');
   const { showToast } = useToast();
 
@@ -87,7 +89,7 @@ export default function KamatahanPage() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                     </svg>
-                    <span>Audio Library</span>
+                    <span>{t('dashboard.actions.audio_library')}</span>
                   </div>
                 </button>
               </nav>
@@ -106,7 +108,7 @@ export default function KamatahanPage() {
           {/* Quick Actions */}
           <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Quick Actions
+              {t('dashboard.actions.quick_actions')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Button
