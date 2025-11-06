@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LanguageService, Translation } from '@/lib/languageService';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
@@ -18,6 +18,8 @@ export const LanguageManagement: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const [showMissingOnly, setShowMissingOnly] = useState(false);
+  const [showChangedEnglishOnly, setShowChangedEnglishOnly] = useState(false);
 
   const loadTranslations = useCallback(async () => {
     try {
@@ -111,13 +113,28 @@ export const LanguageManagement: React.FC = () => {
     setEditValue('');
   };
 
-  const filteredTranslations = translations.filter(t => {
-    const matchesSearch = t.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.english.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.sinhala.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || t.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredTranslations = useMemo(() => {
+    return translations.filter(t => {
+      const englishNow = getNestedValue(enTranslations as any, t.key) || '';
+      const isMissingSi = !t.sinhala || t.sinhala.trim() === '';
+      const englishChanged = (t.english || '') !== englishNow;
+
+      const matchesSearch = (t.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (t.english || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (t.sinhala || '').toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCategory = filterCategory === 'all' || t.category === filterCategory;
+      const matchesMissing = !showMissingOnly || isMissingSi;
+      const matchesChangedEn = !showChangedEnglishOnly || englishChanged;
+      return matchesSearch && matchesCategory && matchesMissing && matchesChangedEn;
+    });
+  }, [translations, searchTerm, filterCategory, showMissingOnly, showChangedEnglishOnly]);
+
+  const stats = useMemo(() => {
+    const total = translations.length;
+    const missing = translations.filter(t => !t.sinhala || t.sinhala.trim() === '').length;
+    const changed = translations.filter(t => (t.english || '') !== (getNestedValue(enTranslations as any, t.key) || '')).length;
+    return { total, missing, changed };
+  }, [translations]);
 
   const categories = Array.from(new Set(translations.map(t => t.category))).sort();
 
@@ -145,6 +162,39 @@ export const LanguageManagement: React.FC = () => {
         >
           Refresh
         </Button>
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-white border border-gray-200 rounded-xl p-3">
+        <div className="flex gap-2 items-center">
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search keys or text..."
+            className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+          />
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+          >
+            <option value="all">All categories</option>
+            {Array.from(new Set(translations.map(t => t.category))).sort().map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-4 items-center">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" checked={showMissingOnly} onChange={(e) => setShowMissingOnly(e.target.checked)} />
+            Missing Sinhala ({stats.missing})
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" checked={showChangedEnglishOnly} onChange={(e) => setShowChangedEnglishOnly(e.target.checked)} />
+            English updated ({stats.changed})
+          </label>
+          <div className="text-xs text-gray-500">Total keys: {stats.total}</div>
+        </div>
       </div>
 
       {/* Filters */}

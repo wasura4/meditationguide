@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "name": "Meditation Guide",
     "description": "Theravada Buddhist Meditation Web App",
@@ -43,6 +43,10 @@
       "pwa_ready": {
         "title": "PWA Ready",
         "description": "Install as an app on your device for offline access, native experience, and seamless meditation practice."
+      },
+      "privacy_security": {
+        "description": "home.features.privacy_security.description",
+        "title": "home.features.privacy_security.title"
       }
     },
     "about": {

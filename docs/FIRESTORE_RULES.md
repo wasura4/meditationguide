@@ -75,6 +75,12 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Translations (public read, admin write)
+    match /translations/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Meditation types (public read, admin write)
     match /meditation_types/{typeId} {
       allow read: if true;
