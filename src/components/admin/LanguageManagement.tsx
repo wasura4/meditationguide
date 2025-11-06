@@ -115,7 +115,7 @@ export const LanguageManagement: React.FC = () => {
 
   const filteredTranslations = useMemo(() => {
     return translations.filter(t => {
-      const englishNow = getNestedValue(enTranslations as any, t.key) || '';
+      const englishNow = getNestedValue(enTranslations as Record<string, unknown>, t.key) || '';
       const isMissingSi = !t.sinhala || t.sinhala.trim() === '';
       const englishChanged = (t.english || '') !== englishNow;
 
@@ -132,7 +132,7 @@ export const LanguageManagement: React.FC = () => {
   const stats = useMemo(() => {
     const total = translations.length;
     const missing = translations.filter(t => !t.sinhala || t.sinhala.trim() === '').length;
-    const changed = translations.filter(t => (t.english || '') !== (getNestedValue(enTranslations as any, t.key) || '')).length;
+    const changed = translations.filter(t => (t.english || '') !== (getNestedValue(enTranslations as Record<string, unknown>, t.key) || '')).length;
     return { total, missing, changed };
   }, [translations]);
 
