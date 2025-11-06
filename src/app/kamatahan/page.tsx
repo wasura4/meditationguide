@@ -105,46 +105,7 @@ export default function KamatahanPage() {
             )}
           </div>
 
-          {/* Quick Actions */}
-          <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              {t('dashboard.actions.quick_actions')}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button
-                onClick={() => handleTabChange('library')}
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center space-y-2"
-              >
-                <svg className="w-8 h-8 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <span className="text-sm font-medium">Browse Audio</span>
-              </Button>
-              
-              <Button
-                onClick={() => handleTabChange('playlists')}
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center space-y-2"
-              >
-                <svg className="w-8 h-8 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="text-sm font-medium">Create Playlist</span>
-              </Button>
-              
-              <Button
-                onClick={() => window.location.href = '/meditate'}
-                variant="outline"
-                className="h-20 flex flex-col items-center justify-center space-y-2"
-              >
-                <svg className="w-8 h-8 text-[var(--ring)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-sm font-medium">Start Meditating</span>
-              </Button>
-            </div>
-          </div>
+          {/* Quick Actions removed per request */}
         </main>
       </div>
     </ProtectedRoute>
