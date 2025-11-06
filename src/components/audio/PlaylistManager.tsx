@@ -33,6 +33,7 @@ export function PlaylistManager() {
   const [availableAudio, setAvailableAudio] = useState<KamatahanAudio[]>([]);
   const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
   const [audioSearchQuery, setAudioSearchQuery] = useState('');
+  const [playlistSearchQuery, setPlaylistSearchQuery] = useState('');
   
   // Playlist playback state
   const [currentPlaylist, setCurrentPlaylist] = useState<Playlist | null>(null);
@@ -523,17 +524,32 @@ export function PlaylistManager() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Meditation Guides</h2>
-        <Button
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Playlists search */}
+          <div className="relative flex-1 sm:w-64">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.6-5.4a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              value={playlistSearchQuery}
+              onChange={(e) => setPlaylistSearchQuery(e.target.value)}
+              placeholder="Search guides..."
+              className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800/70 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+
+          <Button
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="flex items-center space-x-2"
-        >
+          >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           <span>Create Playlist</span>
-        </Button>
+          </Button>
+        </div>
       </div>
 
       {/* Create Playlist Form */}
@@ -662,7 +678,14 @@ export function PlaylistManager() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-          {playlists.map((playlist) => (
+          {playlists
+            .filter((p) => {
+              const q = playlistSearchQuery.trim().toLowerCase();
+              if (!q) return true;
+              const hay = `${p.name} ${p.description ?? ''} ${p.authorName ?? ''}`.toLowerCase();
+              return hay.includes(q);
+            })
+            .map((playlist) => (
             <div
               key={playlist.id}
               className="group rounded-xl bg-gradient-to-b from-zinc-800/30 to-zinc-900/60 backdrop-blur border border-zinc-700/40 overflow-hidden hover:border-zinc-500/50 transition-colors"
@@ -681,13 +704,13 @@ export function PlaylistManager() {
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 via-indigo-500/30 to-blue-500/30" />
                 )}
-                {/* Floating play button */}
+                {/* Floating Start button */}
                 <button
-                  aria-label="Play"
+                  aria-label="Start"
                   onClick={() => startPlaylist(playlist)}
-                  className="absolute bottom-3 right-3 h-11 w-11 rounded-full bg-lime-400 text-black shadow-lg opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center"
+                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-lime-400 text-black shadow-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm font-semibold"
                 >
-                  ▶
+                  Start
                 </button>
               </div>
 
