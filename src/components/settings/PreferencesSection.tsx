@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Sun, Moon, Monitor, Globe } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useThemeSettings } from '@/contexts/ThemeSettingsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -153,8 +154,10 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 }`}
               >
                 <div className="text-center">
-                  <div className="text-2xl mb-1">
-                    {theme === 'light' ? '??' : theme === 'dark' ? '??' : '??'}
+                  <div className="flex items-center justify-center mb-1 text-gray-900 dark:text-white">
+                    {theme === 'light' && <Sun size={20} />}
+                    {theme === 'dark' && <Moon size={20} />}
+                    {theme === 'auto' && <Monitor size={20} />}
                   </div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white capitalize">
                     {theme}
@@ -230,8 +233,8 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
           </label>
           <div className="grid grid-cols-2 gap-3">
             {([
-              { code: 'en', name: 'English', flag: '????' },
-              { code: 'si', name: '?????', flag: '????' }
+              { code: 'en', name: 'English' },
+              { code: 'si', name: 'සිංහල' }
             ]).map((lang) => (
               <button
                 key={lang.code}
@@ -243,7 +246,9 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 }`}
               >
                 <div className="text-center">
-                  <div className="text-2xl mb-1">{lang.flag}</div>
+                  <div className="flex items-center justify-center mb-1 text-gray-900 dark:text-white">
+                    <Globe size={18} />
+                  </div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {lang.name}
                   </div>

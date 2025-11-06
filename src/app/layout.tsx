@@ -55,6 +55,13 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content={APP_CONFIG.name} />
         <meta name="msapplication-TileColor" content="#0ea5e9" />
         <meta name="msapplication-tap-highlight" content="no" />
+        {/* Sinhala font for proper glyph rendering */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased touch-manipulation`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
