@@ -23,6 +23,12 @@ export default function MeditatePage() {
   const router = useRouter();
   const { showToast } = useToast();
 
+  const steps: Array<{ key: MeditationMode; label: string }> = [
+    { key: 'setup', label: 'Setup' },
+    { key: 'timer', label: 'Meditate' },
+    { key: 'reflection', label: 'Reflect' },
+  ];
+
   const handleStart = async (type: string, sessionDuration: number) => {
     try {
       setMeditationType(type);
@@ -303,37 +309,36 @@ export default function MeditatePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-black dark:via-[#0a0a0a] dark:to-[#1a1a1a]">
-        {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                                     <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                       {mode === 'setup' && 'Prepare Meditation'}
-                       {mode === 'timer' && 'Meditation Session'}
-                       {mode === 'reflection' && 'Session Reflection'}
-                       {mode === 'complete' && 'Session Complete'}
-                     </h1>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Button
-                  onClick={() => router.push('/dashboard')}
-                  variant="ghost"
-                  size="sm"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  Dashboard
-                </Button>
-              </div>
-            </div>
+      <div className="min-h-screen bg-gradient-to-b from-zinc-900 via-zinc-900 to-black text-white pb-28">
+        {/* Hero */}
+        <div className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_-10%,rgba(120,119,198,0.25),transparent)]" />
+          <div className="relative max-w-3xl mx-auto px-5 pt-10 pb-6">
+            <h1 className="text-3xl font-bold tracking-tight">
+              {mode === 'setup' && 'Prepare Meditation'}
+              {mode === 'timer' && 'Meditation Session'}
+              {mode === 'reflection' && 'Session Reflection'}
+              {mode === 'complete' && 'Session Complete'}
+            </h1>
+            <p className="mt-2 text-sm text-zinc-300">A calm space to set up, focus, and reflect.</p>
           </div>
-        </header>
+        </div>
+
+        {/* Stepper */}
+        <div className="max-w-3xl mx-auto px-5">
+          <ol className="flex items-center gap-3 text-xs text-zinc-400">
+            {steps.map((s, i) => (
+              <li key={s.key} className="flex items-center gap-3">
+                <span className={`h-6 w-6 grid place-items-center rounded-full border ${mode===s.key ? 'bg-lime-400 text-black border-lime-400' : 'border-zinc-600'}`}>{i+1}</span>
+                <span className={`${mode===s.key ? 'text-white' : ''}`}>{s.label}</span>
+                {i < steps.length-1 && <span className="w-8 h-px bg-zinc-700 inline-block" />}
+              </li>
+            ))}
+          </ol>
+        </div>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-3xl mx-auto px-5 py-6">
           {renderContent()}
         </main>
       </div>
