@@ -40,14 +40,12 @@ export function ThemeSettingsProvider({ children }: { children: React.ReactNode 
     if (r) setRadiusState(r);
   }, [user?.id, user?.preferences]);
 
-  // apply to CSS vars
+  // Apply only non-color tokens here to avoid overriding admin theme.
+  // Admin-managed colors (primary, ring, etc.) are applied by GlobalThemeProvider.
   useEffect(() => {
     const root = document.documentElement;
-    const color = ACCENTS[accent] || ACCENTS.green;
-    root.style.setProperty('--primary', color);
-    root.style.setProperty('--ring', color);
     root.style.setProperty('--radius', `${radius / 16}rem`);
-  }, [accent, radius]);
+  }, [radius]);
 
   const setAccent = (a: Accent) => {
     setAccentState(a);
