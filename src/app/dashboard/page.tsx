@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Flame } from 'lucide-react';
+import { Flame, Settings as SettingsIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
@@ -214,10 +214,17 @@ export default function DashboardPage() {
                   {t('dashboard.title')}
                 </h1>
               </div>
-              <div className="flex items-start sm:items-center w-full sm:w-auto">
+              <div className="flex items-center justify-between w-full sm:w-auto gap-3">
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   {t('common.welcome')}, {user?.displayName}
                 </span>
+                <button
+                  aria-label="Settings"
+                  onClick={() => router.push('/settings')}
+                  className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+                >
+                  <SettingsIcon size={18} />
+                </button>
               </div>
             </div>
           </div>
@@ -608,14 +615,8 @@ export default function DashboardPage() {
             </div>
           )}
         </main>
-        {/* Sign out moved to bottom, subtle */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-          <div className="mt-6 flex justify-center">
-            <Button onClick={handleLogout} variant="outline" size="sm" className="text-gray-600 dark:text-gray-300">
-              {t('auth.sign_out')}
-            </Button>
-          </div>
-        </div>
+        {/* Bottom padding for safe area */}
+        <div className="pb-24" />
       </div>
     </ProtectedRoute>
   );
