@@ -26,6 +26,9 @@ export default function AdminUsersPage() {
 
   const pageSize = 20;
 
+  // Load users for the current page. Important: do NOT include `lastDoc` in deps
+  // to avoid recreating the callback when pagination cursor updates (which
+  // can cause useEffect loops). We read the latest `lastDoc` from state.
   const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -48,7 +51,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [pageSize, currentPage, lastDoc, showToast]);
+  }, [pageSize, currentPage, showToast]);
 
   const searchUsers = useCallback(async () => {
     try {
@@ -70,18 +73,26 @@ export default function AdminUsersPage() {
   }, [searchTerm, showToast]);
 
   useEffect(() => {
-    if (hasPermission('users', 'read')) {
-      loadUsers();
-    }
-  }, [currentPage, hasPermission, loadUsers]);
+    if (!hasPermission('users', 'read')) return;
+    // When searching, skip paged loading; search effect handles it.
+    if (searchTerm.trim().length > 0) return;
+    // Intentionally not including `loadUsers` to avoid loops when its identity
+    // changes due to state updates inside it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, hasPermission, searchTerm]);
 
   useEffect(() => {
-    if (searchTerm) {
+    const term = searchTerm.trim();
+    if (term.length > 0) {
       searchUsers();
     } else {
-      loadUsers();
+      // Reset to page 1 and let the other effect load
+      setCurrentPage(1);
     }
-  }, [searchTerm, loadUsers, searchUsers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   const loadUserSessions = async (userId: string) => {
     try {
