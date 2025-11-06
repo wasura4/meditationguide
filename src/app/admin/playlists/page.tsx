@@ -103,9 +103,14 @@ const AdminPlaylistsPage: React.FC = () => {
       setFormOpen(false);
       resetForm();
       showToast({ type: 'success', title: 'Playlist created', message: `Created "${name}".` });
-    } catch (e) {
+    } catch (e: unknown) {
       console.error('Create playlist failed', e);
-      showToast({ type: 'error', title: 'Error', message: 'Failed to create playlist.' });
+      const code = (e as any)?.code || (e as any)?.message || 'unknown-error';
+      let message = 'Failed to create playlist.';
+      if (String(code).includes('storage') || String(code).includes('permission')) {
+        message = 'Permission denied while uploading cover. Ensure Storage rules allow admin writes to playlist_covers and your account exists in admin_users.';
+      }
+      showToast({ type: 'error', title: 'Error', message });
     } finally {
       setSaving(false);
     }

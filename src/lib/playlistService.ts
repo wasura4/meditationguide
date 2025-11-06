@@ -100,6 +100,7 @@ export class PlaylistService {
       audioFiles: params.audioFiles || [],
       isPublic: params.isPublic ?? true,
       createdBy: params.createdBy,
+      userId: params.createdBy, // keep compatibility with rules and user queries
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
       thumbnailUrl: params.thumbnailUrl || null,
