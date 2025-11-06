@@ -96,7 +96,12 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
               <div className="text-sm"><span className="text-muted-foreground">Duration:</span><span className="ml-2 font-medium">{openSession.duration} minutes</span></div>
               <div className="text-sm"><span className="text-muted-foreground">Started:</span><span className="ml-2 font-medium">{format(openSession.startTime, 'PPpp')}</span></div>
               {openSession.endTime && (<div className="text-sm"><span className="text-muted-foreground">Completed:</span><span className="ml-2 font-medium">{format(openSession.endTime, 'PPpp')}</span></div>)}
-              {openSession.rating && (<div className="text-sm"><span className="text-muted-foreground">Rating:</span><span className="ml-2 text-yellow-500">{'★'.repeat(openSession.rating)}</span></div>)}
+              {openSession.rating && (
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Rating:</span>
+                  <span className="ml-2">{openSession.rating}/5</span>
+                </div>
+              )}
               {openSession.mood && (<div className="text-sm"><span className="text-muted-foreground">Mood:</span><span className="ml-2 capitalize">{openSession.mood}</span></div>)}
               {openSession.notes && (
                 <div className="pt-3 border-t border-border">
@@ -109,14 +114,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
         </div>
       )}
 
-                  <div className="flex items-center space-x-2">
-                    {session.rating && <span className="text-yellow-500 text-sm">{'★'.repeat(session.rating)}</span>}
-                    {session.mood && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground capitalize" title={session.mood}>
-                        {session.mood}
-                      </span>
-                    )}
-                  </div>
+                  <div className="flex items-center space-x-2" />
                 </div>
 
                 {/* Session Details */}

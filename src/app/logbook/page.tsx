@@ -625,18 +625,7 @@ export default function LogbookPage() {
                             {formatDate(session.createdAt)}
                           </p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {session.rating && (
-                            <span className="text-yellow-500 text-sm">
-                              {'Ã¢Â­Â'.repeat(session.rating)}
-                            </span>
-                          )}
-                          {session.mood && (
-                            <span className="text-sm">
-                              {getMoodEmoji(session.mood)}
-                            </span>
-                          )}
-                        </div>
+                        <div className="flex items-center space-x-2" />
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
