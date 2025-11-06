@@ -62,7 +62,7 @@ const AudioManagementPage: React.FC = () => {
                 onClick={() => handleTabChange('upload')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'upload'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -72,7 +72,7 @@ const AudioManagementPage: React.FC = () => {
                 onClick={() => handleTabChange('library')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'library'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -96,3 +96,4 @@ const AudioManagementPage: React.FC = () => {
 };
 
 export default AudioManagementPage;
+

@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
       <AdminProtectedRoute>
         <AdminLayout currentPage="/admin/dashboard">
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b9e7a] mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--ring)] mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading dashboard...</p>
           </div>
         </AdminLayout>
@@ -60,18 +60,18 @@ export default function AdminDashboardPage() {
       <AdminLayout currentPage="/admin/dashboard">
         <div className="space-y-6">
           {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-[#6b9e7a] to-[#5a8a68] rounded-xl p-6 text-white">
+          <div className="grad-brand rounded-xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold">
                   Welcome back, {adminUser?.displayName}! 🙏
                 </h1>
-                <p className="text-blue-100 mt-2">
+                <p className="text-[color:rgba(255,255,255,0.8)] mt-2">
                   Here&apos;s what&apos;s happening with Nirvanaya today
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-blue-100">Role</p>
+                <p className="text-sm text-[color:rgba(255,255,255,0.8)]">Role</p>
                 <p className="text-lg font-semibold capitalize">
                   {adminUser?.role?.replace('_', ' ')}
                 </p>
@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
                 <div className="p-3 bg-blue-100 rounded-lg">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                 </div>
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
                 <div className="p-3 bg-green-100 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -112,7 +112,7 @@ export default function AdminDashboardPage() {
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
                 <div className="p-3 bg-purple-100 rounded-lg">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                   </svg>
                 </div>
@@ -228,19 +228,19 @@ export default function AdminDashboardPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Database</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-[var(--color-status-success)]">
                     Online
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Storage</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-[var(--color-status-success)]">
                     Healthy
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">API</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-[var(--color-status-success)]">
                     Active
                   </span>
                 </div>
@@ -280,3 +280,4 @@ export default function AdminDashboardPage() {
     </AdminProtectedRoute>
   );
 }
+

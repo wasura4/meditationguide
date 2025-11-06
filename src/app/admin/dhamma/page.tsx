@@ -176,7 +176,7 @@ export default function DhammaContentPage() {
                 onClick={() => setActiveTab('library')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'library'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    ? 'border-[var(--primary)] text-[var(--primary)] dark:text-blue-400'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
               >
@@ -187,7 +187,7 @@ export default function DhammaContentPage() {
               </button>
               {activeTab === 'create' && (
                 <button
-                  className="border-blue-500 text-blue-600 dark:text-blue-400 py-2 px-1 border-b-2 font-medium text-sm"
+                  className="border-[var(--primary)] text-[var(--primary)] dark:text-blue-400 py-2 px-1 border-b-2 font-medium text-sm"
                 >
                   <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -197,7 +197,7 @@ export default function DhammaContentPage() {
               )}
               {activeTab === 'edit' && (
                 <button
-                  className="border-blue-500 text-blue-600 dark:text-blue-400 py-2 px-1 border-b-2 font-medium text-sm"
+                  className="border-[var(--primary)] text-[var(--primary)] dark:text-blue-400 py-2 px-1 border-b-2 font-medium text-sm"
                 >
                   <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -217,3 +217,4 @@ export default function DhammaContentPage() {
     </AdminProtectedRoute>
   );
 }
+
