@@ -22,41 +22,47 @@ export const LanguageManagement: React.FC = () => {
   const [showChangedEnglishOnly, setShowChangedEnglishOnly] = useState(false);
 
   const loadTranslations = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const dbTranslations = await LanguageService.getAllTranslations();
-      
-      // Get all keys from English translations
+      // Always start from English keys so UI never shows 0
       const allKeys = getAllKeys(enTranslations);
-      
-      // Create translation rows
-      const translationMap = new Map<string, Translation>();
-      dbTranslations.forEach(t => translationMap.set(t.key, t));
+      const baseRows: Translation[] = allKeys.map(key => ({
+        id: '',
+        key,
+        english: getNestedValue(enTranslations as Record<string, unknown>, key) || key,
+        sinhala: '',
+        category: getCategoryFromKey(key),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        updatedBy: adminUser?.id || '',
+      }));
 
-      const translationRows: Translation[] = allKeys.map(key => {
-        const existing = translationMap.get(key);
-        const englishValue = getNestedValue(enTranslations, key);
-        return existing || {
-          id: '',
-          key,
-          english: englishValue || key,
-          sinhala: '',
-          category: getCategoryFromKey(key),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          updatedBy: adminUser?.id || '',
-        } as Translation;
-      });
+      // Try overlay with Firestore values (if available)
+      let dbTranslations: Translation[] = [];
+      try {
+        dbTranslations = await LanguageService.getAllTranslations();
+      } catch (err) {
+        console.warn('Translations DB fetch failed, showing EN-only list.', err);
+      }
 
-      setTranslations(translationRows);
+      if (dbTranslations.length === 0) {
+        setTranslations(baseRows);
+        return;
+      }
+
+      const dbMap = new Map(dbTranslations.map(t => [t.key, t] as const));
+      const merged = baseRows.map(row => dbMap.get(row.key) ?? row);
+      setTranslations(merged);
     } catch (error) {
-      console.error('Error loading translations:', error);
+      console.error('Error building translations list:', error);
       showToast({
         type: 'error',
         title: 'Error',
-        message: 'Failed to load translations',
+        message: 'Failed to build translations list',
         duration: 5000,
       });
+      // Fallback to empty when something unexpected happens
+      setTranslations([]);
     } finally {
       setLoading(false);
     }
