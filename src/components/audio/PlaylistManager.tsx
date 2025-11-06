@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
@@ -20,6 +21,8 @@ interface Playlist {
   createdAt: Date;
   updatedAt: Date;
   userId: string;
+  thumbnailUrl?: string;
+  authorName?: string;
 }
 
 export function PlaylistManager() {
@@ -144,13 +147,15 @@ export function PlaylistManager() {
         const raw = d.data() as Record<string, unknown>;
         mine.push({
           id: d.id,
-          name: String(raw.name || ''),
-          description: String(raw.description || ''),
+          name: String((raw.name as string) || ''),
+          description: String((raw.description as string) || ''),
           audioFiles: (raw.audioFiles as KamatahanAudio[]) || [],
           isPublic: Boolean(raw.isPublic),
-          createdAt: (raw.createdAt as Date) || new Date(),
-          updatedAt: (raw.updatedAt as Date) || new Date(),
-          userId: String(raw.userId || ''),
+          createdAt: (raw.createdAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
+          updatedAt: (raw.updatedAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
+          userId: String((raw.userId as string) || ''),
+          thumbnailUrl: (raw.thumbnailUrl as string) || undefined,
+          authorName: (raw.authorName as string) || undefined,
         });
       });
 
@@ -161,13 +166,15 @@ export function PlaylistManager() {
         const raw = d.data() as Record<string, unknown>;
         pub.push({
           id: d.id,
-          name: String(raw.name || ''),
-          description: String(raw.description || ''),
+          name: String((raw.name as string) || ''),
+          description: String((raw.description as string) || ''),
           audioFiles: (raw.audioFiles as KamatahanAudio[]) || [],
           isPublic: Boolean(raw.isPublic),
-          createdAt: (raw.createdAt as Date) || new Date(),
-          updatedAt: (raw.updatedAt as Date) || new Date(),
-          userId: String(raw.userId || ''),
+          createdAt: (raw.createdAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
+          updatedAt: (raw.updatedAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
+          userId: String((raw.userId as string) || ''),
+          thumbnailUrl: (raw.thumbnailUrl as string) || undefined,
+          authorName: (raw.authorName as string) || undefined,
         });
       });
       const mergedMap = new Map<string, Playlist>();
@@ -654,81 +661,51 @@ export function PlaylistManager() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {playlists.map((playlist) => (
-            <div key={playlist.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
-              {/* Playlist Header */}
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2">
+            <div
+              key={playlist.id}
+              className="group rounded-xl bg-gradient-to-b from-zinc-800/30 to-zinc-900/60 backdrop-blur border border-zinc-700/40 overflow-hidden hover:border-zinc-500/50 transition-colors"
+            >
+              {/* Cover */}
+              <div className="relative aspect-square w-full bg-zinc-800">
+                {playlist.thumbnailUrl ? (
+                  <Image
+                    src={playlist.thumbnailUrl}
+                    alt={playlist.name}
+                    fill
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                    className="object-cover"
+                    priority={false}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 via-indigo-500/30 to-blue-500/30" />
+                )}
+                {/* Floating play button */}
+                <button
+                  aria-label="Play"
+                  onClick={() => startPlaylist(playlist)}
+                  className="absolute bottom-3 right-3 h-11 w-11 rounded-full bg-lime-400 text-black shadow-lg opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center"
+                >
+                  ▶
+                </button>
+              </div>
+
+              {/* Meta */}
+              <div className="p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-white line-clamp-2">
                     {playlist.name}
                   </h3>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    playlist.isPublic 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                  }`}>
+                  <span className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full ${playlist.isPublic ? 'bg-emerald-500/15 text-emerald-300' : 'bg-zinc-700 text-zinc-300'}` }>
                     {playlist.isPublic ? 'Public' : 'Private'}
                   </span>
                 </div>
-                
-                {playlist.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                    {playlist.description}
-                  </p>
+                {playlist.authorName && (
+                  <div className="mt-1 text-xs text-zinc-400">{playlist.authorName}</div>
                 )}
-
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <span>{playlist.audioFiles.length} track{playlist.audioFiles.length !== 1 ? 's' : ''}</span>
-                  <span>{new Date(playlist.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
-
-              {/* Playlist Actions */}
-              <div className="p-4">
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => startPlaylist(playlist)}
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Play
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => {
-                      // TODO: Implement playlist editing
-                      showToast({
-                        type: 'info',
-                        title: 'Coming Soon',
-                        message: 'Playlist editing will be implemented soon!',
-                        duration: 3000
-                      });
-                    }}
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Edit
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => deletePlaylist(playlist.id)}
-                    className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </Button>
+                <div className="mt-2 text-xs text-zinc-400">
+                  {playlist.audioFiles.length} track{playlist.audioFiles.length !== 1 ? 's' : ''}
                 </div>
               </div>
             </div>
