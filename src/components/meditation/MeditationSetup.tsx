@@ -271,7 +271,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
         )}
       </div>
 
-      {/* Duration Selection */
+      {/* Duration Selection */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
           Session Duration
