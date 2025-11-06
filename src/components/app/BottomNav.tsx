@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Brain, Library, Music, BookOpenText } from "lucide-react";
+import { Home, Brain, Library, Music, BarChart3 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type Item = { href: string; label: string; icon: React.ReactNode };
@@ -10,7 +10,7 @@ type Item = { href: string; label: string; icon: React.ReactNode };
 const baseItems = [
   { href: "/dashboard", key: "home", icon: <Home size={20} /> },
   { href: "/meditate", key: "meditate", icon: <Brain size={20} /> },
-  { href: "/dhamma", key: "dhamma", icon: <BookOpenText size={20} /> },
+  { href: "/analytics", key: "analytics", icon: <BarChart3 size={20} /> },
   { href: "/kamatahan", key: "kamatahan", icon: <Music size={20} /> },
   { href: "/logbook", key: "logbook", icon: <Library size={20} /> },
 ] as const;
