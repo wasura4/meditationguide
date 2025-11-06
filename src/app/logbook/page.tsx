@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -234,13 +234,13 @@ export default function LogbookPage() {
 
   const getMoodEmoji = (mood: string) => {
     const moodEmojis: Record<string, string> = {
-      excellent: '🌟',
-      good: '🙂',
-      neutral: '😐',
-      challenging: '😰',
-      difficult: '😓',
+      excellent: 'ðŸŒŸ',
+      good: 'ðŸ™‚',
+      neutral: 'ðŸ˜',
+      challenging: 'ðŸ˜°',
+      difficult: 'ðŸ˜“',
     };
-    return moodEmojis[mood] || '😐';
+    return moodEmojis[mood] || 'ðŸ˜';
   };
 
   // Get sessions for a specific date
@@ -484,11 +484,11 @@ export default function LogbookPage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
                 >
                   <option value="all">All Moods</option>
-                  <option value="excellent">Excellent 🌟</option>
-                  <option value="good">Good 🙂</option>
-                  <option value="neutral">Neutral 😐</option>
-                  <option value="challenging">Challenging 😰</option>
-                  <option value="difficult">Difficult 😓</option>
+                  <option value="excellent">Excellent ðŸŒŸ</option>
+                  <option value="good">Good ðŸ™‚</option>
+                  <option value="neutral">Neutral ðŸ˜</option>
+                  <option value="challenging">Challenging ðŸ˜°</option>
+                  <option value="difficult">Difficult ðŸ˜“</option>
                 </select>
               </div>
 
@@ -588,7 +588,7 @@ export default function LogbookPage() {
 
             {filteredSessions.length === 0 ? (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-                <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">📚</div>
+                <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">ðŸ“š</div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                   {sessions.length === 0 ? 'No sessions yet' : 'No sessions match your filters'}
                 </h3>
@@ -628,7 +628,7 @@ export default function LogbookPage() {
                         <div className="flex items-center space-x-2">
                           {session.rating && (
                             <span className="text-yellow-500 text-sm">
-                              {'â­'.repeat(session.rating)}
+                              {'Ã¢Â­Â'.repeat(session.rating)}
                             </span>
                           )}
                           {session.mood && (
@@ -698,7 +698,7 @@ export default function LogbookPage() {
                                 key={index}
                                 className="px-2 py-1 text-xs bg-muted dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full"
                               >
-                                💡 {insight}
+                                ðŸ’¡ {insight}
                               </span>
                             ))}
                           </div>
