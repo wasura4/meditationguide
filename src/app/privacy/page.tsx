@@ -1,4 +1,4 @@
-import { APP_CONFIG } from "@/constants";
+﻿import { APP_CONFIG } from "@/constants";
 
 export default function PrivacyPage() {
   return (
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
         <section>
           <p className="text-muted-foreground">
-            This Privacy Policy explains how {APP_CONFIG.name} ("we", "us") collects, uses, and protects your
+            This Privacy Policy explains how {APP_CONFIG.name} (&quot;we&quot;, &quot;us&quot;) collects, uses, and protects your
             information when you use our app.
           </p>
         </section>
@@ -50,8 +50,8 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-foreground">Your Choices</h2>
           <ul className="mt-2 list-disc pl-5 text-muted-foreground space-y-1">
-            <li>Export or delete your data from Settings → Data & Privacy</li>
-            <li>Change language and theme in Settings → Preferences</li>
+            <li>Export or delete your data from Settings &rarr; Data &amp; Privacy</li>
+            <li>Change language and theme in Settings &rarr; Preferences</li>
             <li>Contact us for account questions or data requests</li>
           </ul>
         </section>
