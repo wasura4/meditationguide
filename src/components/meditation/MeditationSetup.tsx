@@ -105,7 +105,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   }
 
   return (
-    <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+    <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-xl p-6 sm:p-8">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Prepare Your Session
@@ -140,7 +140,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             onClick={() => handleCategorySelect('all')}
             variant={selectedCategory === 'all' ? "meditation" : "outline"}
             size="sm"
-            className="px-4 py-2"
+            className="px-4 py-2 text-gray-800 dark:text-gray-100"
           >
             🌟 All Types
           </Button>
@@ -150,7 +150,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
               onClick={() => handleCategorySelect(category.id)}
               variant={selectedCategory === category.id ? "meditation" : "outline"}
               size="sm"
-              className="px-4 py-2"
+              className="px-4 py-2 text-gray-800 dark:text-gray-100"
             >
               {category.icon} {category.name}
             </Button>
@@ -175,14 +175,14 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             <p className="text-gray-600 dark:text-gray-300">
               No meditations found matching &quot;{searchQuery}&quot;
             </p>
-            <Button
-              onClick={() => setSearchQuery('')}
-              variant="outline"
-              size="sm"
-              className="mt-2"
-            >
-              Clear Search
-            </Button>
+              <Button
+                onClick={() => setSearchQuery('')}
+                variant="outline"
+                size="sm"
+                className="mt-2 text-gray-800 dark:text-gray-100"
+              >
+                Clear Search
+              </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
@@ -254,7 +254,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                 onClick={() => setCustomDuration(minutes)}
                 variant={customDuration === minutes ? "meditation" : "outline"}
                 size="sm"
-                className="px-4 py-2"
+                className="px-4 py-2 text-gray-800 dark:text-gray-100"
               >
                 {minutes}m
               </Button>
@@ -336,12 +336,12 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-center space-x-4">
+      <div className="flex justify-center gap-3 sm:gap-4">
         <Button
           onClick={onCancel}
           variant="outline"
           size="lg"
-          className="px-8 py-3"
+          className="px-6 sm:px-8 py-3 text-gray-800 dark:text-gray-100"
         >
           Cancel
         </Button>
@@ -349,7 +349,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
           onClick={handleStart}
           variant="meditation"
           size="lg"
-          className="px-8 py-3"
+          className="px-6 sm:px-8 py-3"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
