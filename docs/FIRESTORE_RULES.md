@@ -106,3 +106,83 @@ service firebase.storage {
   }
 }
 ```
+
+## Storage Rules (Copy-Paste FINAL)
+
+Paste this full block into Firebase Console ? Storage ? Rules. Combines existing dhamma_posts, audio, and adds admin-only playlist_covers. Deny all others.
+
+`ules
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null }
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/(default)/documents/admin_users/);
+    }
+
+    // Dhamma post images – signed-in users may upload
+    match /dhamma_posts/{imageFile} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Audio files – signed-in users may upload
+    match /audio/{audioFile} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Playlist cover photos – admins only
+    match /playlist_covers/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Default: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+`
+
+## Storage Rules (Copy-Paste FINAL)
+
+Paste this full block into Firebase Console ? Storage ? Rules. Combines existing dhamma_posts, audio, and adds admin-only playlist_covers. Deny all others.
+
+```rules
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null }
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/(default)/documents/admin_users/$(request.auth.uid));
+    }
+
+    // Dhamma post images – signed-in users may upload
+    match /dhamma_posts/{imageFile} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Audio files – signed-in users may upload
+    match /audio/{audioFile} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Playlist cover photos – admins only
+    match /playlist_covers/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Default: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```

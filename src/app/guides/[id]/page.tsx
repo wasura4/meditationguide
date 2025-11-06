@@ -4,34 +4,38 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PlaylistDoc, PlaylistService } from '@/lib/playlistService';
 
-// Accept Promise params to satisfy this repo's generated Next types
 export default function GuideDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [guide, setGuide] = useState<PlaylistDoc | null>(null);
   const [loading, setLoading] = useState(true);
-  const [resolvedId, setResolvedId] = useState<string | null>(null);
+  const [id, setId] = useState<string | null>(null);
 
+  // Resolve Promise-based params used by this repo's Next types
   useEffect(() => {
-    let mounted = true;
-    params.then((p) => { if (mounted) setResolvedId(p.id); });
-    return () => { mounted = false; };
+    let alive = true;
+    params.then((p) => {
+      if (alive) setId(p.id);
+    });
+    return () => {
+      alive = false;
+    };
   }, [params]);
 
   useEffect(() => {
-    if (!resolvedId) return;
+    if (!id) return;
     const load = async () => {
       try {
-        const g = await PlaylistService.getById(resolvedId);
+        const g = await PlaylistService.getById(id);
         setGuide(g);
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [resolvedId]);
+  }, [id]);
 
   if (loading) {
-    return <div className="p-6">Loading…</div>;
+    return <div className="p-6">Loading...</div>;
   }
   if (!guide) {
     return <div className="p-6">Not found</div>;
@@ -46,7 +50,7 @@ export default function GuideDetailPage({ params }: { params: Promise<{ id: stri
             ← Back
           </button>
           <div className="text-white/90 font-semibold">Class Insights</div>
-          <div className="text-white/90">⋮</div>
+          <div className="text-white/90">⏽</div>
         </div>
         <div className="absolute left-1/2 -bottom-14 -translate-x-1/2">
           <div className="h-28 w-28 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 border-4 border-background shadow-xl overflow-hidden">

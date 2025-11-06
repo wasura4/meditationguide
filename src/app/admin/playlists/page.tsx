@@ -10,6 +10,7 @@ import { KamatahanAudio } from '@/types/admin';
 import { db, storage } from '@/lib/firebase';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { FirebaseError } from 'firebase/app';
 import { PlaylistService, PlaylistDoc } from '@/lib/playlistService';
 
 const AdminPlaylistsPage: React.FC = () => {
@@ -105,7 +106,14 @@ const AdminPlaylistsPage: React.FC = () => {
       showToast({ type: 'success', title: 'Playlist created', message: `Created "${name}".` });
     } catch (e: unknown) {
       console.error('Create playlist failed', e);
-      const code = (e as any)?.code || (e as any)?.message || 'unknown-error';
+      let code = 'unknown-error';
+      if (e instanceof FirebaseError) {
+        code = e.code;
+      } else if (e && typeof e === 'object') {
+        // best-effort extraction of message
+        const maybeMsg = (e as { message?: unknown }).message;
+        if (typeof maybeMsg === 'string') code = maybeMsg;
+      }
       let message = 'Failed to create playlist.';
       if (String(code).includes('storage') || String(code).includes('permission')) {
         message = 'Permission denied while uploading cover. Ensure Storage rules allow admin writes to playlist_covers and your account exists in admin_users.';
