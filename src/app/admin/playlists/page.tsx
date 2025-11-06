@@ -32,6 +32,11 @@ const AdminPlaylistsPage: React.FC = () => {
   const [authorName, setAuthorName] = useState('');
   const canWrite = hasPermission('audio', 'create') || hasPermission('audio', 'update');
 
+  // Edit existing playlist
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState<PlaylistDoc | null>(null);
+  const [editSelectedIds, setEditSelectedIds] = useState<string[]>([]);
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -71,6 +76,32 @@ const AdminPlaylistsPage: React.FC = () => {
     setCoverFile(null);
     setCoverPreview(null);
     setAuthorName('');
+  };
+
+  const openEdit = (p: PlaylistDoc) => {
+    setEditing(p);
+    setEditSelectedIds((p.audioFiles || []).map((a) => a.id));
+    setEditOpen(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    try {
+      setSaving(true);
+      const selection = audioFiles.filter((a) => editSelectedIds.includes(a.id));
+      await PlaylistService.update(editing.id, { audioFiles: selection });
+      // refresh local state
+      setPlaylists((prev) => prev.map((x) => (x.id === editing.id ? { ...x, audioFiles: selection, updatedAt: new Date() } : x)));
+      setEditOpen(false);
+      setEditing(null);
+      setEditSelectedIds([]);
+      showToast({ type: 'success', title: 'Updated', message: 'Playlist tracks updated.' });
+    } catch (e) {
+      console.error('Failed to update playlist tracks', e);
+      showToast({ type: 'error', title: 'Error', message: 'Failed to update playlist tracks.' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const createPlaylist = async () => {
@@ -267,6 +298,9 @@ const AdminPlaylistsPage: React.FC = () => {
                             </Button>
                           )}
                           {canWrite && (
+                            <Button size="sm" variant="outline" onClick={() => openEdit(p)}>Edit</Button>
+                          )}
+                          {canWrite && (
                             <Button size="sm" variant="destructive" onClick={() => remove(p)}>Delete</Button>
                           )}
                         </div>
@@ -278,6 +312,43 @@ const AdminPlaylistsPage: React.FC = () => {
             </table>
           </div>
         </div>
+
+        {/* Edit Tracks Panel */}
+        {editOpen && editing && (
+          <div className="mt-6 rounded-lg border border-border p-4 space-y-4 bg-background">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Edit Tracks – {editing.name}</h2>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={() => { setEditOpen(false); setEditing(null); }}>Close</Button>
+                <Button onClick={saveEdit} loading={saving} disabled={!canWrite}>Save Changes</Button>
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">Select or deselect audio files to include in this playlist.</div>
+            <div className="max-h-80 overflow-auto rounded-md border border-border divide-y divide-border">
+              {filteredAudio.map((a) => {
+                const checked = editSelectedIds.includes(a.id);
+                return (
+                  <label key={a.id} className="flex items-center gap-3 px-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() =>
+                        setEditSelectedIds((prev) =>
+                          checked ? prev.filter((id) => id !== a.id) : [...prev, a.id]
+                        )
+                      }
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium">{a.title}</div>
+                      <div className="text-xs text-muted-foreground">{a.language?.toUpperCase()} • {a.category}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">{Math.round((a.duration || 0) / 60)}m</div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </AdminLayout>
     </AdminProtectedRoute>
   );
