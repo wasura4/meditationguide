@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { QueryDocumentSnapshot } from 'firebase/firestore';
@@ -326,7 +326,7 @@ export default function AdminUsersPage() {
                             <div key={session.id} className="p-2 bg-gray-50 rounded text-xs">
                               <p className="font-medium text-gray-900">{session.typeName}</p>
                               <p className="text-gray-500">
-                                {session.duration} min • {formatDate(session.createdAt)}
+                                {session.duration} min ï¿½ {formatDate(session.createdAt)}
                               </p>
                             </div>
                           ))}
@@ -354,6 +354,7 @@ export default function AdminUsersPage() {
     </AdminProtectedRoute>
   );
 }
+
 
 
 
