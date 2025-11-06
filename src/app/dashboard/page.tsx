@@ -105,6 +105,10 @@ export default function DashboardPage() {
           getUserDhammaReadsCount(user.id),
         ]);
 
+        // Resolve favorite meditation type name from id
+        const favoriteTypeId = userStats.favoriteType;
+        const favoriteTypeName = meditationTypes.find(t => t.typeId === favoriteTypeId)?.typeName || 'None yet';
+
         setStats({
           totalSessions: userStats.totalSessions,
           totalMinutes: userStats.totalMinutes,
@@ -112,7 +116,7 @@ export default function DashboardPage() {
           longestStreak: userStats.longestStreak,
           thisWeekMinutes,
           lastWeekMinutes,
-          favoriteMeditationType: userStats.favoriteType || 'None yet',
+          favoriteMeditationType: favoriteTypeName,
           dhammaPostsRead: dhammaReads,
           audioSessions,
           averageSessionLength: userStats.averageSessionLength,
