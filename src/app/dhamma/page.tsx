@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { DhammaContentLibrary } from '@/components/dhamma/DhammaContentLibrary';
+import { DhammaArticleList } from '@/components/dhamma/DhammaArticleList';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { FavoritesLibrary } from '@/components/dhamma/FavoritesLibrary';
 
@@ -82,7 +83,7 @@ export default function DhammaPage() {
           {/* Tab Content */}
           <div className="min-h-[600px]">
             {activeTab === 'library' ? (
-              <DhammaContentLibrary />
+              <DhammaArticleList />
             ) : (
               <FavoritesLibrary />
             )}
