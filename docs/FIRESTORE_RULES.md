@@ -12,9 +12,11 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
     }
 
-    // Users can read/write their own profile
+    // Users collection
+    // - Users can read/write their own profile
+    // - Admins can read/write all users (needed for Admin → Users and Analytics)
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
+      allow read, write: if request.auth.uid == userId || isAdmin();
     }
 
     // User favorites (subcollection)
@@ -22,12 +24,15 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == userId;
     }
 
-    // Meditation sessions (owner only)
+    // Meditation sessions
+    // - Owners can fully manage their own sessions
+    // - Admins can read all sessions (needed for Admin Analytics)
     match /meditation_sessions/{sessionId} {
-      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
       allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
-      allow update: if isSignedIn() && request.auth.uid == resource.data.userId;
-      allow delete: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.userId;
     }
 
     // Admin users
