@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Flame } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
@@ -175,13 +176,11 @@ export default function DashboardPage() {
     return stats.weeklyGoalProgress;
   };
 
-  const getStreakEmoji = (streak: number) => {
-    if (streak >= 21) return "";
-    if (streak >= 14) return "";
-    if (streak >= 7) return "";
-    if (streak >= 3) return "";
-    return "";
-  };
+  const StreakIcon = () => (
+    <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-amber-100">
+      <Flame className="w-5 h-5 text-amber-600" />
+    </span>
+  );
 
   if (loading) {
     return (
@@ -247,7 +246,7 @@ export default function DashboardPage() {
                   </p>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
                     <div className="flex items-center space-x-2">
-                      <span className="text-xl sm:text-2xl">{getStreakEmoji(stats?.currentStreak || 0)}</span>
+                      <StreakIcon />
                       <span className="text-base sm:text-lg font-semibold">
                         {stats?.currentStreak || 0} day streak
                       </span>
@@ -297,7 +296,7 @@ export default function DashboardPage() {
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{t('dashboard.stats.days')}</p>
                 </div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
-                  <span className="text-xl sm:text-2xl">{getStreakEmoji(stats?.currentStreak || 0)}</span>
+                  <StreakIcon />
                 </div>
               </div>
             </div>

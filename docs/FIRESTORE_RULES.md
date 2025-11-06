@@ -17,6 +17,11 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == userId;
     }
 
+    // User favorites (subcollection)
+    match /users/{userId}/favorites/{postId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
     // Meditation sessions (owner only)
     match /meditation_sessions/{sessionId} {
       allow read: if isSignedIn() && request.auth.uid == resource.data.userId;

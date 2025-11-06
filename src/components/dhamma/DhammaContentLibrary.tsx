@@ -90,7 +90,7 @@ export function DhammaContentLibrary() {
   return (
     <div className="space-y-6">
       {/* Search and Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-background rounded-lg p-6 shadow-sm border border-border">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
@@ -103,7 +103,7 @@ export function DhammaContentLibrary() {
                 placeholder="Search Dhamma posts by title, content, or tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent bg-background text-foreground"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ export function DhammaContentLibrary() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent bg-background text-foreground"
             >
               {categories.map((category) => (
                 <option key={category} value={category}>
@@ -128,7 +128,7 @@ export function DhammaContentLibrary() {
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent bg-background text-foreground"
             >
               {languages.map((language) => (
                 <option key={language} value={language}>

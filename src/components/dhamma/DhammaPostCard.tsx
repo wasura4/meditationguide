@@ -1,9 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DhammaPost } from '@/types/admin';
+import { useAuth } from '@/contexts/AuthContext';
+import { isFavorited, toggleFavorite } from '@/lib/favoritesService';
 
 interface DhammaPostCardProps {
   post: DhammaPost;
@@ -13,113 +15,84 @@ interface DhammaPostCardProps {
 
 export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCardProps) {
   const router = useRouter();
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+  const { user } = useAuth();
+  const [fav, setFav] = useState(false);
 
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      meditation: 'bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
-      buddhism: 'bg-muted text-purple-800 dark:bg-purple-900/20 dark:text-purple-200',
-      philosophy: 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-200',
-      practice: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200',
-      teachings: 'bg-red-100 text-[var(--color-status-error)] dark:bg-[var(--color-status-error)]/20 dark:text-[var(--color-status-error)]'
-    };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-  };
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!user?.id) return;
+      const v = await isFavorited(user.id, post.id);
+      if (alive) setFav(v);
+    })();
+    return () => { alive = false; };
+  }, [user?.id, post.id]);
 
-  const getLanguageLabel = (language: string) => {
-    const labels = {
-      en: 'English',
-      si: 'Sinhala',
-      pa: 'Pali'
-    };
-    return labels[language as keyof typeof labels] || language;
-  };
+  const onToggleFav = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user?.id) return;
+    const res = await toggleFavorite(user.id, post.id);
+    setFav(res === 'added');
+  }, [user?.id, post.id]);
+
+  const formatDate = (date: Date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const getLanguageLabel = (lng: string) => ({ en: 'English', si: 'Sinhala', pa: 'Pali' }[lng as 'en'|'si'|'pa'] || lng);
 
   return (
-    <div 
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border transition-all duration-200 hover:shadow-md cursor-pointer ${
-        featured 
-          ? 'border-yellow-300 dark:border-yellow-600 shadow-yellow-100 dark:shadow-yellow-900/20' 
-          : 'border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600'
-      }`}
+    <div
+      className={`bg-background rounded-lg shadow-sm overflow-hidden border transition-all duration-200 hover:shadow-md cursor-pointer border-border`}
       onClick={onClick || (() => router.push(`/dhamma/${post.id}`))}
     >
-      {/* Featured Badge */}
       {featured && (
-        <div className="bg-yellow-500 text-white text-xs font-semibold px-3 py-1 text-center">
-          ⭐ Featured Post
+        <div className="bg-amber-500 text-white text-xs font-semibold px-3 py-1 text-center">
+          <span className="inline-flex items-center">
+            <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            Featured Post
+          </span>
         </div>
       )}
 
-      {/* Post Thumbnail */}
-      <div className="h-48 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 flex items-center justify-center relative">
+      <div className="h-48 bg-muted flex items-center justify-center relative">
         {post.featuredImage ? (
-          <img 
-            src={post.featuredImage} 
-            alt={post.title}
-            className="w-full h-full object-cover"
-          />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover" />
         ) : (
           <div className="text-center">
-            <svg className="w-16 h-16 text-[var(--primary)] dark:text-purple-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 text-[var(--primary)] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.523 18.246 19 16.5 19c-1.746 0-3.332-.477-4.5-1.253" />
             </svg>
-            <p className="text-sm text-[var(--primary)] dark:text-purple-400 font-medium">Dhamma Teaching</p>
+            <p className="text-sm text-[var(--primary)] font-medium">Dhamma Teaching</p>
           </div>
         )}
-        
-        {/* Category Badge */}
-        <div className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(post.category)}`}>
+
+        <div className="absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium bg-muted text-foreground">
           {post.category.charAt(0).toUpperCase() + post.category.slice(1)}
         </div>
-
-        {/* Language Badge */}
-        <div className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+        <div className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium bg-muted text-foreground">
           {getLanguageLabel(post.language)}
         </div>
+        {user?.id && (
+          <button
+            aria-label="Toggle favorite"
+            onClick={onToggleFav}
+            className={`absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center border transition-colors ${fav ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'bg-background/80 text-foreground border-border hover:bg-muted'}`}
+          >
+            <svg className="w-5 h-5" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        )}
       </div>
 
-      {/* Post Content */}
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 text-lg leading-tight">
-            {post.title}
-          </h3>
+          <h3 className="font-semibold text-foreground line-clamp-2 text-lg leading-tight">{post.title}</h3>
         </div>
-        
         {post.excerpt && (
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3 leading-relaxed">
-            {post.excerpt}
-          </p>
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-3 leading-relaxed">{post.excerpt}</p>
         )}
 
-        {/* Tags */}
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
-            {post.tags.slice(0, 3).map((tag) => (
-              <span 
-                key={tag} 
-                className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded"
-              >
-                #{tag}
-              </span>
-            ))}
-            {post.tags.length > 3 && (
-              <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
-                +{post.tags.length - 3} more
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Post Meta */}
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
           <div className="flex items-center space-x-3">
             <span className="flex items-center">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,24 +111,20 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
           <span>{formatDate(post.createdAt)}</span>
         </div>
 
-        {/* Author */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-muted dark:bg-purple-900/20 rounded-full flex items-center justify-center">
-              <svg className="w-3 h-3 text-[var(--primary)] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <span className="text-xs text-gray-600 dark:text-gray-400">
-              {post.authorName || 'Admin'}
-            </span>
+            <span className="text-xs text-muted-foreground">{post.authorName || 'Admin'}</span>
           </div>
 
-          {/* Learn Button */}
           <Button
             variant="outline"
             size="sm"
-            className="text-[var(--primary)] border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
+            className="text-[var(--primary)] border-border hover:bg-[var(--primary)]/10"
             onClick={(e) => { e.stopPropagation(); router.push(`/dhamma/${post.id}`); }}
           >
             Learn

@@ -128,7 +128,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             placeholder="Search meditations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
           />
         </div>
       </div>
@@ -142,7 +142,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             size="sm"
             className="px-4 py-2 text-gray-800 dark:text-gray-100"
           >
-            🌟 All Types
+            All Types
           </Button>
           {MEDITATION_CATEGORY_DETAILS_UI.map((category) => (
             <Button
@@ -192,7 +192,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                 onClick={() => handleTypeSelect(type.id)}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
                   selectedType === type.id
-                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20 shadow-lg'
+                    ? 'border-[var(--primary)] bg-[var(--primary)]/10 dark:bg-[var(--primary)]/10 shadow-lg'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
@@ -202,7 +202,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                       {type.name}
                     </h4>
                     {selectedType === type.id && (
-                      <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                      <div className="w-5 h-5 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0 ml-2">
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
@@ -275,7 +275,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                 max={TIMER_SETTINGS.maxDuration}
                 value={customDuration}
                 onChange={(e) => handleDurationChange(parseInt(e.target.value) || TIMER_SETTINGS.defaultDuration)}
-                className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
               />
               <span className="text-sm text-gray-600 dark:text-gray-300">minutes</span>
             </div>
@@ -288,9 +288,9 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
 
       {/* Session Summary */}
       {selectedMeditation && (
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-8 border border-blue-200 dark:border-blue-800">
+        <div className="bg-muted rounded-lg p-6 mb-8 border border-border">
           <h4 className="font-semibold text-gray-900 dark:text-white mb-4 text-center">
-            🎯 Session Summary
+            Session Summary
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="flex items-center">
@@ -319,7 +319,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             </div>
           </div>
           {selectedMeditation.tags && (
-            <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
+            <div className="mt-4 pt-4 border-t border-border">
               <div className="flex flex-wrap gap-2 justify-center">
                 {selectedMeditation.tags.map((tag, index) => (
                   <span
