@@ -2,13 +2,35 @@
 
 import Link from "next/link";
 import { APP_CONFIG } from "@/constants";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Redirect signed-in users to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/dashboard');
+    }
+  }, [loading, user, router]);
+
+  // Keep UI minimal while auth state resolves
+  if (loading) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  // If user is signed in, redirect to dashboard (client‑side)
+  if (!loading && user) {
+    // Use replace so back button doesn’t return to home
+    router.replace('/dashboard');
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4]">
@@ -40,20 +62,23 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">              <Link
-                href="/auth"
-                className="inline-flex items-center px-4 py-2 text-slate-600 hover:text-[var(--primary)] transition-colors"
-              >
-                {t('auth.sign_in')}
-              </Link>
-              <Link
-                href="/auth?mode=register"
-                className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                {t('home.hero.start_journey')}
-              </Link>
-            </div>
+            {/* Desktop Auth Buttons (hide when logged in) */}
+            {!user && (
+              <div className="hidden md:flex items-center space-x-4">
+                <Link
+                  href="/auth"
+                  className="inline-flex items-center px-4 py-2 text-slate-600 hover:text-[var(--primary)] transition-colors"
+                >
+                  {t('auth.sign_in')}
+                </Link>
+                <Link
+                  href="/auth?mode=register"
+                  className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  {t('home.hero.start_journey')}
+                </Link>
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-3">              <button
@@ -72,9 +97,9 @@ export default function Home() {
           </div>
 
           {/* Mobile Navigation Menu */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-slate-200">
-              <div className="flex flex-col space-y-3">
+           {isMobileMenuOpen && (
+             <div className="md:hidden py-4 border-t border-slate-200">
+               <div className="flex flex-col space-y-3">
                 <Link 
                   href="#features" 
                   className="text-slate-600 hover:text-[var(--primary)] transition-colors px-3 py-2 rounded-lg hover:bg-slate-50"
@@ -96,22 +121,24 @@ export default function Home() {
                 >
                   {t('navigation.contact')}
                 </Link>
-                <div className="pt-2 border-t border-slate-200">
-                  <Link
-                    href="/auth"
-                    className="block w-full text-center px-4 py-2 text-slate-600 hover:text-[var(--primary)] transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {t('auth.sign_in')}
-                  </Link>
-                  <Link
-                    href="/auth?mode=register"
-                    className="block w-full text-center mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {t('home.hero.start_journey')}
-                  </Link>
-                </div>
+                {!user && (
+                  <div className="pt-2 border-t border-slate-200">
+                    <Link
+                      href="/auth"
+                      className="block w-full text-center px-4 py-2 text-slate-600 hover:text-[var(--primary)] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {t('auth.sign_in')}
+                    </Link>
+                    <Link
+                      href="/auth?mode=register"
+                      className="block w-full text-center mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {t('home.hero.start_journey')}
+                    </Link>
+                  </div>
+                )}
               </div>
               <div className="mt-6">
                 <h4 className="text-sm font-semibold text-slate-300 mb-2">{t('common.language')}</h4>

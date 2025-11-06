@@ -8,6 +8,7 @@ import { PreferencesSection, AppPreferences } from '@/components/settings/Prefer
 import { DataPrivacySection } from '@/components/settings/DataPrivacySection';
 import { EditProfileModal } from '@/components/settings/EditProfileModal';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExportData {
@@ -27,6 +28,7 @@ interface ExportData {
 export default function SettingsPage() {
   const router = useRouter();
   const { t } = useLanguage();
+  const { logout } = useAuth();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'data'>('profile');
 
@@ -161,6 +163,25 @@ export default function SettingsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                   <span className="text-sm">{t('dashboard.actions.view_analytics')}</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Account */}
+            <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-border">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Account</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Manage your account access.</p>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await logout();
+                      router.replace('/');
+                    } catch (_) {}
+                  }}
+                >
+                  {t('auth.sign_out')}
                 </Button>
               </div>
             </div>

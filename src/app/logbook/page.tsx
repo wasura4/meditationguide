@@ -270,7 +270,7 @@ export default function LogbookPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Header */}
-        `<header className="bg-white sticky top-0 z-10 dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <header className="bg-white sticky top-0 z-10 dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-screen-md md:max-w-3xl mx-auto px-4">
             <div className="flex flex-wrap gap-2 justify-between items-center py-3">
               <div className="flex items-center space-x-2">
@@ -334,16 +334,7 @@ export default function LogbookPage() {
                        </svg>
                        Refresh
                      </Button>
-                     <Button
-                       onClick={() => router.push('/meditate')}
-                       variant="meditation"
-                       size="sm"
-                     >
-                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                       </svg>
-                       New Session
-                     </Button>
+                      {/* New Session button removed per request */}
                    </div>
             </div>
           </div>
