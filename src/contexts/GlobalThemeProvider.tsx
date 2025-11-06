@@ -29,6 +29,9 @@ function applyThemeToCSS(theme: AdminTheme) {
     '--border': theme.border,
     '--input': theme.input,
     '--ring': theme.ring,
+    '--header-bg': theme.headerBg || DEFAULT_ADMIN_THEME.headerBg!,
+    '--brand-grad-from': theme.brandGradFrom || DEFAULT_ADMIN_THEME.brandGradFrom!,
+    '--brand-grad-to': theme.brandGradTo || DEFAULT_ADMIN_THEME.brandGradTo!,
   };
   Object.entries(map).forEach(([k, v]) => r.style.setProperty(k, v));
 }
@@ -55,4 +58,3 @@ export const GlobalThemeProvider: React.FC<{ children: React.ReactNode } > = ({ 
     <GlobalThemeContext.Provider value={value}>{children}</GlobalThemeContext.Provider>
   );
 };
-

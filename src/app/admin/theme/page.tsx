@@ -70,6 +70,9 @@ export default function AdminThemePage() {
               <ColorField label="Accent Text" value={theme.accentForeground} onChange={(v) => setTheme(t => ({ ...t, accentForeground: v }))} />
               <ColorField label="Muted" value={theme.muted} onChange={(v) => setTheme(t => ({ ...t, muted: v }))} />
               <ColorField label="Muted Text" value={theme.mutedForeground} onChange={(v) => setTheme(t => ({ ...t, mutedForeground: v }))} />
+              <ColorField label="Header Background" value={theme.headerBg || ''} onChange={(v) => setTheme(t => ({ ...t, headerBg: v }))} />
+              <ColorField label="Brand Grad From" value={theme.brandGradFrom || ''} onChange={(v) => setTheme(t => ({ ...t, brandGradFrom: v }))} />
+              <ColorField label="Brand Grad To" value={theme.brandGradTo || ''} onChange={(v) => setTheme(t => ({ ...t, brandGradTo: v }))} />
             </div>
 
             <div className="space-y-3 rounded-lg border border-border p-4 bg-background">

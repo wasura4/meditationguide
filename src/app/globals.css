@@ -108,6 +108,11 @@
   --color-status-error: #ef4444;
   --color-status-warning: #f59e0b;
   --color-status-info: #3b82f6;
+
+  /* Semantic app tokens (admin‑controlled) */
+  --header-bg: var(--color-gray-900);
+  --brand-grad-from: #8b5cf6; /* purple-500 */
+  --brand-grad-to: #3b82f6;   /* blue-500 */
 }
 
 @theme inline {
@@ -129,6 +134,10 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+
+/* Utility classes for theme surfaces */
+.bg-header { background-color: var(--header-bg); }
+.grad-brand { background-image: linear-gradient(90deg, var(--brand-grad-from), var(--brand-grad-to)); }
 
 /* Dark mode palette */
 .dark {

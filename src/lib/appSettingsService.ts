@@ -14,6 +14,10 @@ export type AdminTheme = {
   border: string;
   input: string;
   ring: string;
+  // semantic surfaces
+  headerBg?: string;
+  brandGradFrom?: string;
+  brandGradTo?: string;
 };
 
 export const DEFAULT_ADMIN_THEME: AdminTheme = {
@@ -28,6 +32,9 @@ export const DEFAULT_ADMIN_THEME: AdminTheme = {
   border: '#e2e8f0',
   input: '#e2e8f0',
   ring: '#6b9e7a',
+  headerBg: '#111827',
+  brandGradFrom: '#8b5cf6',
+  brandGradTo: '#3b82f6',
 };
 
 const THEME_DOC = doc(db, 'app_settings', 'theme');
@@ -55,4 +62,3 @@ export async function setAdminTheme(theme: AdminTheme): Promise<void> {
     { merge: true }
   );
 }
-
