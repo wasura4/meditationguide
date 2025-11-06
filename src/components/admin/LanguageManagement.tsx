@@ -101,7 +101,7 @@ export const LanguageManagement: React.FC = () => {
       showToast({
         type: 'error',
         title: 'Error',
-        message: 'Failed to save translation',
+        message: (error as { message?: string })?.message || 'Failed to save translation',
         duration: 5000,
       });
     } finally {
