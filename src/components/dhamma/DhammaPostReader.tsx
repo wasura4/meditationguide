@@ -31,13 +31,13 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      meditation: 'bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
-      buddhism: 'bg-muted text-purple-800 dark:bg-purple-900/20 dark:text-purple-200',
-      philosophy: 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-200',
-      practice: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200',
-      teachings: 'bg-red-100 text-[var(--color-status-error)] dark:bg-[var(--color-status-error)]/20 dark:text-[var(--color-status-error)]'
+      meditation: 'bg-primary/10 text-primary',
+      buddhism: 'bg-primary/10 text-primary',
+      philosophy: 'bg-primary/10 text-primary',
+      practice: 'bg-primary/10 text-primary',
+      teachings: 'bg-primary/10 text-primary'
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    return colors[category as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const getLanguageLabel = (language: string) => {
@@ -51,7 +51,7 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-background border-b sticky top-0 z-10 backdrop-blur-sm bg-background/95">
         <div className="max-w-3xl mx-auto px-4 py-3">
@@ -72,7 +72,7 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
               variant="ghost"
               size="sm"
               onClick={() => setIsBookmarked(!isBookmarked)}
-              className={isBookmarked ? 'text-yellow-500' : ''}
+              className={isBookmarked ? 'text-primary' : ''}
             >
               <svg className="w-5 h-5" fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -95,7 +95,7 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
               {getLanguageLabel(post.language)}
             </span>
             {post.featured && (
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200">
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-accent/50 text-accent-foreground">
                 ⭐ Featured
               </span>
             )}
@@ -191,7 +191,7 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsBookmarked(!isBookmarked)}
-                className={`flex items-center gap-2 ${isBookmarked ? 'text-yellow-600 border-yellow-300' : ''}`}
+                className={`flex items-center gap-2 ${isBookmarked ? 'text-primary border-primary' : ''}`}
               >
                 <svg className="w-4 h-4" fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

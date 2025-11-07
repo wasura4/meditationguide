@@ -383,7 +383,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-primary to-purple-600 h-3 rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-primary via-primary to-primary/80 h-3 rounded-full transition-all duration-500"
                       style={{ width: `${getProgressPercentage()}%` }}
                     ></div>
                   </div>
@@ -579,19 +579,19 @@ export default function DashboardPage() {
 
           {/* Guest Upgrade Notice */}
           {user?.isAnonymous && (
-            <div className="mt-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
+            <div className="mt-8 bg-accent/50 border rounded-xl p-6">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-lg font-medium text-yellow-800 dark:text-yellow-200">
+                  <h3 className="text-lg font-medium">
                     Upgrade Your Account
                   </h3>
-                  <p className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                    You are currently using a guest account. Upgrade to a full account to save your progress, 
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    You are currently using a guest account. Upgrade to a full account to save your progress,
                     track your meditation sessions, and access all features.
                   </p>
                   <div className="mt-4">
@@ -599,7 +599,6 @@ export default function DashboardPage() {
                       onClick={() => router.push('/auth?mode=register')}
                       variant="outline"
                       size="sm"
-                      className="border-yellow-300 text-yellow-700 hover:bg-yellow-100 dark:border-yellow-600 dark:text-yellow-300 dark:hover:bg-yellow-900/30"
                     >
                       Upgrade Now
                     </Button>

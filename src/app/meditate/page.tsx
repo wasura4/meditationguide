@@ -196,71 +196,71 @@ export default function MeditatePage() {
              
              case 'complete':
                return (
-                 <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
-                   <div className="w-20 h-20 bg-muted dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                     <svg className="w-10 h-10 text-[var(--primary)] dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <div className="max-w-md mx-auto bg-card rounded-2xl shadow-xl p-8 text-center border">
+                   <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                     <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                      </svg>
                    </div>
-                   
-                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+
+                   <h2 className="text-2xl font-bold mb-2">
                      Session Complete!
                    </h2>
-                   <p className="text-gray-600 dark:text-gray-300 mb-6">
+                   <p className="text-muted-foreground mb-6">
                      Great job! You&apos;ve completed your meditation session.
                    </p>
                    
                    {completedSession && (
-                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
-                       <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+                     <div className="bg-muted/50 rounded-lg p-4 mb-6">
+                       <h3 className="font-semibold mb-3">
                          Session Summary
                        </h3>
                        <div className="grid grid-cols-2 gap-4 text-sm">
                          <div>
-                           <span className="text-gray-600 dark:text-gray-300">Type:</span>
-                           <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                           <span className="text-muted-foreground">Type:</span>
+                           <span className="ml-2 font-medium">
                              {completedSession.typeName}
                            </span>
                          </div>
                          <div>
-                           <span className="text-gray-600 dark:text-gray-300">Duration:</span>
-                           <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                           <span className="text-muted-foreground">Duration:</span>
+                           <span className="ml-2 font-medium">
                              {completedSession.duration}m
                            </span>
                          </div>
                          <div>
-                           <span className="text-gray-600 dark:text-gray-300">Started:</span>
-                           <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                           <span className="text-muted-foreground">Started:</span>
+                           <span className="ml-2 font-medium">
                              {completedSession.startTime.toLocaleTimeString()}
                            </span>
                          </div>
                          <div>
-                           <span className="text-gray-600 dark:text-gray-300">Completed:</span>
-                           <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                           <span className="text-muted-foreground">Completed:</span>
+                           <span className="ml-2 font-medium">
                              {completedSession.endTime?.toLocaleTimeString()}
                            </span>
                          </div>
                          {completedSession.rating && (
                            <div>
-                             <span className="text-gray-600 dark:text-gray-300">Rating:</span>
-                             <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                             <span className="text-muted-foreground">Rating:</span>
+                             <span className="ml-2 font-medium">
                                {'⭐'.repeat(completedSession.rating)}
                              </span>
                            </div>
                          )}
                          {completedSession.mood && (
                            <div>
-                             <span className="text-gray-600 dark:text-gray-300">Mood:</span>
-                             <span className="ml-2 font-medium text-gray-900 dark:text-white capitalize">
+                             <span className="text-muted-foreground">Mood:</span>
+                             <span className="ml-2 font-medium capitalize">
                                {completedSession.mood}
                              </span>
                            </div>
                          )}
                        </div>
                        {completedSession.notes && (
-                         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                           <h4 className="font-medium text-gray-900 dark:text-white mb-2">Notes:</h4>
-                           <p className="text-sm text-gray-600 dark:text-gray-300 italic">
+                         <div className="mt-4 pt-4 border-t">
+                           <h4 className="font-medium mb-2">Notes:</h4>
+                           <p className="text-sm text-muted-foreground italic">
                              &quot;{completedSession.notes}&quot;
                            </p>
                          </div>

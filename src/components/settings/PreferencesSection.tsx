@@ -98,9 +98,9 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+    <div className="bg-card rounded-xl p-6 shadow-lg border">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold">
           App Preferences
         </h3>
         <div className="flex space-x-2">
@@ -121,7 +121,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
       <div className="space-y-6">
         {/* Appearance (live, persisted) */}
         <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">Appearance</label>
+          <label className="text-sm font-medium mb-3 block">Appearance</label>
           <div className="mb-3 flex gap-2">
             {(['light','dark','system'] as const).map(m => (
               <Button key={m} size="sm" variant={theme===m? 'default':'outline'} onClick={() => setMode(m)}>
@@ -130,7 +130,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
             ))}
           </div>
           <div className="mb-3">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Accent</p>
+            <p className="text-xs text-muted-foreground mb-1">Accent</p>
             <div className="grid grid-cols-6 gap-2">
               {(['green','blue','violet','amber','rose','teal'] as Array<'green'|'blue'|'violet'|'amber'|'rose'|'teal'>).map((a) => (
                 <button key={a} onClick={() => setAccent(a)} className={`h-8 rounded-md border ${accent===a? 'ring-2 ring-primary':''}`} style={{ background: 'var(--primary)' }} />
@@ -138,13 +138,13 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
             </div>
           </div>
           <div>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Radius: {radius}px</p>
+            <p className="text-xs text-muted-foreground mb-1">Radius: {radius}px</p>
             <input type="range" min={4} max={20} value={radius} onChange={(e)=> setRadius(parseInt(e.target.value))} />
           </div>
         </div>
         {/* Theme Preference */}
         <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
+          <label className="text-sm font-medium mb-3 block">
             Theme
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -154,17 +154,17 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 onClick={() => handlePreferenceChange('theme', theme)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.theme === theme
-                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
                 }`}
               >
                 <div className="text-center">
-                  <div className="flex items-center justify-center mb-1 text-gray-900 dark:text-white">
+                  <div className="flex items-center justify-center mb-1">
                     {theme === 'light' && <Sun size={20} />}
                     {theme === 'dark' && <Moon size={20} />}
                     {theme === 'auto' && <Monitor size={20} />}
                   </div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                  <div className="text-sm font-medium capitalize">
                     {theme}
                   </div>
                 </div>
@@ -175,7 +175,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
 
         {/* Time Format */}
         <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
+          <label className="text-sm font-medium mb-3 block">
             Time Format
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -185,15 +185,15 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 onClick={() => handlePreferenceChange('timeFormat', format)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.timeFormat === format
-                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
                 }`}
               >
                 <div className="text-center">
-                  <div className="text-lg font-mono text-gray-900 dark:text-white mb-1">
+                  <div className="text-lg font-mono mb-1">
                     {format === '12h' ? '1:30 PM' : '13:30'}
                   </div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  <div className="text-sm font-medium">
                     {format === '12h' ? '12-hour' : '24-hour'}
                   </div>
                 </div>
@@ -204,7 +204,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
 
         {/* Default Meditation Duration */}
         <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
+          <label className="text-sm font-medium mb-3 block">
             Default Meditation Duration
           </label>
           <div className="grid grid-cols-5 gap-2">
@@ -214,15 +214,15 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 onClick={() => handlePreferenceChange('defaultDuration', duration)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.defaultDuration === duration
-                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
                 }`}
               >
                 <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <div className="text-lg font-semibold">
                     {duration}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                  <div className="text-xs text-muted-foreground">
                     minutes
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
 
         {/* Language */}
         <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
+          <label className="text-sm font-medium mb-3 block">
             Language
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -250,15 +250,15 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
                 }}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.language === lang.code
-                    ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
                 }`}
               >
                 <div className="text-center">
-                  <div className="flex items-center justify-center mb-1 text-gray-900 dark:text-white">
+                  <div className="flex items-center justify-center mb-1">
                     <Globe size={18} />
                   </div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  <div className="text-sm font-medium">
                     {lang.name}
                   </div>
                 </div>
@@ -271,21 +271,21 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="text-sm font-medium">
                 Notifications
               </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Receive meditation reminders and session completion notifications
               </p>
             </div>
             <button
               onClick={() => handlePreferenceChange('notifications', !preferences.notifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.notifications ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                preferences.notifications ? 'bg-primary' : 'bg-muted'
               }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-primary-foreground transition-transform ${
                   preferences.notifications ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
@@ -294,21 +294,21 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
 
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="text-sm font-medium">
                 Auto-save Sessions
               </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Automatically save meditation sessions to your logbook
               </p>
             </div>
             <button
               onClick={() => handlePreferenceChange('autoSave', !preferences.autoSave)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.autoSave ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                preferences.autoSave ? 'bg-primary' : 'bg-muted'
               }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-primary-foreground transition-transform ${
                   preferences.autoSave ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
