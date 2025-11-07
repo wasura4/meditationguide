@@ -153,6 +153,7 @@ export default function ImageUploadField({
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
               <Button
+                type="button"
                 onClick={handleRemove}
                 variant="outline"
                 size="sm"
@@ -166,6 +167,7 @@ export default function ImageUploadField({
             </div>
           </div>
           <Button
+            type="button"
             onClick={handleClick}
             variant="outline"
             size="sm"
@@ -203,6 +205,7 @@ export default function ImageUploadField({
               </p>
             </div>
             <Button
+              type="button"
               onClick={handleClick}
               variant="outline"
               disabled={uploading}
