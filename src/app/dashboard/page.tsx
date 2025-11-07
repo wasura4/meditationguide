@@ -203,389 +203,379 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        {/* Header (non-sticky, simplified) */}
-        <header className="bg-white/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-background to-purple-50/50 dark:from-gray-900 dark:via-background dark:to-gray-900">
+        {/* Simplified Header */}
+        <header className="bg-background/80 dark:bg-gray-900/80 backdrop-blur-sm border-b sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center h-auto sm:h-16 py-3 sm:py-0">
-              <div className="flex items-center mb-3 sm:mb-0">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </div>
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                  {t('dashboard.title')}
-                </h1>
+                <div>
+                  <h1 className="text-xl font-bold">{t('dashboard.title')}</h1>
+                  <p className="text-xs text-muted-foreground hidden sm:block">{t('common.welcome')}, {user?.displayName}</p>
+                </div>
               </div>
-              <div className="flex items-center justify-between w-full sm:w-auto gap-3">
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {t('common.welcome')}, {user?.displayName}
-                </span>
-                <button
-                  aria-label="Settings"
-                  onClick={() => router.push('/settings')}
-                  className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
-                >
-                  <SettingsIcon size={18} />
-                </button>
-              </div>
+              <button
+                aria-label="Settings"
+                onClick={() => router.push('/settings')}
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <SettingsIcon size={20} />
+              </button>
             </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {/* Welcome & Motivation Section */}
-          <div className="mb-6 sm:mb-8">
-            <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
-              <div className="flex flex-col lg:flex-row items-start justify-between">
-                <div className="flex-1 mb-6 lg:mb-0">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-                    {t('dashboard.welcome', { name: user?.displayName || 'User' })} 
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          {/* Hero Welcome Card */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-purple-600 rounded-3xl p-8 sm:p-10 text-white shadow-2xl">
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div className="flex-1 space-y-4">
+                  <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium">
+                    <Flame className="w-4 h-4" />
+                    <span>{stats?.currentStreak || 0} day streak</span>
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-bold leading-tight">
+                    {t('dashboard.welcome', { name: user?.displayName || 'User' })}
                   </h2>
-                  <p className="text-lg sm:text-xl text-purple-100 mb-4 sm:mb-6">
+                  <p className="text-lg sm:text-xl text-white/90 max-w-2xl">
                     {getMotivationalMessage()}
                   </p>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
-                    <div className="flex items-center space-x-2">
-                      <StreakIcon />
-                      <span className="text-base sm:text-lg font-semibold">
-                        {stats?.currentStreak || 0} day streak
-                      </span>
+                  <div className="flex flex-wrap items-center gap-6 pt-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{stats?.totalMinutes || 0}</div>
+                        <div className="text-sm text-white/80">total minutes</div>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl sm:text-2xl"></span>
-                      <span className="text-base sm:text-lg font-semibold">
-                        {stats?.totalMinutes || 0} total minutes
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{stats?.totalSessions || 0}</div>
+                        <div className="text-sm text-white/80">sessions</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="text-center lg:text-right">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 rounded-full flex items-center justify-center">
-                    <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
+                <Button
+                  onClick={() => router.push('/meditate')}
+                  size="lg"
+                  className="bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 font-semibold px-8"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Start Meditating
+                </Button>
               </div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          {/* Stats Grid - Modern Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Total Sessions */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.stats.total_sessions')}</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{stats?.totalSessions}</p>
-                </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
               </div>
+              <div>
+                <p className="text-2xl font-bold mb-1">{stats?.totalSessions}</p>
+                <p className="text-sm text-muted-foreground">{t('dashboard.stats.total_sessions')}</p>
+              </div>
             </div>
 
             {/* Current Streak */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.stats.current_streak')}</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{stats?.currentStreak}</p>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{t('dashboard.stats.days')}</p>
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-orange-600" />
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
-                  <StreakIcon />
-                </div>
+              </div>
+              <div>
+                <p className="text-2xl font-bold mb-1">{stats?.currentStreak}</p>
+                <p className="text-sm text-muted-foreground">{t('dashboard.stats.current_streak')}</p>
               </div>
             </div>
 
             {/* This Week */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.stats.this_week')}</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{stats?.thisWeekMinutes}</p>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{t('dashboard.stats.minutes')}</p>
-                </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--primary)] dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                 </div>
               </div>
+              <div>
+                <p className="text-2xl font-bold mb-1">{stats?.thisWeekMinutes}</p>
+                <p className="text-sm text-muted-foreground">{t('dashboard.stats.this_week')}</p>
+              </div>
             </div>
 
             {/* Longest Streak */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Longest Streak</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.longestStreak}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">days</p>
-                </div>
-                <div className="w-12 h-12 bg-muted dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-[var(--primary)] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                   </svg>
                 </div>
               </div>
+              <div>
+                <p className="text-2xl font-bold mb-1">{stats?.longestStreak}</p>
+                <p className="text-sm text-muted-foreground">Longest Streak</p>
+              </div>
             </div>
 
-            {/* Average Session Length */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Session</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats?.averageSessionLength || 0}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">minutes</p>
-                </div>
-                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Average Session */}
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
+              <div>
+                <p className="text-2xl font-bold mb-1">{stats?.averageSessionLength || 0}m</p>
+                <p className="text-sm text-muted-foreground">Avg. Session</p>
+              </div>
             </div>
           </div>
 
-          {/* Progress & Analytics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Progress & Learning - 2 Column Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Weekly Progress */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Weekly Progress</h3>
+            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Weekly Progress</h3>
+                <span className="text-sm font-medium text-primary">{Math.round(getProgressPercentage())}%</span>
+              </div>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Weekly Goal ({stats?.weeklyGoal || 200} min)</span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {stats?.thisWeekMinutes || 0}/{stats?.weeklyGoal || 200} min
-                  </span>
+                <div>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Goal: {stats?.weeklyGoal || 200} min</span>
+                    <span className="font-medium">{stats?.thisWeekMinutes || 0}/{stats?.weeklyGoal || 200}</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-primary to-purple-600 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${getProgressPercentage()}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${getProgressPercentage()}%` }}
-                  ></div>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">
-                    {stats?.thisWeekMinutes || 0} min this week
-                  </span>
-                  <span className="text-gray-500 dark:text-gray-400">
-                    {stats?.lastWeekMinutes || 0} min last week
-                  </span>
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="bg-muted/50 rounded-xl p-3">
+                    <div className="text-xs text-muted-foreground mb-1">This Week</div>
+                    <div className="text-xl font-bold">{stats?.thisWeekMinutes || 0}m</div>
+                  </div>
+                  <div className="bg-muted/50 rounded-xl p-3">
+                    <div className="text-xs text-muted-foreground mb-1">Last Week</div>
+                    <div className="text-xl font-bold">{stats?.lastWeekMinutes || 0}m</div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Learning Progress */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Learning Progress</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-muted dark:bg-blue-800 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold mb-4">Learning Progress</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 bg-blue-500/5 rounded-xl hover:bg-blue-500/10 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253" />
                       </svg>
                     </div>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">Dhamma Posts</span>
+                    <span className="font-medium">Dhamma Posts</span>
                   </div>
-                  <span className="text-lg font-bold text-[var(--primary)] dark:text-blue-400">{stats?.dhammaPostsRead || 0}</span>
+                  <span className="text-2xl font-bold text-blue-600">{stats?.dhammaPostsRead || 0}</span>
                 </div>
-                
-                <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-muted dark:bg-purple-800 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-[var(--primary)] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                <div className="flex items-center justify-between p-4 bg-purple-500/5 rounded-xl hover:bg-purple-500/10 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
+                      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                       </svg>
                     </div>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">Audio Sessions</span>
+                    <span className="font-medium">Audio Sessions</span>
                   </div>
-                  <span className="text-lg font-bold text-[var(--primary)] dark:text-purple-400">{stats?.audioSessions || 0}</span>
+                  <span className="text-2xl font-bold text-purple-600">{stats?.audioSessions || 0}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions & Start Meditating */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Start Meditating */}
-            <div className="lg:col-span-2 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-xl p-6 shadow-sm border border-green-200 dark:border-green-700">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    Ready to Meditate? 
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Your favorite meditation type is <strong>{stats?.favoriteMeditationType}</strong>. 
-                    Start a session now and continue building your practice.
-                  </p>
-                  <Button
-                    onClick={() => router.push('/meditate')}
-                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                    size="lg"
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {t('dashboard.actions.start_meditating')}
-                  </Button>
-                </div>
-                <div className="hidden lg:block">
-                  <div className="w-24 h-24 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.actions.quick_actions')}</h3>
-              <div className="space-y-3">
-                <Button
-                  onClick={() => router.push('/logbook')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253" />
+          {/* Quick Actions - Modern Grid */}
+          <div className="bg-card rounded-2xl p-6 shadow-sm border">
+            <h3 className="text-lg font-semibold mb-4">{t('dashboard.actions.quick_actions')}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <button
+                onClick={() => router.push('/logbook')}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+              >
+                <div className="w-10 h-10 bg-primary/10 group-hover:bg-primary/20 rounded-xl flex items-center justify-center transition-colors">
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253" />
                   </svg>
-                  {t('dashboard.actions.view_logbook')}
-                </Button>
-                
-                <Button
-                  onClick={() => router.push('/kamatahan')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                </div>
+                <span className="text-sm font-medium text-center">Logbook</span>
+              </button>
+
+              <button
+                onClick={() => router.push('/kamatahan')}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+              >
+                <div className="w-10 h-10 bg-purple-500/10 group-hover:bg-purple-500/20 rounded-xl flex items-center justify-center transition-colors">
+                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                   </svg>
-                  {t('dashboard.actions.audio_library')}
-                </Button>
-                
-                <Button
-                  onClick={() => router.push('/dhamma')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                </div>
+                <span className="text-sm font-medium text-center">Audio</span>
+              </button>
+
+              <button
+                onClick={() => router.push('/dhamma')}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+              >
+                <div className="w-10 h-10 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-xl flex items-center justify-center transition-colors">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
-                  {t('dashboard.actions.dhamma_library')}
-                </Button>
-                
-                <Button
-                  onClick={() => router.push('/analytics')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                </div>
+                <span className="text-sm font-medium text-center">Dhamma</span>
+              </button>
+
+              <button
+                onClick={() => router.push('/analytics')}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+              >
+                <div className="w-10 h-10 bg-green-500/10 group-hover:bg-green-500/20 rounded-xl flex items-center justify-center transition-colors">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  {t('dashboard.actions.view_analytics')}
-                </Button>
+                </div>
+                <span className="text-sm font-medium text-center">Analytics</span>
+              </button>
 
-                <Button
-                  onClick={() => router.push('/pitaka')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a2 2 0 012-2h9a2 2 0 012 2v14l-4-2-4 2V5H6a2 2 0 00-2 2v12" />
+              <button
+                onClick={() => router.push('/pitaka')}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+              >
+                <div className="w-10 h-10 bg-amber-500/10 group-hover:bg-amber-500/20 rounded-xl flex items-center justify-center transition-colors">
+                  <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a2 2 0 012-2h9a2 2 0 012 2v14l-4-2-4 2V5H6a2 2 0 00-2 2v12" />
                   </svg>
-                  {t('dashboard.actions.read_tripitaka')}
-                </Button>
-                
-                <Button
-                  onClick={() => router.push('/settings')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                </div>
+                <span className="text-sm font-medium text-center">Tripitaka</span>
+              </button>
+
+              <button
+                onClick={() => router.push('/settings')}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+              >
+                <div className="w-10 h-10 bg-gray-500/10 group-hover:bg-gray-500/20 rounded-xl flex items-center justify-center transition-colors">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  {t('dashboard.actions.settings')}
-                </Button>
-              </div>
+                </div>
+                <span className="text-sm font-medium text-center">Settings</span>
+              </button>
             </div>
           </div>
 
           {/* Meditation Types Breakdown */}
           {stats?.meditationTypes && stats.meditationTypes.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meditation Types Breakdown</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold mb-4">Meditation Types Breakdown</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {stats.meditationTypes.map((type) => (
-                  <div key={type.typeId} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div key={type.typeId} className="bg-muted/50 rounded-xl p-4 hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-gray-900 dark:text-white">{type.typeName}</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{type.sessions} sessions</span>
+                      <span className="font-semibold">{type.typeName}</span>
+                      <span className="text-xs text-muted-foreground px-2 py-1 bg-background rounded-full">{type.sessions}</span>
                     </div>
-                    <div className="text-2xl font-bold text-[var(--primary)] dark:text-blue-400">{type.minutes} min</div>
+                    <div className="text-2xl font-bold text-primary">{type.minutes} min</div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-        {/* Recommended Articles */}
-        <div className="mt-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recommended For You</h2>
-            <button onClick={() => router.push('/dhamma')} className="text-sm text-primary">View All</button>
-          </div>
-          {recommended.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {recommended.map((post) => (
-                <DhammaPostCard key={post.id} post={post} onClick={() => router.push(`/dhamma/${post.id}`)} />
-              ))}
+          {/* Recommended Articles */}
+          {recommended.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Recommended For You</h3>
+                <Button onClick={() => router.push('/dhamma')} variant="ghost" size="sm">
+                  View All →
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {recommended.map((post) => (
+                  <DhammaPostCard key={post.id} post={post} onClick={() => router.push(`/dhamma/${post.id}`)} />
+                ))}
+              </div>
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No articles yet.</p>
           )}
-        </div>
 
-        {/* Recent Sessions */}
-        {stats?.recentSessions && stats.recentSessions.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Sessions</h3>
-            <div className="space-y-3">
-              {stats.recentSessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-muted dark:bg-blue-800 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">{session.typeName}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {session.createdAt.toLocaleDateString()} • {session.duration} min
+          {/* Recent Sessions */}
+          {stats?.recentSessions && stats.recentSessions.length > 0 && (
+            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold mb-4">Recent Sessions</h3>
+              <div className="space-y-2">
+                {stats.recentSessions.map((session) => (
+                  <div key={session.id} className="flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 rounded-xl transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-medium">{session.typeName}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {session.createdAt.toLocaleDateString()} • {session.duration} min
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {session.status === 'completed' ? '✅' : '⏱️'} {session.status}
+                    <div className="text-right">
+                      <span className="text-xs px-2 py-1 bg-background rounded-full">
+                        {session.status === 'completed' ? '✓' : '○'}
+                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
           {/* Guest Upgrade Notice */}
           {user?.isAnonymous && (
