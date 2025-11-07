@@ -205,7 +205,7 @@ export default function DashboardPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Simplified Header */}
-        <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-10">
+        <header className="bg-background/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-3">
@@ -438,7 +438,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               <button
                 onClick={() => router.push('/logbook')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-primary/10 group-hover:bg-primary/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -450,7 +450,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/kamatahan')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-purple-500/10 group-hover:bg-purple-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,7 +462,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/dhamma')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -474,7 +474,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/analytics')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-green-500/10 group-hover:bg-green-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -486,7 +486,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/pitaka')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-amber-500/10 group-hover:bg-amber-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -498,7 +498,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/settings')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-primary hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-gray-500/10 group-hover:bg-gray-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

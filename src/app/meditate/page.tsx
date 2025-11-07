@@ -311,7 +311,7 @@ export default function MeditatePage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background pb-28">
         {/* Hero Header */}
-        <div className="bg-gradient-to-b from-muted/50 to-background border-b">
+        <div className="bg-gradient-to-b from-muted/50 to-background shadow-sm">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
             <div className="text-center">
               <h1 className="text-3xl sm:text-4xl font-bold mb-3">

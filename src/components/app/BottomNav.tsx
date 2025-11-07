@@ -21,7 +21,7 @@ export function BottomNav() {
   if (pathname?.startsWith("/admin") || pathname?.startsWith("/auth")) return null;
 
   return (
-    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-xl border-t shadow-lg supports-[backdrop-filter]:backdrop-blur-xl">
+    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-xl shadow-[0_-4px_16px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.3)] supports-[backdrop-filter]:backdrop-blur-xl">
       <div className="safe-area-inset-bottom">
         <nav className="grid grid-cols-4 gap-1 px-2 py-2">
           {baseItems.map((it) => {

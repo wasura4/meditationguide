@@ -9,7 +9,7 @@ export default function AnalyticsPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background pb-28">
         {/* Header */}
-        <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-10">
+        <header className="bg-background/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-4 h-16">
               <button

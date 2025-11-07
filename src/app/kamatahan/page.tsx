@@ -27,7 +27,7 @@ export default function KamatahanPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background pb-28">
         {/* Hero Header */}
-        <div className="bg-gradient-to-b from-muted/50 to-background border-b">
+        <div className="bg-gradient-to-b from-muted/50 to-background shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             <div className="flex items-center justify-between mb-6">
               <Button
