@@ -189,11 +189,11 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gradient-to-br from-[#f0f7f4] via-[#f5f3f0] to-[#f0f9f4] dark:from-black dark:via-[#0a0a0a] dark:to-[#1a1a1a]">
+        <div className="min-h-screen bg-background">
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">{t('common.loading')}</p>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">{t('common.loading')}</p>
             </div>
           </div>
         </div>
@@ -203,14 +203,14 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-background to-purple-50/50 dark:from-gray-900 dark:via-background dark:to-gray-900">
+      <div className="min-h-screen bg-background">
         {/* Simplified Header */}
-        <header className="bg-background/80 dark:bg-gray-900/80 backdrop-blur-sm border-b sticky top-0 z-10">
+        <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary via-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </div>
@@ -233,45 +233,45 @@ export default function DashboardPage() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           {/* Hero Welcome Card */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-purple-600 rounded-3xl p-8 sm:p-10 text-white shadow-2xl">
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 rounded-3xl p-8 sm:p-10 text-primary-foreground shadow-2xl">
             {/* Decorative circles */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-foreground/10 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-foreground/10 rounded-full -ml-24 -mb-24"></div>
 
             <div className="relative z-10">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 <div className="flex-1 space-y-4">
-                  <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium">
+                  <div className="inline-flex items-center gap-2 bg-primary-foreground/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium">
                     <Flame className="w-4 h-4" />
                     <span>{stats?.currentStreak || 0} day streak</span>
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold leading-tight">
                     {t('dashboard.welcome', { name: user?.displayName || 'User' })}
                   </h2>
-                  <p className="text-lg sm:text-xl text-white/90 max-w-2xl">
+                  <p className="text-lg sm:text-xl opacity-90 max-w-2xl">
                     {getMotivationalMessage()}
                   </p>
                   <div className="flex flex-wrap items-center gap-6 pt-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <div className="w-12 h-12 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
                       <div>
                         <div className="text-2xl font-bold">{stats?.totalMinutes || 0}</div>
-                        <div className="text-sm text-white/80">total minutes</div>
+                        <div className="text-sm opacity-80">total minutes</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <div className="w-12 h-12 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                       </div>
                       <div>
                         <div className="text-2xl font-bold">{stats?.totalSessions || 0}</div>
-                        <div className="text-sm text-white/80">sessions</div>
+                        <div className="text-sm opacity-80">sessions</div>
                       </div>
                     </div>
                   </div>
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => router.push('/meditate')}
                   size="lg"
-                  className="bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 font-semibold px-8"
+                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 font-semibold px-8"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -294,7 +294,7 @@ export default function DashboardPage() {
           {/* Stats Grid - Modern Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Total Sessions */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,7 +309,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Current Streak */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
                   <Flame className="w-5 h-5 text-orange-600" />
@@ -322,7 +322,7 @@ export default function DashboardPage() {
             </div>
 
             {/* This Week */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -337,7 +337,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Longest Streak */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,7 +352,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Average Session */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border">
+            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,7 +370,7 @@ export default function DashboardPage() {
           {/* Progress & Learning - 2 Column Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Weekly Progress */}
-            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+            <div className="bg-card rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Weekly Progress</h3>
                 <span className="text-sm font-medium text-primary">{Math.round(getProgressPercentage())}%</span>
@@ -402,7 +402,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Learning Progress */}
-            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+            <div className="bg-card rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">Learning Progress</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-4 bg-blue-500/5 rounded-xl hover:bg-blue-500/10 transition-colors">
@@ -433,7 +433,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Quick Actions - Modern Grid */}
-          <div className="bg-card rounded-2xl p-6 shadow-sm border">
+          <div className="bg-card rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-semibold mb-4">{t('dashboard.actions.quick_actions')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               <button
@@ -513,7 +513,7 @@ export default function DashboardPage() {
 
           {/* Meditation Types Breakdown */}
           {stats?.meditationTypes && stats.meditationTypes.length > 0 && (
-            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+            <div className="bg-card rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">Meditation Types Breakdown</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {stats.meditationTypes.map((type) => (
@@ -548,7 +548,7 @@ export default function DashboardPage() {
 
           {/* Recent Sessions */}
           {stats?.recentSessions && stats.recentSessions.length > 0 && (
-            <div className="bg-card rounded-2xl p-6 shadow-sm border">
+            <div className="bg-card rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">Recent Sessions</h3>
               <div className="space-y-2">
                 {stats.recentSessions.map((session) => (
@@ -615,6 +615,7 @@ export default function DashboardPage() {
     </ProtectedRoute>
   );
 }
+
 
 
 

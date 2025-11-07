@@ -108,7 +108,8 @@ export default function AdminUsersPage() {
       const totalSessions = sessions.length;
       const totalMinutes = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
       const averageSession = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
-      type ByType = Record<string, { typeId: string; typeName: string; count: number; minutes: number }>;\n      const byType: ByType = {};
+      type ByType = Record<string, { typeId: string; typeName: string; count: number; minutes: number }>;
+      const byType: ByType = {};
       sessions.forEach((s) => {
         const key = s.typeId || s.typeName || 'unknown';
         if (!byType[key]) byType[key] = { typeId: s.typeId || key, typeName: s.typeName || 'Unknown', count: 0, minutes: 0 } ;
@@ -385,5 +386,6 @@ export default function AdminUsersPage() {
     </AdminProtectedRoute>
   );
 }
+
 
 
