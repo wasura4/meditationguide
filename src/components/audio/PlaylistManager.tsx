@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { KamatahanAudio } from '@/types/admin';
+import { PlaylistService, PlaylistDoc } from '@/lib/playlistService';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -139,52 +140,49 @@ export function PlaylistManager() {
     };
   }, [currentPlaylist, currentTrackIndex, isPlaying, showToast, user?.id]);
 
-  const fetchPlaylists = async () => {    try {      setLoading(true);
-      const playlistsRef = collection(db, 'playlists');
-      const qMine = query(playlistsRef, where('userId', '==', user?.id));
-      const snapMine = await getDocs(qMine);
-      const mine: Playlist[] = [];
-      snapMine.forEach((d) => {
-        const raw = d.data() as Record<string, unknown>;
-        mine.push({
-          id: d.id,
-          name: String((raw.name as string) || ''),
-          description: String((raw.description as string) || ''),
-          audioFiles: (raw.audioFiles as KamatahanAudio[]) || [],
-          isPublic: Boolean(raw.isPublic),
-          createdAt: (raw.createdAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
-          updatedAt: (raw.updatedAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
-          userId: String((raw.userId as string) || ''),
-          thumbnailUrl: (raw.thumbnailUrl as string) || undefined,
-          authorName: (raw.authorName as string) || undefined,
-        });
+  const fetchPlaylists = async () => {
+    try {
+      setLoading(true);
+      // Use service which resolves audioIds -> full tracks
+      const [publicPlaylists, allPlaylists] = await Promise.all([
+        PlaylistService.getPublic(),
+        PlaylistService.getAll(),
+      ]);
+
+      const mineDocs = allPlaylists.filter((p) => p.createdBy === (user?.id || ''));
+
+      const toUi = (p: PlaylistDoc): Playlist => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        audioFiles: p.audioFiles || [],
+        isPublic: p.isPublic,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+        userId: p.createdBy,
+        thumbnailUrl: p.thumbnailUrl,
+        authorName: p.authorName,
       });
 
-      const qPublic = query(playlistsRef, where('isPublic', '==', true));
-      const snapPublic = await getDocs(qPublic);
-      const pub: Playlist[] = [];
-      snapPublic.forEach((d) => {
-        const raw = d.data() as Record<string, unknown>;
-        pub.push({
-          id: d.id,
-          name: String((raw.name as string) || ''),
-          description: String((raw.description as string) || ''),
-          audioFiles: (raw.audioFiles as KamatahanAudio[]) || [],
-          isPublic: Boolean(raw.isPublic),
-          createdAt: (raw.createdAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
-          updatedAt: (raw.updatedAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? new Date(),
-          userId: String((raw.userId as string) || ''),
-          thumbnailUrl: (raw.thumbnailUrl as string) || undefined,
-          authorName: (raw.authorName as string) || undefined,
-        });
-      });
+      const pub = publicPlaylists.map(toUi);
+      const mine = mineDocs.map(toUi);
+
       const mergedMap = new Map<string, Playlist>();
-      [...pub, ...mine].forEach(p => mergedMap.set(p.id, p));
-      const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      [...pub, ...mine].forEach((p) => mergedMap.set(p.id, p));
+      const merged = Array.from(mergedMap.values()).sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
       setPlaylists(merged);
-    } catch (error) {      console.error('Error fetching playlists:', error);
-      showToast({ type: 'error', title: 'Error', message: 'Failed to load playlists. Please try again.', duration: 3000 });
-    } finally {      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load playlists. Please try again.',
+        duration: 3000,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
