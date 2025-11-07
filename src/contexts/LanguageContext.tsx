@@ -136,15 +136,15 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, in
     }
   };
 
-  // Initialize language from localStorage on mount
+  // Initialize language from localStorage on mount (only if no initialLanguage was provided)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !initialLanguage) {
       const savedLanguage = localStorage.getItem('nirvanaya-language') as Language;
       if (savedLanguage && ['en', 'si'].includes(savedLanguage)) {
         setLanguageState(savedLanguage);
       }
     }
-  }, []);
+  }, [initialLanguage]);
 
   const value: LanguageContextType = {
     language,

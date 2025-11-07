@@ -23,12 +23,12 @@ export interface AppPreferences {
 export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePreferences }) => {
   const { theme } = useTheme();
   const { accent, radius, setAccent, setRadius, setMode } = useThemeSettings();
-  const { setLanguage } = useLanguage();
+  const { language: currentLanguage, setLanguage } = useLanguage();
   const [preferences, setPreferences] = useState<AppPreferences>({
     theme: 'auto',
     timeFormat: '12h',
     defaultDuration: 15,
-    language: 'en',
+    language: currentLanguage,
     notifications: true,
     autoSave: true,
   });
@@ -45,8 +45,11 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
       } catch (error) {
         console.error('Failed to parse saved preferences:', error);
       }
+    } else {
+      // If no saved preferences, use current language from context
+      setPreferences(prev => ({ ...prev, language: currentLanguage }));
     }
-  }, []);
+  }, [currentLanguage]);
 
   // Apply theme preference
   useEffect(() => {
@@ -75,6 +78,8 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
 
   const handleSave = () => {
     localStorage.setItem('nirvanaya-preferences', JSON.stringify(preferences));
+    // Ensure language is also applied to the context
+    setLanguage(preferences.language);
     onSavePreferences(preferences);
     setIsDirty(false);
   };
@@ -238,7 +243,11 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
             ]).map((lang) => (
               <button
                 key={lang.code}
-                onClick={() => { handlePreferenceChange('language', lang.code as 'en' | 'si'); setLanguage(lang.code as 'en' | 'si'); }}
+                onClick={() => {
+                  const langCode = lang.code as 'en' | 'si';
+                  handlePreferenceChange('language', langCode);
+                  setLanguage(langCode);
+                }}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   preferences.language === lang.code
                     ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20'
