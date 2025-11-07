@@ -17,8 +17,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userSessions, setUserSessions] = useState<MeditationSession[]>([]);
-  const [stats, setStats] = useState<{
+    const [stats, setStats] = useState<{
     totalSessions: number;
     totalMinutes: number;
     averageSession: number;
@@ -104,20 +103,19 @@ export default function AdminUsersPage() {
   const loadUserSessions = async (userId: string) => {
     try {
       setLoadingSessions(true);
-      const sessions = await AdminService.getUserSessions(userId, 50);
-      setUserSessions(sessions);
-      // Compute quick stats for the right panel
+      const sessions: MeditationSession[] = await AdminService.getUserSessions(userId, 50);
+            // Compute quick stats for the right panel
       const totalSessions = sessions.length;
       const totalMinutes = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
       const averageSession = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
-      const byType: Record<string, { typeId: string; typeName: string; count: number; minutes: number }> = {} as any;
+      type ByType = Record<string, { typeId: string; typeName: string; count: number; minutes: number }>;\n      const byType: ByType = {};
       sessions.forEach((s) => {
         const key = s.typeId || s.typeName || 'unknown';
-        if (!byType[key]) byType[key] = { typeId: s.typeId || key, typeName: s.typeName || 'Unknown', count: 0, minutes: 0 } as any;
+        if (!byType[key]) byType[key] = { typeId: s.typeId || key, typeName: s.typeName || 'Unknown', count: 0, minutes: 0 } ;
         byType[key].count += 1;
         byType[key].minutes += s.duration || 0;
       });
-      const topMeditation = Object.values(byType).sort((a: any, b: any) => b.count - a.count || b.minutes - a.minutes)[0] as any;
+      const topMeditation = Object.values(byType).sort((a, b) => b.count - a.count || b.minutes - a.minutes)[0] ;
       const lastSessionAt = sessions.length ? sessions.slice().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0].createdAt : undefined;
       setStats({ totalSessions, totalMinutes, averageSession, topMeditation, lastSessionAt });
     } catch (error) {
@@ -387,3 +385,4 @@ export default function AdminUsersPage() {
     </AdminProtectedRoute>
   );
 }
+
