@@ -114,10 +114,27 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       console.warn('[PlayerContext] No track at index:', index);
       return;
     }
-    console.log('[PlayerContext] Loading track:', { title: tr.title, fileUrl: tr.fileUrl });
+    console.log('[PlayerContext] Loading track:', {
+      title: tr.title,
+      fileUrl: tr.fileUrl,
+      fileName: tr.fileName,
+      fileType: tr.fileType,
+      fullTrack: tr
+    });
     const a = audioRef.current;
+
+    // Validate URL before setting
+    if (!tr.fileUrl || tr.fileUrl.trim() === '') {
+      console.error('[PlayerContext] Invalid fileUrl - empty or undefined:', tr.fileUrl);
+      setIsPlaying(false);
+      return;
+    }
+
+    console.log('[PlayerContext] Setting src to:', tr.fileUrl);
     a.src = tr.fileUrl;
     a.load();
+    console.log('[PlayerContext] After load - src:', a.src, 'networkState:', a.networkState);
+
     if (isPlaying) {
       console.log('[PlayerContext] Attempting to play...');
       a.play().catch((err) => {
