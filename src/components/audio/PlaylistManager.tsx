@@ -677,7 +677,7 @@ export function PlaylistManager() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {playlists
             .filter((p) => {
               const q = playlistSearchQuery.trim().toLowerCase();
@@ -688,10 +688,10 @@ export function PlaylistManager() {
             .map((playlist) => (
             <div
               key={playlist.id}
-              className="group rounded-2xl bg-gradient-to-b from-zinc-800/30 to-zinc-900/60 backdrop-blur border border-zinc-700/40 overflow-hidden hover:border-zinc-500/50 transition-colors shadow-sm"
+              className="group rounded-2xl bg-card text-card-foreground border border-border overflow-hidden shadow-sm hover:shadow-md transition-transform hover:-translate-y-0.5"
             >
               {/* Cover */}
-              <div className="relative aspect-square w-full bg-zinc-800">
+              <div className="relative aspect-[16/9] w-full bg-muted">
                 {playlist.thumbnailUrl ? (
                   <Image
                     src={playlist.thumbnailUrl}
@@ -702,7 +702,7 @@ export function PlaylistManager() {
                     priority={false}
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 via-indigo-500/30 to-blue-500/30" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 via-purple-500/20 to-blue-500/20" />
                 )}
                 {/* Subtle bottom gradient for legibility */}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
@@ -727,22 +727,22 @@ export function PlaylistManager() {
               </div>
 
               {/* Meta */}
-              <div className="p-3">
+              <div className="p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-white line-clamp-2">
+                  <h3 className="font-semibold text-foreground line-clamp-2">
                     {playlist.name}
                   </h3>
-                  <span className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full ${playlist.isPublic ? 'bg-emerald-500/15 text-emerald-300' : 'bg-zinc-700 text-zinc-300'}` }>
+                  <span className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full ${playlist.isPublic ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'bg-muted text-muted-foreground'}` }>
                     {playlist.isPublic ? 'Public' : 'Private'}
                   </span>
                 </div>
                 {playlist.authorName && (
-                  <div className="mt-1 text-xs text-zinc-400 line-clamp-1">{playlist.authorName}</div>
+                  <div className="mt-1 text-xs text-muted-foreground line-clamp-1">{playlist.authorName}</div>
                 )}
                 {playlist.description && (
-                  <div className="mt-1 text-xs text-zinc-400 line-clamp-2">{playlist.description}</div>
+                  <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{playlist.description}</div>
                 )}
-                <div className="mt-2 text-xs text-zinc-400">
+                <div className="mt-2 text-xs text-muted-foreground">
                   {playlist.audioFiles.length} track{playlist.audioFiles.length !== 1 ? 's' : ''}
                 </div>
               </div>
