@@ -169,9 +169,9 @@ export function DhammaPostReader({ post, onClose }: DhammaPostReaderProps) {
         )}
 
         {/* Post Content */}
-        <div className="prose prose-base sm:prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-img:rounded-lg">
+        <div className="prose prose-base sm:prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-img:rounded-lg prose-video:aspect-video prose-video:w-full">
           <div
-            className="bg-card rounded-lg p-4 sm:p-6 md:p-8"
+            className="bg-card rounded-lg p-4 sm:p-6 md:p-8 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </div>
