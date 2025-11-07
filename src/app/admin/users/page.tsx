@@ -325,6 +325,23 @@ export default function AdminUsersPage() {
                         <p className="text-sm font-mono text-gray-900">{selectedUser.id}</p>
                       </div>
                       <div>
+                        <p className="text-xs text-gray-500">Joined</p>
+                        <p className="text-sm text-gray-900">{formatDate(selectedUser.createdAt)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Last Updated</p>
+                        <p className="text-sm text-gray-900">{formatDate(selectedUser.updatedAt)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Theme</p>
+                        <p className="text-sm text-gray-900 capitalize">{selectedUser.preferences?.theme || 'light'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Language</p>
+                        <p className="text-sm text-gray-900 uppercase">{selectedUser.preferences?.language || 'en'}</p>
+                      </div>
+                    </div>
+
                     <div className="pt-4 border-t border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-900 mb-3">Key Stats</h3>
                       {loadingSessions ? (
@@ -347,25 +364,26 @@ export default function AdminUsersPage() {
                           </div>
                           <div className="bg-gray-50 rounded p-3">
                             <p className="text-gray-500">Top Meditation</p>
-                            <p className="text-sm font-semibold text-gray-900">{stats.topMeditation?.typeName || '—'}</p>
+                            <p className="text-sm font-semibold text-gray-900">{stats.topMeditation?.typeName || '-'}</p>
                           </div>
                           <div className="bg-gray-50 rounded p-3 col-span-2">
                             <p className="text-gray-500">Last Session</p>
-                            <p className="text-sm font-semibold text-gray-900">{stats.lastSessionAt ? formatDate(stats.lastSessionAt) : '—'}</p>
+                            <p className="text-sm font-semibold text-gray-900">{stats.lastSessionAt ? formatDate(stats.lastSessionAt) : '-'}</p>
                           </div>
                         </div>
                       )}
                     </div>
-                        </div>
-                            </AdminLayout>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                  <p className="text-gray-500">Select a user to view details</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
     </AdminProtectedRoute>
   );
 }
-
-
-
-
-
-
-
-
