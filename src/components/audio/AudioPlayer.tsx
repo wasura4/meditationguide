@@ -131,138 +131,79 @@ export function AudioPlayer({ audio }: AudioPlayerProps) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <div className="w-full">
       {/* Audio Element */}
       <audio ref={audioRef} src={audio.fileUrl} preload="metadata" />
-      
-      {/* Title - Mobile Optimized */}
-      <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate px-2">
-          {audio.title}
-        </h3>
-      </div>
-      
-      {/* Play/Pause Button - Larger for Mobile */}
-      <div className="flex justify-center">
-        <Button
-          onClick={togglePlayPause}
-          size="lg"
-          className="w-16 h-16 rounded-full p-0 shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation"
-        >
-          {isPlaying ? (
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
-            </svg>
-          ) : (
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
-            </svg>
-          )}
-        </Button>
-      </div>
 
-      {/* Progress Bar - Touch Friendly */}
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 px-1">
-          <span className="font-mono">{formatTime(currentTime)}</span>
-          <span className="font-mono">{formatTime(duration)}</span>
+      {/* Compact Player Card */}
+      <div className="bg-card/50 backdrop-blur-sm rounded-xl border p-4 space-y-3 hover:shadow-md transition-shadow">
+        {/* Play Button & Title */}
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={togglePlayPause}
+            size="lg"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-0 shadow-md hover:shadow-lg transition-all duration-200 touch-manipulation shrink-0"
+          >
+            {isPlaying ? (
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 9v6m4-6v6" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            )}
+          </Button>
+
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm sm:text-base truncate">
+              {audio.title}
+            </h4>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+              <span className="font-mono">{formatTime(currentTime)}</span>
+              <span>/</span>
+              <span className="font-mono">{formatTime(duration)}</span>
+            </div>
+          </div>
+
+          {/* Volume Control */}
+          <Button
+            onClick={toggleMute}
+            variant="ghost"
+            size="sm"
+            className="p-2 h-9 w-9 touch-manipulation shrink-0"
+          >
+            {isMuted || volume === 0 ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+            )}
+          </Button>
         </div>
-        <div className="relative">
+
+        {/* Progress Bar */}
+        <div className="relative pt-1">
+          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="absolute h-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all rounded-full"
+              style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+            />
+          </div>
           <input
             type="range"
             min="0"
             max={duration || 0}
             value={currentTime}
             onChange={handleSeek}
-            className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider touch-manipulation"
-            style={{
-              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentTime / (duration || 1)) * 100}%, #e5e7eb ${(currentTime / (duration || 1)) * 100}%, #e5e7eb 100%)`
-            }}
+            className="absolute inset-0 w-full h-2 opacity-0 cursor-pointer touch-manipulation"
           />
         </div>
       </div>
-
-      {/* Volume Control - Mobile Optimized */}
-      <div className="flex items-center justify-center space-x-3">
-        <Button
-          onClick={toggleMute}
-          variant="ghost"
-          size="sm"
-          className="p-2 h-10 w-10 touch-manipulation"
-        >
-          {isMuted || volume === 0 ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-            </svg>
-          ) : volume < 0.5 ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-            </svg>
-          )}
-        </Button>
-        
-        {/* Volume Slider - Hidden on very small screens, shown on larger mobile */}
-        <div className="hidden sm:block flex-1 max-w-24">
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.1"
-            value={volume}
-            onChange={handleVolumeChange}
-            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider touch-manipulation"
-            style={{
-              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`
-            }}
-          />
-        </div>
-        
-        {/* Volume Display for Small Screens */}
-        <div className="sm:hidden text-sm text-gray-600 dark:text-gray-300 font-mono min-w-[3rem] text-center">
-          {Math.round(volume * 100)}%
-        </div>
-      </div>
-
-      {/* Custom CSS for better slider appearance on mobile */}
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #3b82f6;
-          cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        .slider::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #3b82f6;
-          cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        @media (max-width: 640px) {
-          .slider::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-          }
-          
-          .slider::-moz-range-thumb {
-            height: 24px;
-            width: 24px;
-          }
-        }
-      `}</style>
     </div>
   );
 }
