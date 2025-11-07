@@ -105,44 +105,36 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   }
 
   return (
-    <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-xl p-6 sm:p-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Prepare Your Session
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300">
-          Choose your meditation type and set your intention
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Search and Filter Section */}
+      <div className="bg-card rounded-xl p-6 shadow-sm border">
+        <h2 className="text-xl font-semibold mb-4">Find Your Practice</h2>
 
-      {/* Search Bar */}
-      <div className="mb-6">
-        <div className="relative max-w-md mx-auto">
+        {/* Search Bar */}
+        <div className="relative mb-4">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <input
             type="text"
-            placeholder="Search meditations..."
+            placeholder="Search meditation types..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
+            className="block w-full pl-10 pr-3 py-3 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-      </div>
 
-      {/* Category Dropdown */}
-      <div className="mb-6">
-        <div className="max-w-md mx-auto">
-          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Meditation Category</label>
+        {/* Category Filter */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Filter by Category</label>
           <select
             value={selectedCategory}
             onChange={(e) => handleCategorySelect(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+            className="w-full rounded-lg border bg-background px-3 py-3 focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <option value="all">All Types</option>
+            <option value="all">All Categories</option>
             {MEDITATION_CATEGORY_DETAILS_UI.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -151,198 +143,186 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
       </div>
 
       {/* Meditation Type Selection */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
-          Choose Meditation Type
+      <div className="bg-card rounded-xl p-6 shadow-sm border">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Select Meditation Type</h2>
           {searchQuery && (
-            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
-              ({filteredMeditations.length} results)
+            <span className="text-sm text-muted-foreground">
+              {filteredMeditations.length} {filteredMeditations.length === 1 ? 'result' : 'results'}
             </span>
           )}
-        </h3>
-        
+        </div>
+
         {filteredMeditations.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">🔍</div>
-            <p className="text-gray-600 dark:text-gray-300">
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🔍</div>
+            <p className="text-muted-foreground mb-4">
               No meditations found matching &quot;{searchQuery}&quot;
             </p>
-              <Button
-                onClick={() => setSearchQuery('')}
-                variant="outline"
-                size="sm"
-                className="mt-2 text-gray-800 dark:text-gray-100"
-              >
-                Clear Search
-              </Button>
+            <Button
+              onClick={() => setSearchQuery('')}
+              variant="outline"
+              size="sm"
+            >
+              Clear Search
+            </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredMeditations.map((type) => (
-              <div
+              <button
                 key={type.id}
                 onClick={() => handleTypeSelect(type.id)}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
+                className={`p-4 rounded-lg border-2 text-left cursor-pointer transition-all hover:shadow-md ${
                   selectedType === type.id
-                    ? 'border-[var(--primary)] bg-[var(--primary)]/10 dark:bg-[var(--primary)]/10 shadow-lg'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    ? 'border-primary bg-primary/5 shadow-lg'
+                    : 'border-border hover:border-primary/50'
                 }`}
               >
-                <div className="text-left">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm leading-tight">
-                      {type.name}
-                    </h4>
-                    {selectedType === type.id && (
-                      <div className="w-5 h-5 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0 ml-2">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-3 leading-relaxed">
-                    {type.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {type.defaultDuration}m
-                    </span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 capitalize">
-                      {type.category}
-                    </span>
-                  </div>
-                  {type.tags && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {type.tags.slice(0, 2).map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-sm leading-tight">
+                    {type.name}
+                  </h4>
+                  {selectedType === type.id && (
+                    <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                      <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   )}
                 </div>
-              </div>
+                <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                  {type.description}
+                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs px-2 py-1 bg-muted rounded-full">
+                    {type.defaultDuration}m
+                  </span>
+                  <span className="text-xs px-2 py-1 bg-muted rounded-full capitalize">
+                    {type.category}
+                  </span>
+                </div>
+                {type.tags && type.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {type.tags.slice(0, 2).map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-0.5 text-xs bg-muted/50 rounded"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </button>
             ))}
           </div>
         )}
       </div>
 
       {/* Duration Selection */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
-          Session Duration
-        </h3>
+      <div className="bg-card rounded-xl p-6 shadow-sm border">
+        <h2 className="text-xl font-semibold mb-4">Set Duration</h2>
+
         {/* Quick Duration Buttons */}
-        <div className="mb-4">
-          <div className="flex flex-wrap justify-center gap-2">
-            {[5, 10, 15, 20, 30, 45, 60].map((minutes) => (
-              <Button
-                key={minutes}
-                onClick={() => setCustomDuration(minutes)}
-                variant={customDuration === minutes ? "meditation" : "outline"}
-                size="sm"
-                className="px-4 py-2 text-gray-800 dark:text-gray-100"
-              >
-                {minutes}m
-              </Button>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {[5, 10, 15, 20, 30, 45, 60].map((minutes) => (
+            <Button
+              key={minutes}
+              onClick={() => setCustomDuration(minutes)}
+              variant={customDuration === minutes ? "default" : "outline"}
+              size="sm"
+              className="flex-1 min-w-[60px]"
+            >
+              {minutes}m
+            </Button>
+          ))}
         </div>
-        {/* Numeric input for precise duration */}
-        <div className="text-center">
-          <div className="inline-flex items-center space-x-4">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Custom Duration:
-            </label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="number"
-                min={TIMER_SETTINGS.minDuration}
-                max={TIMER_SETTINGS.maxDuration}
-                value={customDuration}
-                onChange={(e) => handleDurationChange(parseInt(e.target.value) || TIMER_SETTINGS.defaultDuration)}
-                className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
-              />
-              <span className="text-sm text-gray-600 dark:text-gray-300">minutes</span>
-            </div>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Range: {TIMER_SETTINGS.minDuration}-{TIMER_SETTINGS.maxDuration} minutes</p>
+
+        {/* Custom Duration Input */}
+        <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+          <label className="text-sm font-medium whitespace-nowrap">
+            Custom:
+          </label>
+          <input
+            type="number"
+            min={TIMER_SETTINGS.minDuration}
+            max={TIMER_SETTINGS.maxDuration}
+            value={customDuration}
+            onChange={(e) => handleDurationChange(parseInt(e.target.value) || TIMER_SETTINGS.defaultDuration)}
+            className="w-20 px-3 py-2 border rounded-lg text-center bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <span className="text-sm text-muted-foreground">minutes</span>
         </div>
+        <p className="text-xs text-muted-foreground mt-2 text-center">
+          Range: {TIMER_SETTINGS.minDuration}-{TIMER_SETTINGS.maxDuration} minutes
+        </p>
       </div>
 
       {/* Session Summary */}
       {selectedMeditation && (
-        <div className="bg-muted rounded-lg p-6 mb-8 border border-border">
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-4 text-center">
-            Session Summary
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center">
-              <span className="text-gray-600 dark:text-gray-300 font-medium">Type:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-white">
-                {selectedMeditation.name}
-              </span>
+        <div className="bg-primary/5 rounded-xl p-6 border border-primary/20">
+          <div className="text-center mb-4">
+            <h3 className="font-semibold text-lg mb-1">Ready to Begin</h3>
+            <p className="text-sm text-muted-foreground">Review your session details</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-background rounded-lg p-3 text-center">
+              <div className="text-xs text-muted-foreground mb-1">Type</div>
+              <div className="font-semibold text-sm">{selectedMeditation.name}</div>
             </div>
-            <div className="flex items-center">
-              <span className="text-gray-600 dark:text-gray-300 font-medium">Duration:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-white">
-                {customDuration} minutes
-              </span>
+            <div className="bg-background rounded-lg p-3 text-center">
+              <div className="text-xs text-muted-foreground mb-1">Duration</div>
+              <div className="font-semibold text-sm">{customDuration} min</div>
             </div>
-            <div className="flex items-center">
-              <span className="text-gray-600 dark:text-gray-300 font-medium">Category:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-white capitalize">
-                {selectedMeditation.category}
-              </span>
+            <div className="bg-background rounded-lg p-3 text-center">
+              <div className="text-xs text-muted-foreground mb-1">Category</div>
+              <div className="font-semibold text-sm capitalize">{selectedMeditation.category}</div>
             </div>
-            <div className="flex items-center">
-              <span className="text-gray-600 dark:text-gray-300 font-medium">Focus:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-white">
-                {selectedMeditation.description.split('.')[0]}
-              </span>
+            <div className="bg-background rounded-lg p-3 text-center">
+              <div className="text-xs text-muted-foreground mb-1">Focus</div>
+              <div className="font-semibold text-sm line-clamp-1">{selectedMeditation.description.split('.')[0]}</div>
             </div>
           </div>
-          {selectedMeditation.tags && (
-            <div className="mt-4 pt-4 border-t border-border">
-              <div className="flex flex-wrap gap-2 justify-center">
-                {selectedMeditation.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 text-xs bg-muted dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-full font-medium"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+
+          {selectedMeditation.tags && selectedMeditation.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-center">
+              {selectedMeditation.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full font-medium"
+                >
+                  #{tag}
+                </span>
+              ))}
             </div>
           )}
         </div>
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-center gap-3 sm:gap-4">
+      <div className="flex gap-3">
         <Button
           onClick={onCancel}
           variant="outline"
           size="lg"
-          className="px-6 sm:px-8 py-3 text-gray-800 dark:text-gray-100"
+          className="flex-1"
         >
           Cancel
         </Button>
         <Button
           onClick={handleStart}
-          variant="meditation"
+          variant="default"
           size="lg"
-          className="px-6 sm:px-8 py-3"
+          className="flex-1"
+          disabled={!selectedType}
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Begin Meditation
+          Begin Session
         </Button>
       </div>
     </div>

@@ -309,35 +309,68 @@ export default function MeditatePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background text-foreground pb-28">
-        {/* Hero */}
-        <div className="relative overflow-hidden">
-          <div className="relative max-w-3xl mx-auto px-5 pt-10 pb-6">
-            <h1 className="text-3xl font-bold tracking-tight">
-              {mode === 'setup' && 'Prepare Meditation'}
-              {mode === 'timer' && 'Meditation Session'}
-              {mode === 'reflection' && 'Session Reflection'}
-              {mode === 'complete' && 'Session Complete'}
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">A calm space to set up, focus, and reflect.</p>
+      <div className="min-h-screen bg-background pb-28">
+        {/* Hero Header */}
+        <div className="bg-gradient-to-b from-muted/50 to-background border-b">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <div className="text-center">
+              <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                {mode === 'setup' && '🧘 Prepare Your Meditation'}
+                {mode === 'timer' && '🧘‍♂️ Meditation in Progress'}
+                {mode === 'reflection' && '📝 Reflect on Your Session'}
+                {mode === 'complete' && '✨ Session Complete'}
+              </h1>
+              <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
+                {mode === 'setup' && 'Choose your practice and set your intention for a mindful session'}
+                {mode === 'timer' && 'Stay present and focused on your meditation practice'}
+                {mode === 'reflection' && 'Take a moment to capture insights from your practice'}
+                {mode === 'complete' && 'Well done! Your dedication to practice brings you closer to peace'}
+              </p>
+            </div>
+
+            {/* Progress Stepper - Only show in setup, timer, and reflection modes */}
+            {mode !== 'complete' && (
+              <div className="mt-8 max-w-md mx-auto">
+                <div className="flex items-center justify-between">
+                  {steps.map((step, index) => (
+                    <React.Fragment key={step.key}>
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-semibold transition-all ${
+                            mode === step.key
+                              ? 'bg-primary text-primary-foreground shadow-lg scale-110'
+                              : steps.findIndex(s => s.key === mode) > index
+                              ? 'bg-primary/20 text-primary'
+                              : 'bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          {steps.findIndex(s => s.key === mode) > index ? (
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <span className="text-sm sm:text-base">{index + 1}</span>
+                          )}
+                        </div>
+                        <span className={`mt-2 text-xs sm:text-sm font-medium ${mode === step.key ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {step.label}
+                        </span>
+                      </div>
+                      {index < steps.length - 1 && (
+                        <div className={`flex-1 h-1 mx-2 sm:mx-4 rounded-full transition-all ${
+                          steps.findIndex(s => s.key === mode) > index ? 'bg-primary' : 'bg-muted'
+                        }`} />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Stepper */}
-        <div className="max-w-3xl mx-auto px-5">
-          <ol className="flex items-center gap-3 text-xs text-muted-foreground">
-            {steps.map((s, i) => (
-              <li key={s.key} className="flex items-center gap-3">
-                <span className={`h-6 w-6 grid place-items-center rounded-full border ${mode===s.key ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'border-border text-muted-foreground'}`}>{i+1}</span>
-                <span className={`${mode===s.key ? 'text-foreground' : ''}`}>{s.label}</span>
-                {i < steps.length-1 && <span className="w-8 h-px bg-border inline-block" />}
-              </li>
-            ))}
-          </ol>
-        </div>
-
         {/* Main Content */}
-        <main className="max-w-3xl mx-auto px-5 py-6">
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {renderContent()}
         </main>
       </div>
