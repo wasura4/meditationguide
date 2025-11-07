@@ -4,7 +4,7 @@ import { APP_CONFIG } from "@/constants";
 export default function HelpPage() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-white dark:bg-gray-800 border-b border-border">
+      <header className="bg-background border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-5 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-foreground">Help Center</h1>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">Back to Home</Link>
@@ -60,4 +60,3 @@ export default function HelpPage() {
     </div>
   );
 }
-

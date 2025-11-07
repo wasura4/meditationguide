@@ -3,7 +3,7 @@ import { APP_CONFIG } from "@/constants";
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-white dark:bg-gray-800 border-b border-border">
+      <header className="bg-background border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-5">
           <h1 className="text-2xl font-semibold text-foreground">Terms of Service</h1>
           <p className="text-muted-foreground mt-1">Last updated: {new Date().getFullYear()}</p>
@@ -60,4 +60,3 @@ export default function TermsPage() {
     </div>
   );
 }
-

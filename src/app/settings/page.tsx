@@ -61,7 +61,7 @@ export default function SettingsPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <header className="bg-background shadow-sm border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-4">
@@ -127,7 +127,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+            <div className="mt-12 bg-card text-card-foreground rounded-xl p-6 shadow-lg border border-border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 {t('dashboard.actions.quick_actions')}
               </h3>
@@ -168,7 +168,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Account */}
-            <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-border">
+            <div className="mt-8 bg-card text-card-foreground rounded-xl p-6 shadow-lg border border-border">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Account</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Manage your account access.</p>
               <div className="flex gap-3">
