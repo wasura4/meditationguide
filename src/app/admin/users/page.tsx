@@ -357,40 +357,11 @@ export default function AdminUsersPage() {
                       )}
                     </div>
                         </div>
-                      ) : userSessions.length > 0 ? (
-                        <div className="space-y-2 max-h-64 overflow-y-auto">
-                          {userSessions.slice(0, 10).map((session) => (
-                            <div key={session.id} className="p-2 bg-gray-50 rounded text-xs">
-                              <p className="font-medium text-gray-900">{session.typeName}</p>
-                              <p className="text-gray-500">
-                                {session.duration} min � {formatDate(session.createdAt)}
-                              </p>
-                            </div>
-                          ))}
-                          {userSessions.length > 10 && (
-                            <p className="text-xs text-gray-500 text-center">
-                              +{userSessions.length - 10} more sessions
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500 text-center py-4">No sessions yet</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
-                  <p className="text-gray-500">Select a user to view details</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </AdminLayout>
+                            </AdminLayout>
     </AdminProtectedRoute>
   );
 }
+
 
 
 
