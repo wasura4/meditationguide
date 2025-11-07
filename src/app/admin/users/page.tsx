@@ -18,6 +18,13 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userSessions, setUserSessions] = useState<MeditationSession[]>([]);
+  const [stats, setStats] = useState<{
+    totalSessions: number;
+    totalMinutes: number;
+    averageSession: number;
+    topMeditation?: { typeId: string; typeName: string; count: number; minutes: number };
+    lastSessionAt?: Date;
+  }>({ totalSessions: 0, totalMinutes: 0, averageSession: 0 });
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -99,6 +106,20 @@ export default function AdminUsersPage() {
       setLoadingSessions(true);
       const sessions = await AdminService.getUserSessions(userId, 50);
       setUserSessions(sessions);
+      // Compute quick stats for the right panel
+      const totalSessions = sessions.length;
+      const totalMinutes = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+      const averageSession = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+      const byType: Record<string, { typeId: string; typeName: string; count: number; minutes: number }> = {} as any;
+      sessions.forEach((s) => {
+        const key = s.typeId || s.typeName || 'unknown';
+        if (!byType[key]) byType[key] = { typeId: s.typeId || key, typeName: s.typeName || 'Unknown', count: 0, minutes: 0 } as any;
+        byType[key].count += 1;
+        byType[key].minutes += s.duration || 0;
+      });
+      const topMeditation = Object.values(byType).sort((a: any, b: any) => b.count - a.count || b.minutes - a.minutes)[0] as any;
+      const lastSessionAt = sessions.length ? sessions.slice().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0].createdAt : undefined;
+      setStats({ totalSessions, totalMinutes, averageSession, topMeditation, lastSessionAt });
     } catch (error) {
       console.error('Error loading user sessions:', error);
       showToast({
@@ -289,11 +310,11 @@ export default function AdminUsersPage() {
                     <div className="text-center">
                       <div className="w-16 h-16 bg-[#6b9e7a] rounded-full flex items-center justify-center mx-auto mb-3">
                         <span className="text-white text-xl font-semibold">
-                          {selectedUser.displayName?.charAt(0).toUpperCase() || selectedUser.email?.charAt(0).toUpperCase() || 'U'}
+                          {((selectedUser.displayName && selectedUser.displayName !== 'Anonymous User' ? selectedUser.displayName : (selectedUser.email || 'U'))).charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <p className="text-lg font-semibold text-gray-900">
-                        {selectedUser.displayName || 'No Name'}
+                        {selectedUser.displayName && selectedUser.displayName !== 'Anonymous User' ? selectedUser.displayName : (selectedUser.email?.split('@')[0] || 'User')}
                       </p>
                       <p className="text-sm text-gray-500">{selectedUser.email}</p>
                     </div>
@@ -304,32 +325,37 @@ export default function AdminUsersPage() {
                         <p className="text-sm font-mono text-gray-900">{selectedUser.id}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Joined</p>
-                        <p className="text-sm text-gray-900">{formatDate(selectedUser.createdAt)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Last Updated</p>
-                        <p className="text-sm text-gray-900">{formatDate(selectedUser.updatedAt)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Theme</p>
-                        <p className="text-sm text-gray-900 capitalize">
-                          {selectedUser.preferences?.theme || 'light'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Language</p>
-                        <p className="text-sm text-gray-900 uppercase">
-                          {selectedUser.preferences?.language || 'en'}
-                        </p>
-                      </div>
-                    </div>
-
                     <div className="pt-4 border-t border-gray-200">
-                      <h3 className="text-sm font-semibold text-gray-900 mb-3">Meditation Sessions</h3>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">Key Stats</h3>
                       {loadingSessions ? (
                         <div className="text-center py-4">
                           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6b9e7a] mx-auto"></div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div className="bg-gray-50 rounded p-3">
+                            <p className="text-gray-500">Total Sessions</p>
+                            <p className="text-lg font-semibold text-gray-900">{stats.totalSessions}</p>
+                          </div>
+                          <div className="bg-gray-50 rounded p-3">
+                            <p className="text-gray-500">Total Minutes</p>
+                            <p className="text-lg font-semibold text-gray-900">{stats.totalMinutes}</p>
+                          </div>
+                          <div className="bg-gray-50 rounded p-3">
+                            <p className="text-gray-500">Avg. Session</p>
+                            <p className="text-lg font-semibold text-gray-900">{stats.averageSession} min</p>
+                          </div>
+                          <div className="bg-gray-50 rounded p-3">
+                            <p className="text-gray-500">Top Meditation</p>
+                            <p className="text-sm font-semibold text-gray-900">{stats.topMeditation?.typeName || '—'}</p>
+                          </div>
+                          <div className="bg-gray-50 rounded p-3 col-span-2">
+                            <p className="text-gray-500">Last Session</p>
+                            <p className="text-sm font-semibold text-gray-900">{stats.lastSessionAt ? formatDate(stats.lastSessionAt) : '—'}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                         </div>
                       ) : userSessions.length > 0 ? (
                         <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -365,6 +391,8 @@ export default function AdminUsersPage() {
     </AdminProtectedRoute>
   );
 }
+
+
 
 
 
