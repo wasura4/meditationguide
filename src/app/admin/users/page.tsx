@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { User } from '@/types';
 import { MeditationSession } from '@/types';
+import { PATH_STAGES } from '@/constants/path';
 
 export default function AdminUsersPage() {
   const { hasPermission } = useAdminAuth();
@@ -259,6 +260,11 @@ export default function AdminUsersPage() {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
+                            {user.pathProgress && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200">
+                                Stage {user.pathProgress.currentStage}/8
+                              </span>
+                            )}
                             <span className="text-xs text-gray-500">
                               Joined {formatDate(user.createdAt)}
                             </span>
@@ -340,6 +346,38 @@ export default function AdminUsersPage() {
                         <p className="text-sm text-gray-900 uppercase">{selectedUser.preferences?.language || 'en'}</p>
                       </div>
                     </div>
+
+                    {/* Path Progress Section */}
+                    {selectedUser.pathProgress && (
+                      <div className="pt-4 border-t border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-3">Seven Purifications Path</h3>
+                        <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg p-4 border border-violet-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs text-violet-600 font-medium">Current Stage</span>
+                            <span className="text-xs text-violet-600 font-semibold">
+                              {selectedUser.pathProgress.currentStage} of 8
+                            </span>
+                          </div>
+                          <div className="mb-3">
+                            <p className="text-sm font-bold text-violet-900">
+                              {PATH_STAGES.find(s => s.order === selectedUser.pathProgress!.currentStage)?.name || '-'}
+                            </p>
+                            <p className="text-xs text-violet-700 mt-1">
+                              {PATH_STAGES.find(s => s.order === selectedUser.pathProgress!.currentStage)?.nameEn || '-'}
+                            </p>
+                          </div>
+                          <div className="h-2 bg-violet-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
+                              style={{ width: `${((selectedUser.pathProgress.currentStage - 1) / 7) * 100}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-violet-600 mt-2">
+                            Last updated: {formatDate(selectedUser.pathProgress.updatedAt)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="pt-4 border-t border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-900 mb-3">Key Stats</h3>

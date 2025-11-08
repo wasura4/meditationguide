@@ -7,6 +7,7 @@ import { AdminService } from '@/lib/adminService';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
+import { PATH_STAGES } from '@/constants/path';
 
 type TimeRange = '7d' | '30d' | '90d' | 'all';
 
@@ -42,6 +43,10 @@ interface AnalyticsData {
   trends: {
     userGrowth: Array<{ date: string; count: number }>;
     sessionGrowth: Array<{ date: string; count: number }>;
+  };
+  pathProgress?: {
+    byStage: Array<{ stage: number; count: number; percentage: number }>;
+    totalWithProgress: number;
   };
 }
 
@@ -317,6 +322,41 @@ export default function AdminAnalyticsPage() {
               </div>
             </div>
           </div>
+
+          {/* Path Progress Distribution */}
+          {analytics.pathProgress && analytics.pathProgress.totalWithProgress > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Seven Purifications Path Distribution</h3>
+                <span className="text-sm text-gray-500">{analytics.pathProgress.totalWithProgress} users on the path</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {PATH_STAGES.map((stage) => {
+                  const stageData = analytics.pathProgress!.byStage.find(s => s.stage === stage.order);
+                  const count = stageData?.count || 0;
+                  const percentage = stageData?.percentage || 0;
+
+                  return (
+                    <div key={stage.order} className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg p-4 border border-violet-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-violet-600">Stage {stage.order}</span>
+                        <span className="text-xs font-bold text-violet-900">{count} users</span>
+                      </div>
+                      <p className="text-sm font-bold text-violet-900 mb-1">{stage.name}</p>
+                      <p className="text-xs text-violet-700 mb-3">{stage.nameEn}</p>
+                      <div className="relative h-2 bg-violet-200 rounded-full overflow-hidden">
+                        <div
+                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-violet-600 mt-1 text-right">{percentage.toFixed(1)}%</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Popular Meditation Types */}
           <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">

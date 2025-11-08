@@ -10,6 +10,7 @@ export interface User {
   lastLoginAt: Date;
   preferences: UserPreferences;
   isAnonymous: boolean;
+  pathProgress?: PathProgress;
 }
 
 export type UserRole = 'owner' | 'admin' | 'editor' | 'user';

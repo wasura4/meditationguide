@@ -200,6 +200,10 @@ export class AdminService {
       userGrowth: Array<{ date: string; count: number }>;
       sessionGrowth: Array<{ date: string; count: number }>;
     };
+    pathProgress?: {
+      byStage: Array<{ stage: number; count: number; percentage: number }>;
+      totalWithProgress: number;
+    };
   }> {
     try {
       // Get date range
@@ -232,6 +236,11 @@ export class AdminService {
             language: 'en',
             notifications: { email: true, push: true },
           },
+          pathProgress: data.pathProgress ? {
+            currentStage: data.pathProgress.currentStage,
+            updatedAt: data.pathProgress.updatedAt?.toDate() || new Date(),
+            history: []
+          } : undefined,
         } as User);
       });
 
@@ -347,6 +356,32 @@ export class AdminService {
       const postsSnapshot = await getDocs(query(collection(db, 'dhamma_posts')));
       const dhammaViewCount = postsSnapshot.docs.reduce((sum, d) => sum + (d.data().viewCount || 0), 0);
 
+      // Calculate path progress distribution
+      const usersWithProgress = allUsers.filter(u => u.pathProgress);
+      const pathProgressByStage: Record<number, number> = {};
+
+      usersWithProgress.forEach(user => {
+        if (user.pathProgress) {
+          const stage = user.pathProgress.currentStage;
+          pathProgressByStage[stage] = (pathProgressByStage[stage] || 0) + 1;
+        }
+      });
+
+      const pathProgressData = usersWithProgress.length > 0 ? {
+        byStage: Array.from({ length: 8 }, (_, i) => {
+          const stage = i + 1;
+          const count = pathProgressByStage[stage] || 0;
+          return {
+            stage,
+            count,
+            percentage: usersWithProgress.length > 0
+              ? Math.round((count / usersWithProgress.length) * 100)
+              : 0
+          };
+        }),
+        totalWithProgress: usersWithProgress.length
+      } : undefined;
+
       return {
         users: {
           total: totalUsers,
@@ -380,6 +415,7 @@ export class AdminService {
           userGrowth: userGrowthTrend,
           sessionGrowth: sessionGrowthTrend,
         },
+        pathProgress: pathProgressData,
       };
     } catch (error) {
       console.error('Error fetching admin analytics:', error);
