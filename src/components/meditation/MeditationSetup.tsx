@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -142,30 +142,17 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             <Filter className="w-4 h-4 text-muted-foreground" />
             <label className="text-sm font-medium text-foreground">Filter by Category</label>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                selectedCategory === 'all'
-                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                  : 'bg-background text-foreground border-border hover:bg-muted hover:border-primary/30'
-              }`}
+          <div className="flex w-full max-w-sm">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full rounded-xl bg-muted/60 border border-border px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
             >
-              All Categories
-            </button>
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                  selectedCategory === category.id
-                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                    : 'bg-background text-foreground border-border hover:bg-muted hover:border-primary/30'
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
+              <option value="all">All</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
@@ -329,3 +316,4 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
     </div>
   );
 };
+
