@@ -100,32 +100,32 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h2 className="text-3xl font-bold text-foreground mb-2">
           Create Account
         </h2>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-muted-foreground">
           Start your meditation journey today
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Display Name Field */}
         <div>
-          <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="displayName" className="block text-sm font-medium text-foreground mb-2">
             Display Name
           </label>
           <input
             {...register('displayName')}
             type="text"
             id="displayName"
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
             placeholder="Enter your display name"
             disabled={isLoading}
           />
           {errors.displayName && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
               {errors.displayName.message}
             </p>
           )}
@@ -133,19 +133,19 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
 
         {/* Email Field */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
             Email Address
           </label>
           <input
             {...register('email')}
             type="email"
             id="email"
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
             placeholder="Enter your email"
             disabled={isLoading}
           />
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
               {errors.email.message}
             </p>
           )}
@@ -153,42 +153,42 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
 
         {/* Password Field */}
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
             Password
           </label>
           <input
             {...register('password')}
             type="password"
             id="password"
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
             placeholder="Create a password"
             disabled={isLoading}
           />
           {errors.password && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
               {errors.password.message}
             </p>
           )}
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-xs text-muted-foreground">
             Must be at least 8 characters with uppercase, lowercase, and number
           </p>
         </div>
 
         {/* Confirm Password Field */}
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
             Confirm Password
           </label>
           <input
             {...register('confirmPassword')}
             type="password"
             id="confirmPassword"
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
             placeholder="Confirm your password"
             disabled={isLoading}
           />
           {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -196,8 +196,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
 
         {/* Error Message */}
         {error && (
-          <div className="p-4 bg-[var(--color-status-error)]/10 dark:bg-[var(--color-status-error)]/20 border border-[var(--color-status-error)] dark:border-[var(--color-status-error)] rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
           </div>
         )}
 
@@ -212,12 +212,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
         </Button>
 
         {/* Divider */}
-        <div className="relative">
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+            <div className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">Or continue with</span>
+            <span className="px-3 bg-white dark:bg-gray-800 text-muted-foreground">Or continue with</span>
           </div>
         </div>
 
@@ -252,13 +252,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
       </form>
 
       {/* Switch to Login */}
-      <div className="mt-8 text-center">
-        <p className="text-gray-600 dark:text-gray-300">
+      <div className="mt-6 text-center">
+        <p className="text-muted-foreground text-sm">
           Already have an account?{' '}
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="text-[var(--primary)] dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+            className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold transition-colors"
           >
             Sign in here
           </button>
