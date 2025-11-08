@@ -15,7 +15,7 @@ import {
 import { db } from '@/lib/firebase';
 import { MeditationCategory, MeditationCategoryFormData } from '@/types/admin';
 
-const COLLECTION_NAME = 'meditation_categories';
+const COLLECTION_NAME = 'meditationCategories';
 
 export class MeditationCategoryService {
   /**
