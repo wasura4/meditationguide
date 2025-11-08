@@ -101,7 +101,7 @@ service cloud.firestore {
     }
 
     // Meditation categories — public read, admin write (NEW)
-    match /meditation_categories/{categoryId} {
+    match /meditationCategories/{categoryId} {
       allow read: if true;
       allow write: if isAdmin();
     }

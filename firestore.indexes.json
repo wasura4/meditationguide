@@ -1,7 +1,7 @@
 {
   "indexes": [
     {
-      "collectionGroup": "meditation_categories",
+      "collectionGroup": "meditationCategories",
       "queryScope": "COLLECTION",
       "fields": [
         {
