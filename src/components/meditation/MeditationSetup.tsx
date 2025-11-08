@@ -23,6 +23,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   const [meditationTypes, setMeditationTypes] = useState<MeditationType[]>([]);
   const [categories, setCategories] = useState<MeditationCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAllTypes, setShowAllTypes] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -68,6 +69,29 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
       return matchesSearch && matchesCategory;
     });
   }, [meditationTypes, searchQuery, selectedCategory]);
+
+  // Featured meditations (first 8 based on order)
+  const featuredMeditations = useMemo(() => {
+    return filteredMeditations.slice(0, 8);
+  }, [filteredMeditations]);
+
+  // Remaining meditations (after first 8)
+  const remainingMeditations = useMemo(() => {
+    return filteredMeditations.slice(8);
+  }, [filteredMeditations]);
+
+  // Determine if we're in search/filter mode
+  const isFiltering = searchQuery !== '' || selectedCategory !== 'all';
+
+  // Meditations to display
+  const displayedMeditations = useMemo(() => {
+    // If filtering or showing all, show filtered results
+    if (isFiltering || showAllTypes) {
+      return filteredMeditations;
+    }
+    // Otherwise show only featured
+    return featuredMeditations;
+  }, [filteredMeditations, featuredMeditations, isFiltering, showAllTypes]);
 
   const handleStart = () => {
     onStart(selectedType, customDuration);
@@ -160,15 +184,24 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
       {/* Meditation Types Grid */}
       <div className="bg-card rounded-xl p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-foreground">Meditation Types</h2>
-          {searchQuery && (
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">
+              {isFiltering ? 'Search Results' : showAllTypes ? 'All Meditation Types' : 'Featured Practices'}
+            </h2>
+            {!isFiltering && !showAllTypes && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Discover our top meditation practices
+              </p>
+            )}
+          </div>
+          {isFiltering && (
             <span className="text-sm text-muted-foreground">
               {filteredMeditations.length} {filteredMeditations.length === 1 ? 'result' : 'results'}
             </span>
           )}
         </div>
 
-        {filteredMeditations.length === 0 ? (
+        {displayedMeditations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
               <Search className="w-8 h-8 text-muted-foreground" />
@@ -177,13 +210,14 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
             <p className="text-sm text-muted-foreground mb-4 max-w-sm">
               Try adjusting your search or filter to find what you&apos;re looking for.
             </p>
-            <Button onClick={() => setSearchQuery('')} variant="outline" size="sm">
-              Clear Search
+            <Button onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }} variant="outline" size="sm">
+              Clear Filters
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredMeditations.map((type) => {
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {displayedMeditations.map((type) => {
               const categoryInfo = categories.find(c => c.id === type.category);
               return (
                 <button
@@ -229,7 +263,41 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                 </button>
               );
             })}
-          </div>
+            </div>
+
+            {/* Show All / Show Less Button */}
+            {!isFiltering && remainingMeditations.length > 0 && (
+              <div className="mt-6 text-center">
+                <Button
+                  onClick={() => setShowAllTypes(!showAllTypes)}
+                  variant="outline"
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  {showAllTypes ? (
+                    <>
+                      Show Less
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      Browse All {meditationTypes.length} Types
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </>
+                  )}
+                </Button>
+                {!showAllTypes && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {remainingMeditations.length} more meditation types available
+                  </p>
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
 
