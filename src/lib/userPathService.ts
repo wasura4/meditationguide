@@ -4,9 +4,10 @@ import {
   updateDoc,
   serverTimestamp,
   arrayUnion,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { PathProgress, PathProgressHistory } from '@/types';
+import { PathProgress } from '@/types';
 
 const USERS_COLLECTION = 'users';
 
@@ -49,7 +50,11 @@ export class UserPathService {
       return {
         currentStage: data.pathProgress.currentStage,
         updatedAt: data.pathProgress.updatedAt?.toDate() || new Date(),
-        history: (data.pathProgress.history || []).map((entry: any) => ({
+        history: (data.pathProgress.history || []).map((entry: {
+          stage: number;
+          updatedAt?: Timestamp;
+          notes?: string;
+        }) => ({
           stage: entry.stage,
           updatedAt: entry.updatedAt?.toDate() || new Date(),
           notes: entry.notes
@@ -76,7 +81,11 @@ export class UserPathService {
 
       const userRef = doc(db, USERS_COLLECTION, userId);
 
-      const historyEntry: Record<string, any> = {
+      const historyEntry: {
+        stage: number;
+        updatedAt: ReturnType<typeof serverTimestamp>;
+        notes?: string;
+      } = {
         stage: newStage,
         updatedAt: serverTimestamp()
       };

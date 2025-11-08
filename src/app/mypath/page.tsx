@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserPathService } from '@/lib/userPathService';
 import { PathProgress } from '@/types';
-import { PATH_STAGES, calculateProgress, getNextStage, getPreviousStage } from '@/constants/path';
+import { PATH_STAGES, calculateProgress, getNextStage } from '@/constants/path';
 import { ArrowLeft, ArrowRight, Check, Lock } from 'lucide-react';
 
 export default function MyPathPage() {
@@ -41,7 +41,7 @@ export default function MyPathPage() {
     };
 
     loadPath();
-  }, [user]);
+  }, [user, showToast]);
 
   const handleMoveToNextStage = async () => {
     if (!user || !pathProgress) return;
@@ -64,11 +64,12 @@ export default function MyPathPage() {
         message: `You've advanced to ${stageName}`,
         duration: 4000
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update progress';
       showToast({
         type: 'error',
         title: 'Update Failed',
-        message: error.message || 'Failed to update progress',
+        message: errorMessage,
         duration: 5000
       });
     } finally {
@@ -95,11 +96,12 @@ export default function MyPathPage() {
         message: `Moved back to stage ${newStage}`,
         duration: 3000
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update progress';
       showToast({
         type: 'error',
         title: 'Update Failed',
-        message: error.message || 'Failed to update progress',
+        message: errorMessage,
         duration: 5000
       });
     } finally {
