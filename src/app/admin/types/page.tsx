@@ -5,14 +5,16 @@ import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { MeditationType } from '@/types';
+import { MeditationCategory } from '@/types/admin';
 import { MeditationTypeService } from '@/lib/meditationTypeService';
+import { MeditationCategoryService } from '@/lib/meditationCategoryService';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
-import { MEDITATION_CATEGORIES } from '@/constants';
 
 export default function AdminMeditationTypesPage() {
   const { hasPermission } = useAdminAuth();
   const [types, setTypes] = useState<MeditationType[]>([]);
+  const [categories, setCategories] = useState<MeditationCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingType, setEditingType] = useState<MeditationType | null>(null);
@@ -37,9 +39,26 @@ export default function AdminMeditationTypesPage() {
     }
   }, [showToast]);
 
+  // Load categories
+  const loadCategories = useCallback(async () => {
+    try {
+      const allCategories = await MeditationCategoryService.getActiveCategories();
+      setCategories(allCategories);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load meditation categories',
+        duration: 5000
+      });
+    }
+  }, [showToast]);
+
   useEffect(() => {
     loadTypes();
-  }, [loadTypes]);
+    loadCategories();
+  }, [loadTypes, loadCategories]);
 
   const handleCreateType = async (formData: FormData) => {
     try {
@@ -48,11 +67,11 @@ export default function AdminMeditationTypesPage() {
       // For new types, default to true if checkbox not present or checked
       // For existing types, use the checkbox value (checked = 'on', unchecked = null)
       const isActive = isActiveValue === 'on' || (isActiveValue === null && !editingType);
-      
+
       const typeData = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        category: categoryValue as 'vipassana' | 'samatha' | 'kasina' | 'mindfulness',
+        category: categoryValue, // Now accepts any category ID from database
         defaultDuration: parseInt(formData.get('defaultDuration') as string),
         order: types.length + 1,
         isActive,
@@ -85,7 +104,7 @@ export default function AdminMeditationTypesPage() {
       const updates = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        category: categoryValue as 'vipassana' | 'samatha' | 'kasina' | 'mindfulness',
+        category: categoryValue, // Now accepts any category ID from database
         defaultDuration: parseInt(formData.get('defaultDuration') as string),
         isActive: formData.get('isActive') === 'on',
         tags: (formData.get('tags') as string).split(',').map(tag => tag.trim()).filter(tag => tag),
@@ -250,15 +269,24 @@ export default function AdminMeditationTypesPage() {
                     <select
                       name="category"
                       required
-                      defaultValue={editingType?.category || 'theravada'}
+                      defaultValue={editingType?.category || (categories[0]?.id || '')}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
-                      {MEDITATION_CATEGORIES.map((category) => (
-                        <option key={category} value={category}>
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </option>
-                      ))}
+                      {categories.length === 0 ? (
+                        <option value="">No categories available - Create categories first</option>
+                      ) : (
+                        categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name} ({category.nameEn})
+                          </option>
+                        ))
+                      )}
                     </select>
+                    {categories.length === 0 && (
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                        Please create meditation categories first in the Categories management page.
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -368,7 +396,7 @@ export default function AdminMeditationTypesPage() {
                             </p>
                             <div className="flex items-center space-x-4 mt-2">
                               <span className="text-xs text-gray-500 dark:text-gray-400">
-                                Category: {type.category}
+                                Category: {categories.find(c => c.id === type.category)?.name || type.category}
                               </span>
                               <span className="text-xs text-gray-500 dark:text-gray-400">
                                 Duration: {type.defaultDuration}m

@@ -3,9 +3,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { TIMER_SETTINGS } from '@/constants';
-import { MEDITATION_CATEGORY_DETAILS_UI } from '@/constants/meditation-ui';
 import { MeditationTypeService } from '@/lib/meditationTypeService';
+import { MeditationCategoryService } from '@/lib/meditationCategoryService';
 import { MeditationType } from '@/types';
+import { MeditationCategory } from '@/types/admin';
 import { useToast } from '@/components/ui/toast';
 import { Search, Clock, Filter, X } from 'lucide-react';
 
@@ -20,22 +21,30 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [meditationTypes, setMeditationTypes] = useState<MeditationType[]>([]);
+  const [categories, setCategories] = useState<MeditationCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
 
   useEffect(() => {
-    const loadTypes = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const types = await MeditationTypeService.getActiveTypes();
+
+        // Load both types and categories
+        const [types, cats] = await Promise.all([
+          MeditationTypeService.getActiveTypes(),
+          MeditationCategoryService.getActiveCategories()
+        ]);
+
         setMeditationTypes(types);
+        setCategories(cats);
 
         if (types.length > 0 && !selectedType) {
           setSelectedType(types[0].id);
           setCustomDuration(types[0].defaultDuration);
         }
       } catch (error) {
-        console.error('Error loading meditation types:', error);
+        console.error('Error loading meditation data:', error);
         showToast({
           type: 'error',
           title: 'Error',
@@ -47,7 +56,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
       }
     };
 
-    loadTypes();
+    loadData();
   }, []);
 
   const filteredMeditations = useMemo(() => {
@@ -142,9 +151,9 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                   : 'bg-background text-foreground border-border hover:bg-muted hover:border-primary/30'
               }`}
             >
-              ✨ All Categories
+              All Categories
             </button>
-            {MEDITATION_CATEGORY_DETAILS_UI.map((category) => (
+            {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
@@ -154,7 +163,6 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                     : 'bg-background text-foreground border-border hover:bg-muted hover:border-primary/30'
                 }`}
               >
-                <span className="mr-1.5">{category.icon}</span>
                 {category.name}
               </button>
             ))}
@@ -189,7 +197,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredMeditations.map((type) => {
-              const categoryInfo = MEDITATION_CATEGORY_DETAILS_UI.find(c => c.id === type.category);
+              const categoryInfo = categories.find(c => c.id === type.category);
               return (
                 <button
                   key={type.id}
@@ -200,11 +208,6 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                       : 'border-border hover:border-primary/50 hover:shadow-md'
                   }`}
                 >
-                  {/* Category Icon Badge */}
-                  <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white text-xl shadow-lg">
-                    {categoryInfo?.icon || '◉'}
-                  </div>
-
                   {/* Content */}
                   <div className="mb-3">
                     <h4 className="font-bold text-base text-foreground mb-1 leading-tight group-hover:text-primary transition-colors">
@@ -221,14 +224,16 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                       <Clock className="w-3 h-3" />
                       {type.defaultDuration}m
                     </span>
-                    <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-primary/10 to-purple-500/10 text-primary rounded-full font-medium">
-                      {categoryInfo?.name || type.category}
-                    </span>
+                    {categoryInfo && (
+                      <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-primary/10 to-purple-500/10 text-primary rounded-full font-medium">
+                        {categoryInfo.name}
+                      </span>
+                    )}
                   </div>
 
                   {/* Selected Indicator */}
                   {selectedType === type.id && (
-                    <div className="absolute top-3 left-3 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                    <div className="absolute top-3 right-3 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
                       <svg className="w-4 h-4 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>

@@ -104,3 +104,25 @@ export interface AdminAuditLog {
   userAgent: string;
   timestamp: Date;
 }
+
+export interface MeditationCategory {
+  id: string;
+  name: string; // Sinhala name
+  nameEn: string; // English name
+  description: string;
+  color: string; // Tailwind color name (e.g., 'violet', 'blue', 'amber')
+  order: number; // Display order
+  isActive: boolean;
+  createdBy: string; // admin ID
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MeditationCategoryFormData {
+  name: string;
+  nameEn: string;
+  description: string;
+  color: string;
+  order?: number;
+  isActive?: boolean;
+}

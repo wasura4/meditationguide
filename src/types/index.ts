@@ -35,7 +35,7 @@ export interface MeditationType {
   id: string;
   name: string;
   description: string;
-  category: 'vipassana' | 'samatha' | 'kasina' | 'mindfulness';
+  category: string; // Dynamic category ID
   defaultDuration: number; // in minutes
   isActive: boolean;
   order: number;
