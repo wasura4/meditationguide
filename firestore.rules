@@ -1,0 +1,115 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    }
+
+    // Users — user can manage own; admin can read/write all
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId || isAdmin();
+
+      // Devices sub-collection — for FCM tokens (owner only)
+      match /devices/{deviceToken} {
+        allow read, write: if request.auth.uid == userId;
+      }
+
+      // Sessions sub-collection — owner only
+      match /sessions/{sessionId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+
+      // Logs sub-collection — owner only
+      match /logs/{logId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+    }
+
+    // Favorites (subcollection under users) — owner only
+    match /users/{userId}/favorites/{postId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Meditation sessions — owner full control; admin can read for analytics
+    match /meditation_sessions/{sessionId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.userId;
+    }
+
+    // Admin users — secure access per-admin
+    match /admin_users/{adminId} {
+      allow read: if isSignedIn() && request.auth.uid == adminId;
+      allow write: if isSignedIn() && request.auth.uid == adminId;
+    }
+
+    // Kamatahan audio — public read, admin write
+    match /kamatahan_audio/{audioId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Dhamma posts — public read, admin write
+    match /dhamma_posts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Playlists — public read for isPublic; owner/admin manage
+    match /playlists/{playlistId} {
+      allow read: if resource.data.isPublic == true
+        || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()));
+      allow create: if isSignedIn() && (
+        request.resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow update, delete: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // Audio listens (for counts)
+    match /audio_listens/{listenId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    // Dhamma reads (per-user tracking)
+    match /dhamma_reads/{readId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    // Translations — public read, admin write
+    match /translations/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Meditation types — public read, admin write
+    match /meditation_types/{typeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Meditation categories — public read, admin write (NEW)
+    match /meditation_categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // App settings (theme, etc.) — public read, admin write
+    match /app_settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -15,7 +15,7 @@ import {
 import { db } from '@/lib/firebase';
 import { MeditationCategory, MeditationCategoryFormData } from '@/types/admin';
 
-const COLLECTION_NAME = 'meditationCategories';
+const COLLECTION_NAME = 'meditation_categories';
 
 export class MeditationCategoryService {
   /**
@@ -198,7 +198,7 @@ export class MeditationCategoryService {
   static async isCategoryInUse(categoryId: string): Promise<boolean> {
     try {
       const meditationTypesQuery = query(
-        collection(db, 'meditationTypes'),
+        collection(db, 'meditation_types'),
         where('category', '==', categoryId),
         where('isActive', '==', true)
       );

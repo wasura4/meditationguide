@@ -291,24 +291,35 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
 
       {/* Selected Summary & Actions */}
       {selectedMeditation && (
-        <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-6 border border-primary/20">
-          <div className="flex items-start justify-between gap-6">
+        <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-4 sm:p-6 border border-primary/20">
+          <div className="flex flex-col gap-4">
+            {/* Selected Practice Info */}
             <div className="flex-1">
               <h3 className="text-sm font-medium text-muted-foreground mb-1">Selected Practice</h3>
-              <h2 className="text-2xl font-bold text-foreground mb-2">{selectedMeditation.name}</h2>
-              <p className="text-sm text-muted-foreground mb-4">{selectedMeditation.description}</p>
-              <div className="flex items-center gap-3">
-                <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <Clock className="w-5 h-5 text-primary" />
-                  {customDuration} minutes
-                </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">{selectedMeditation.name}</h2>
+              <p className="text-sm text-muted-foreground mb-3">{selectedMeditation.description}</p>
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Clock className="w-5 h-5 text-primary" />
+                {customDuration} minutes
               </div>
             </div>
-            <div className="flex gap-3">
-              <Button onClick={onCancel} variant="outline" size="lg">
+
+            {/* Action Buttons - Responsive */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Button
+                onClick={onCancel}
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
                 Cancel
               </Button>
-              <Button onClick={handleStart} variant="default" size="lg" className="min-w-[140px]">
+              <Button
+                onClick={handleStart}
+                variant="default"
+                size="lg"
+                className="w-full sm:w-auto sm:min-w-[140px]"
+              >
                 Begin Practice
               </Button>
             </div>
