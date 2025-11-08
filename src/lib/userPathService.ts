@@ -81,13 +81,16 @@ export class UserPathService {
 
       const userRef = doc(db, USERS_COLLECTION, userId);
 
+      // Create history entry with current timestamp
+      // Note: Cannot use serverTimestamp() inside arrayUnion()
+      const now = Timestamp.now();
       const historyEntry: {
         stage: number;
-        updatedAt: ReturnType<typeof serverTimestamp>;
+        updatedAt: Timestamp;
         notes?: string;
       } = {
         stage: newStage,
-        updatedAt: serverTimestamp()
+        updatedAt: now
       };
 
       if (notes) {
@@ -162,13 +165,16 @@ export class UserPathService {
     try {
       const userRef = doc(db, USERS_COLLECTION, userId);
 
+      // Create reset entry with current timestamp
+      const now = Timestamp.now();
+
       await updateDoc(userRef, {
         'pathProgress.currentStage': 1,
         'pathProgress.updatedAt': serverTimestamp(),
         // Keep history but add reset entry
         'pathProgress.history': arrayUnion({
           stage: 1,
-          updatedAt: serverTimestamp(),
+          updatedAt: now,
           notes: 'Path reset to beginning'
         })
       });
