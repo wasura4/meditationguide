@@ -30,6 +30,19 @@ export interface UserPreferences {
   };
 }
 
+// Path Progress (Seven Purifications)
+export interface PathProgressHistory {
+  stage: number;
+  updatedAt: Date;
+  notes?: string;
+}
+
+export interface PathProgress {
+  currentStage: number;       // 1-8
+  updatedAt: Date;
+  history: PathProgressHistory[];
+}
+
 // Meditation Types
 export interface MeditationType {
   id: string;
