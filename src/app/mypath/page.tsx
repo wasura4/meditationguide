@@ -25,7 +25,7 @@ export default function MyPathPage() {
 
       try {
         setLoading(true);
-        const progress = await UserPathService.getUserPath(user.uid);
+        const progress = await UserPathService.getUserPath(user.id);
         setPathProgress(progress);
       } catch (error) {
         console.error('Error loading path:', error);
@@ -48,7 +48,7 @@ export default function MyPathPage() {
 
     try {
       setUpdating(true);
-      const newStage = await UserPathService.moveToNextStage(user.uid);
+      const newStage = await UserPathService.moveToNextStage(user.id);
 
       setPathProgress({
         ...pathProgress,
@@ -82,7 +82,7 @@ export default function MyPathPage() {
 
     try {
       setUpdating(true);
-      const newStage = await UserPathService.moveToPreviousStage(user.uid);
+      const newStage = await UserPathService.moveToPreviousStage(user.id);
 
       setPathProgress({
         ...pathProgress,
