@@ -704,34 +704,31 @@ export function PlaylistManager() {
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 via-purple-500/20 to-blue-500/20" />
                 )}
-                {/* Subtle bottom gradient for legibility */}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
-                {/* Start button (always visible on mobile) */}
-                <button
-                  aria-label="Start"
-                  onClick={() => startPlaylist(playlist)}
-                  className="absolute bottom-3 right-3 h-9 px-4 rounded-full bg-[var(--primary)] text-white shadow-lg opacity-100 md:hidden transition-opacity text-sm font-semibold"
-                >
-                  Start
-                </button>
                 {/* Desktop Play overlay (appears on hover) */}
                 <button
                   aria-label="Play"
                   onClick={() => startPlaylist(playlist)}
-                  className="hidden md:flex items-center justify-center absolute inset-0 m-auto h-12 w-12 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="hidden md:flex items-center justify-center absolute inset-0 m-auto h-14 w-14 rounded-full bg-white/95 dark:bg-gray-900/95 text-primary shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8 5v14l11-7z"></path>
                   </svg>
                 </button>
               </div>
 
               {/* Meta */}
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-foreground line-clamp-2">
+              <div className="p-4 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="font-semibold text-foreground line-clamp-2 flex-1">
                     {playlist.name}
                   </h3>
+                  {/* Mobile Start Button - moved to meta section */}
+                  <button
+                    onClick={() => startPlaylist(playlist)}
+                    className="md:hidden shrink-0 h-9 px-4 rounded-full bg-primary text-primary-foreground shadow-sm hover:shadow-md transition-all text-sm font-semibold hover:scale-105 active:scale-95"
+                  >
+                    Start
+                  </button>
                   <span className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full ${playlist.isPublic ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'bg-muted text-muted-foreground'}` }>
                     {playlist.isPublic ? 'Public' : 'Private'}
                   </span>

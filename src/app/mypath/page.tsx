@@ -162,7 +162,7 @@ export default function MyPathPage() {
             </div>
 
             <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold mb-3">My Path to Liberation</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold mb-3">මගේ නිවන් මඟ</h1>
               <p className="text-muted-foreground text-sm sm:text-base">
                 සත්ත විශුද්ධිය - The Seven Purifications
               </p>
