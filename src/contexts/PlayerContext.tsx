@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { KamatahanAudio } from '@/types/admin';
@@ -39,6 +39,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const listened = useRef<Set<string>>(new Set());
+  // If true, the next loaded track should auto-play once metadata is ready
+  const shouldAutoplayRef = useRef(false);
 
   // Lazy create audio element once
   useEffect(() => {
@@ -57,12 +59,23 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const onMeta = () => {
       console.log('[PlayerContext] Metadata loaded, duration:', a.duration);
       setDuration(a.duration);
+      if (isPlaying || shouldAutoplayRef.current) {
+        shouldAutoplayRef.current = false;
+        a.play().catch((err) => {
+          if ((err as { name?: string })?.name !== 'AbortError') {
+            console.error('[PlayerContext] Autoplay after metadata failed:', err);
+            setIsPlaying(false);
+          } else {
+            console.warn('[PlayerContext] Ignored AbortError during autoplay');
+          }
+        });
+      }
     };
     const onEnded = () => {
       if (!guide) return;
       const next = (index + 1) % guide.audioFiles.length;
+      shouldAutoplayRef.current = true;
       setIndex(next);
-      if (isPlaying) setTimeout(() => a.play().catch(() => setIsPlaying(false)), 50);
     };
     const onPlay = () => {
       console.log('[PlayerContext] Audio playing');
@@ -224,4 +237,9 @@ export function usePlayer(): PlayerState {
   if (!ctx) throw new Error('usePlayer must be used within PlayerProvider');
   return ctx;
 }
+
+
+
+
+
 
