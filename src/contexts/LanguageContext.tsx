@@ -25,6 +25,38 @@ interface Translations {
   [key: string]: unknown;
 }
 
+// Cache for translations with TTL
+interface CacheEntry {
+  data: Translations;
+  timestamp: number;
+}
+
+const translationCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Helper function to get from cache
+const getFromCache = (lang: string): Translations | null => {
+  const cached = translationCache.get(lang);
+  if (!cached) return null;
+
+  const now = Date.now();
+  if (now - cached.timestamp > CACHE_TTL) {
+    // Cache expired
+    translationCache.delete(lang);
+    return null;
+  }
+
+  return cached.data;
+};
+
+// Helper function to set cache
+const setCache = (lang: string, data: Translations): void => {
+  translationCache.set(lang, {
+    data,
+    timestamp: Date.now()
+  });
+};
+
 // Helper function to merge translations
 const mergeTranslations = (base: Record<string, unknown>, translations: Map<string, string>, prefix = ''): Record<string, unknown> => {
   const result: Record<string, unknown> = {};
@@ -53,17 +85,25 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, in
     const loadTranslations = async () => {
       try {
         setIsLoading(true);
-        
+
+        // Check cache first
+        const cached = getFromCache(language);
+        if (cached) {
+          setTranslations(cached);
+          setIsLoading(false);
+          return;
+        }
+
         if (language === 'si') {
           // Load Sinhala translations from Firebase
           try {
             const { LanguageService } = await import('@/lib/languageService');
             const dbTranslations = await LanguageService.getAllTranslations();
-            
+
             // Load base English translations
             const enModule = await import('@/i18n/locales/en/common.json');
             const enTranslations = enModule.default;
-            
+
             // Create a map of translations
             const translationMap = new Map<string, string>();
             dbTranslations.forEach(t => {
@@ -71,19 +111,24 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, in
                 translationMap.set(t.key, t.sinhala);
               }
             });
-            
+
             // Merge English and Sinhala translations
             const mergedTranslations = mergeTranslations(enTranslations, translationMap);
+
+            // Cache the result
+            setCache(language, mergedTranslations);
             setTranslations(mergedTranslations);
           } catch (error) {
             console.error('Failed to load Firebase translations:', error);
             // Fallback to static Sinhala translations
             const translationModule = await import(`@/i18n/locales/${language}/common.json`);
+            setCache(language, translationModule.default);
             setTranslations(translationModule.default);
           }
         } else {
           // Load English translations
           const translationModule = await import(`@/i18n/locales/${language}/common.json`);
+          setCache(language, translationModule.default);
           setTranslations(translationModule.default);
         }
       } catch (error) {
@@ -108,8 +153,14 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, in
       if (value && typeof value === 'object' && k in value) {
         value = (value as Record<string, unknown>)[k];
       } else {
+        // Translation not found - show visual indicator in development
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[i18n] Translation missing: ${key} (${language})`);
+          return `[Missing: ${key}]`;
+        }
+        // In production, return the key as fallback
         console.warn(`Translation key not found: ${key}`);
-        return key; // Return key if translation not found
+        return key;
       }
     }
 
