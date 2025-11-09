@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { AdminStats } from '@/types/admin';
 import { useToast } from '@/components/ui/toast';
+import { AdminService } from '@/lib/adminService';
 
 export default function AdminDashboardPage() {
   const { adminUser, hasPermission } = useAdminAuth();
@@ -14,32 +15,35 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
 
-  // Mock stats for now - in production this would come from Firebase
+  // Load real stats from Firebase
   useEffect(() => {
-    const mockStats: AdminStats = {
-      totalUsers: 1247,
-      totalSessions: 8934,
-      totalAudioFiles: 156,
-      totalDhammaPosts: 89,
-      activeUsersToday: 234,
-      newUsersThisWeek: 67,
-      totalMeditationMinutes: 45678,
-      popularAudioFiles: [],
-      popularDhammaPosts: [],
+    const loadStats = async () => {
+      try {
+        setLoading(true);
+        const realStats = await AdminService.getAdminStats();
+        setStats(realStats);
+
+        // Show welcome toast
+        showToast({
+          type: 'success',
+          title: 'Dashboard Loaded',
+          message: `Welcome back, ${adminUser?.displayName}! Here's your admin overview.`,
+          duration: 3000
+        });
+      } catch (error) {
+        console.error('Error loading admin stats:', error);
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to load dashboard statistics',
+          duration: 5000
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setTimeout(() => {
-      setStats(mockStats);
-      setLoading(false);
-      
-      // Show welcome toast
-      showToast({
-        type: 'success',
-        title: 'Dashboard Loaded',
-        message: `Welcome back, ${adminUser?.displayName}! Here's your admin overview.`,
-        duration: 3000
-      });
-    }, 1000);
+    loadStats();
   }, [adminUser?.displayName, showToast]);
 
   if (loading) {
