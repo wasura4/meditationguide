@@ -123,16 +123,43 @@
       "title": "Upgrade Your Account",
       "message": "You are currently using a guest account. Upgrade to a full account to save your progress, track your meditation sessions, and access all features.",
       "upgrade_now": "Upgrade Now"
+    },
+    "streak": {
+      "day_streak": "day streak"
+    },
+    "labels": {
+      "total_minutes": "total minutes",
+      "sessions": "sessions",
+      "longest_streak": "Longest Streak",
+      "avg_session_short": "Avg. Session",
+      "weekly_progress": "Weekly Progress",
+      "this_week": "This Week",
+      "last_week": "Last Week",
+      "learning_progress": "Learning Progress",
+      "meditation_types_breakdown": "Meditation Types Breakdown",
+      "recommended_for_you": "Recommended For You"
+    },
+    "quick_actions_labels": {
+      "logbook": "Logbook",
+      "audio": "Audio",
+      "dhamma": "Dhamma",
+      "analytics": "Analytics",
+      "tripitaka": "Tripitaka",
+      "my_path": "My Path"
     }
   },
   "meditation": {
     "title": "Meditation",
+    "subtitle": "Begin Your Practice",
+    "description": "Choose your meditation type and duration to begin your session",
     "setup": {
       "title": "Meditation Setup",
       "type": "Meditation Type",
       "duration": "Duration (minutes)",
       "start_session": "Start Session",
-      "custom_duration": "Custom Duration"
+      "custom_duration": "Custom Duration",
+      "select_type": "Select Type",
+      "select_duration": "Select Duration"
     },
     "timer": {
       "title": "Meditation Timer",
@@ -141,14 +168,75 @@
       "stop": "Stop",
       "session_complete": "Session Complete!",
       "save_session": "Save Session",
-      "time_remaining": "Time Remaining"
+      "time_remaining": "Time Remaining",
+      "session_in_progress": "Session in Progress",
+      "elapsed_time": "Elapsed Time"
     },
     "reflection": {
       "title": "Session Reflection",
       "how_was_session": "How was your meditation session?",
       "notes": "Notes (optional)",
       "save_reflection": "Save Reflection",
-      "skip": "Skip"
+      "skip": "Skip",
+      "add_notes": "Add notes about your experience..."
+    },
+    "types": {
+      "anapanasati": "Anapanasati",
+      "metta": "Metta Bhavana",
+      "vipassana": "Vipassana",
+      "walking": "Walking Meditation",
+      "body_scan": "Body Scan",
+      "mindfulness": "Mindfulness"
+    },
+    "durations": {
+      "5_min": "5 minutes",
+      "10_min": "10 minutes",
+      "15_min": "15 minutes",
+      "20_min": "20 minutes",
+      "30_min": "30 minutes",
+      "45_min": "45 minutes",
+      "60_min": "60 minutes",
+      "custom": "Custom"
+    },
+    "quick_start": {
+      "title": "Quick Start",
+      "resume_last": "Resume Last Session",
+      "favorite_type": "Your Favorite: {type}"
+    }
+  },
+  "mypath": {
+    "title": "මගේ නිවන් මඟ",
+    "title_en": "My Path to Nibbana",
+    "subtitle": "සත්ත විශුද්ධිය - The Seven Purifications",
+    "overall_progress": "Overall Progress",
+    "stage_info": "Stage {current} of {total}",
+    "last_updated": "Last updated: {date}",
+    "current_badge": "Current",
+    "update_progress": "Update Your Progress",
+    "move_back": "Move Back",
+    "updating": "Updating...",
+    "advance_stage": "Advance to Next Stage",
+    "next_stage_label": "Next Stage:",
+    "completion_message": "🙏 Congratulations! You have reached Nibbana - The ultimate liberation",
+    "stages": {
+      "sila": "Sīla Visuddhi",
+      "citta": "Citta Visuddhi",
+      "ditthi": "Diṭṭhi Visuddhi",
+      "kankhavitarana": "Kaṅkhāvitaraṇa Visuddhi",
+      "maggamagga": "Maggāmagga-ñāṇadassana Visuddhi",
+      "patipada": "Paṭipadā-ñāṇadassana Visuddhi",
+      "nana": "Ñāṇadassana Visuddhi",
+      "nibbana": "Nibbana"
+    },
+    "descriptions": {
+      "sila": "Purification of Virtue - Establishing moral conduct and discipline",
+      "citta": "Purification of Mind - Developing concentration and mental clarity",
+      "ditthi": "Purification of View - Understanding right view and right understanding",
+      "kankhavitarana": "Purification by Overcoming Doubt - Removing uncertainty about the path",
+      "maggamagga": "Purification by Knowledge of What is Path and Not-Path",
+      "patipada": "Purification by Knowledge of the Way - Understanding the progress of insight",
+      "nana": "Purification by Knowledge and Vision - Attaining deep wisdom and insight",
+      "nibbana": "The Ultimate Goal - Complete liberation from suffering"
     }
   },
   "logbook": {
@@ -162,16 +250,108 @@
       "title": "Session History",
       "no_sessions": "No meditation sessions yet",
       "start_first_session": "Start your first meditation session to begin tracking your journey."
+    },
+    "view_modes": {
+      "calendar": "Calendar View",
+      "list": "List View"
+    },
+    "filters": {
+      "all": "All Sessions",
+      "this_week": "This Week",
+      "this_month": "This Month",
+      "custom": "Custom Range"
+    },
+    "session_details": {
+      "duration": "Duration",
+      "type": "Type",
+      "completed_at": "Completed",
+      "notes": "Notes",
+      "no_notes": "No notes for this session"
+    },
+    "stats_summary": {
+      "total_sessions": "Total Sessions",
+      "total_time": "Total Time",
+      "average_duration": "Average Duration",
+      "current_streak": "Current Streak"
+    },
+    "empty_states": {
+      "no_sessions_title": "No meditation sessions yet",
+      "no_sessions_message": "Start your first meditation session to begin tracking your journey.",
+      "start_meditating": "Start Meditating"
     }
   },
   "analytics": {
     "title": "Analytics",
+    "subtitle": "Track your meditation progress and insights",
     "overview": "Overview",
     "time_range": "Time Range",
     "last_7_days": "Last 7 Days",
     "last_30_days": "Last 30 Days",
     "last_90_days": "Last 90 Days",
-    "all_time": "All Time"
+    "all_time": "All Time",
+    "charts": {
+      "daily_progress": "Daily Progress",
+      "session_distribution": "Session Distribution",
+      "meditation_types": "Meditation Types",
+      "time_of_day": "Preferred Time of Day",
+      "streak_history": "Streak History"
+    },
+    "metrics": {
+      "total_sessions": "Total Sessions",
+      "total_time": "Total Time Meditated",
+      "average_session": "Average Session Length",
+      "longest_session": "Longest Session",
+      "current_streak": "Current Streak",
+      "longest_streak": "Longest Streak",
+      "completion_rate": "Completion Rate",
+      "consistency_score": "Consistency Score"
+    },
+    "insights": {
+      "title": "Insights",
+      "most_productive_day": "Most Productive Day",
+      "favorite_time": "Favorite Time",
+      "favorite_type": "Favorite Type",
+      "growth_trend": "Growth Trend",
+      "weekly_average": "Weekly Average"
+    },
+    "empty_state": {
+      "title": "No data yet",
+      "message": "Start meditating to see your analytics and track your progress.",
+      "action": "Start Your First Session"
+    }
+  },
+  "kamatahan": {
+    "title": "Kamatahan",
+    "subtitle": "Guided meditations and dharma teachings to support your practice",
+    "tabs": {
+      "playlists": "Meditation Guides",
+      "guides": "Guides",
+      "library": "Audio Library"
+    },
+    "playlists": {
+      "title": "Meditation Playlists",
+      "no_playlists": "No playlists available",
+      "create_playlist": "Create Playlist",
+      "my_playlists": "My Playlists",
+      "public_playlists": "Public Playlists",
+      "start": "Start",
+      "play": "Play",
+      "tracks": "tracks",
+      "duration": "Duration",
+      "created_by": "Created by",
+      "public": "Public",
+      "private": "Private"
+    },
+    "audio": {
+      "title": "Audio Library",
+      "search": "Search audio...",
+      "no_audio": "No audio files found",
+      "upload_audio": "Upload Audio",
+      "playing": "Playing",
+      "paused": "Paused",
+      "play_all": "Play All",
+      "add_to_playlist": "Add to Playlist"
+    }
   },
   "audio": {
     "title": "Audio Library",
@@ -184,14 +364,44 @@
   },
   "dhamma": {
     "title": "Dhamma Library",
+    "subtitle": "Explore teachings from the Theravada Buddhist tradition",
     "posts": "Dhamma Posts",
     "categories": "Categories",
     "search": "Search teachings...",
     "no_posts": "No Dhamma posts found",
-    "read_more": "Read More"
+    "read_more": "Read More",
+    "filters": {
+      "all": "All Posts",
+      "recent": "Recent",
+      "popular": "Popular",
+      "by_category": "By Category"
+    },
+    "post_details": {
+      "author": "Author",
+      "published": "Published",
+      "reading_time": "min read",
+      "share": "Share",
+      "bookmark": "Bookmark"
+    }
+  },
+  "pitaka": {
+    "title": "Tripitaka",
+    "subtitle": "The Pali Canon - The complete collection of Buddhist scriptures",
+    "search": "Search scriptures...",
+    "sections": {
+      "vinaya": "Vinaya Pitaka",
+      "sutta": "Sutta Pitaka",
+      "abhidhamma": "Abhidhamma Pitaka"
+    },
+    "no_results": "No scriptures found",
+    "browse": "Browse Scriptures",
+    "recent": "Recently Viewed",
+    "favorites": "Favorites",
+    "reading_progress": "Reading Progress"
   },
   "settings": {
     "title": "Settings",
+    "subtitle": "Manage your account and preferences",
     "profile": "Profile",
     "preferences": "Preferences",
     "privacy": "Privacy",
@@ -200,7 +410,44 @@
     "theme": "Theme",
     "light": "Light",
     "dark": "Dark",
-    "system": "System"
+    "system": "System",
+    "sections": {
+      "general": "General",
+      "notifications": "Notifications",
+      "meditation": "Meditation",
+      "data": "Data & Privacy"
+    },
+    "profile_settings": {
+      "display_name": "Display Name",
+      "email": "Email Address",
+      "change_password": "Change Password",
+      "profile_picture": "Profile Picture",
+      "update_profile": "Update Profile"
+    },
+    "meditation_settings": {
+      "default_duration": "Default Duration",
+      "default_type": "Default Meditation Type",
+      "reminder": "Daily Reminder",
+      "sound_enabled": "Enable Sound",
+      "interval_bell": "Interval Bell"
+    },
+    "notification_settings": {
+      "email_notifications": "Email Notifications",
+      "push_notifications": "Push Notifications",
+      "daily_reminder": "Daily Meditation Reminder",
+      "weekly_summary": "Weekly Summary"
+    },
+    "privacy_settings": {
+      "profile_visibility": "Profile Visibility",
+      "show_stats": "Show Stats Publicly",
+      "data_sharing": "Data Sharing",
+      "export_data": "Export My Data",
+      "delete_account": "Delete Account"
+    },
+    "language_settings": {
+      "interface_language": "Interface Language",
+      "content_language": "Content Language"
+    }
   },
   "auth": {
     "sign_in": "Sign In",
@@ -281,7 +528,77 @@
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
-    "info": "Information"
+    "info": "Information",
+    "confirm": "Confirm",
+    "submit": "Submit",
+    "update": "Update",
+    "create": "Create",
+    "add": "Add",
+    "remove": "Remove",
+    "clear": "Clear",
+    "reset": "Reset",
+    "apply": "Apply",
+    "download": "Download",
+    "upload": "Upload",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "retry": "Retry",
+    "continue": "Continue",
+    "skip": "Skip",
+    "done": "Done",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "go_back": "Go Back",
+    "learn_more": "Learn More",
+    "get_started": "Get Started",
+    "try_again": "Try Again",
+    "view_details": "View Details",
+    "show_more": "Show More",
+    "show_less": "Show Less",
+    "select_all": "Select All",
+    "deselect_all": "Deselect All",
+    "export": "Export",
+    "import": "Import",
+    "print": "Print",
+    "help": "Help",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "required": "Required",
+    "optional": "Optional",
+    "new": "New",
+    "updated": "Updated",
+    "deleted": "Deleted",
+    "saved": "Saved",
+    "draft": "Draft",
+    "published": "Published",
+    "active": "Active",
+    "inactive": "Inactive",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "online": "Online",
+    "offline": "Offline",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "this_week": "This Week",
+    "last_week": "Last Week",
+    "this_month": "This Month",
+    "last_month": "Last Month",
+    "this_year": "This Year",
+    "all": "All",
+    "none": "None",
+    "other": "Other",
+    "unknown": "Unknown",
+    "not_found": "Not Found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "server_error": "Server Error",
+    "network_error": "Network Error",
+    "try_later": "Please try again later"
   },
   "footer": {
     "description": "Your comprehensive guide to Theravada Buddhist meditation. Cultivate mindfulness, wisdom, and inner peace.",
