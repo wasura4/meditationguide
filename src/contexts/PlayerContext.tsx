@@ -72,10 +72,14 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     };
     const onEnded = () => {
+      console.log('[PlayerContext] Track ended, moving to next');
       if (!guide) return;
-      const next = (index + 1) % guide.audioFiles.length;
+      const nextIndex = (index + 1) % guide.audioFiles.length;
+      console.log('[PlayerContext] Next index:', nextIndex, 'of', guide.audioFiles.length);
       shouldAutoplayRef.current = true;
-      setIndex(next);
+      setIndex(nextIndex);
+      // Keep isPlaying true so the next track auto-plays
+      setIsPlaying(true);
     };
     const onPlay = () => {
       console.log('[PlayerContext] Audio playing');
@@ -120,7 +124,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Update source when guide/index changes
   useEffect(() => {
-    console.log('[PlayerContext] Source effect:', { guide: guide?.name, index, isPlaying });
+    console.log('[PlayerContext] Source effect:', { guide: guide?.name, index, isPlaying, shouldAutoplay: shouldAutoplayRef.current });
     if (!guide || !audioRef.current) return;
     const tr = guide.audioFiles[index];
     if (!tr) {
@@ -140,6 +144,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (!tr.fileUrl || tr.fileUrl.trim() === '') {
       console.error('[PlayerContext] Invalid fileUrl - empty or undefined:', tr.fileUrl);
       setIsPlaying(false);
+      shouldAutoplayRef.current = false;
       return;
     }
 
@@ -148,14 +153,9 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     a.load();
     console.log('[PlayerContext] After load - src:', a.src, 'networkState:', a.networkState);
 
-    if (isPlaying) {
-      console.log('[PlayerContext] Attempting to play...');
-      a.play().catch((err) => {
-        console.error('[PlayerContext] Play failed:', err);
-        setIsPlaying(false);
-      });
-    }
-  }, [guide, index, isPlaying]);
+    // The onMeta handler will handle autoplay based on shouldAutoplayRef
+    // This ensures playback starts only after metadata is loaded
+  }, [guide, index]);
 
   const start = useCallback((g: PlayableGuide, startIndex = 0) => {
     console.log('[PlayerContext] start() called:', { guide: g.name, startIndex, filesCount: g.audioFiles.length });
