@@ -430,12 +430,14 @@ export class AdminService {
       const sessionsQuery = query(collection(db, 'meditation_sessions'));
       const audioQuery = query(collection(db, 'kamatahan_audio'));
       const postsQuery = query(collection(db, 'dhamma_posts'));
+      const audioListensQuery = query(collection(db, 'audio_listens'));
 
-      const [usersSnapshot, sessionsSnapshot, audioSnapshot, postsSnapshot] = await Promise.all([
+      const [usersSnapshot, sessionsSnapshot, audioSnapshot, postsSnapshot, audioListensSnapshot] = await Promise.all([
         getDocs(usersQuery),
         getDocs(sessionsQuery),
         getDocs(audioQuery),
         getDocs(postsQuery),
+        getDocs(audioListensQuery),
       ]);
 
       const now = new Date();
@@ -457,6 +459,26 @@ export class AdminService {
         (sum, doc) => sum + (doc.data().duration || 0), 0
       );
 
+      // Calculate audio listening statistics
+      const totalAudioListens = audioListensSnapshot.size;
+
+      // Calculate total listening minutes by matching audio listens with audio file durations
+      let totalAudioListeningMinutes = 0;
+      const audioFilesMap = new Map();
+
+      // Build a map of audio files with their durations
+      audioSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        audioFilesMap.set(doc.id, data.duration || 0);
+      });
+
+      // Sum up listening time for all listens
+      audioListensSnapshot.docs.forEach(doc => {
+        const audioId = doc.data().audioId;
+        const audioDuration = audioFilesMap.get(audioId) || 0;
+        totalAudioListeningMinutes += audioDuration;
+      });
+
       return {
         totalUsers,
         totalSessions,
@@ -465,6 +487,8 @@ export class AdminService {
         activeUsersToday,
         newUsersThisWeek,
         totalMeditationMinutes: totalMinutes,
+        totalAudioListens,
+        totalAudioListeningMinutes: Math.round(totalAudioListeningMinutes),
         popularAudioFiles: [],
         popularDhammaPosts: [],
       };

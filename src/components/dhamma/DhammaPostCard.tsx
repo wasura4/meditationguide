@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DhammaPost } from '@/types/admin';
-import { useAuth } from '@/contexts/AuthContext';
-import { isFavorited, toggleFavorite } from '@/lib/favoritesService';
 
 interface DhammaPostCardProps {
   post: DhammaPost;
@@ -15,25 +13,6 @@ interface DhammaPostCardProps {
 
 export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCardProps) {
   const router = useRouter();
-  const { user } = useAuth();
-  const [fav, setFav] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      if (!user?.id) return;
-      const v = await isFavorited(user.id, post.id);
-      if (alive) setFav(v);
-    })();
-    return () => { alive = false; };
-  }, [user?.id, post.id]);
-
-  const onToggleFav = useCallback(async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!user?.id) return;
-    const res = await toggleFavorite(user.id, post.id);
-    setFav(res === 'added');
-  }, [user?.id, post.id]);
 
   const formatDate = (date: Date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   const getLanguageLabel = (lng: string) => ({ en: 'English', si: 'Sinhala', pa: 'Pali' }[lng as 'en'|'si'|'pa'] || lng);
@@ -71,17 +50,6 @@ export function DhammaPostCard({ post, onClick, featured = false }: DhammaPostCa
         <div className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium bg-muted text-foreground">
           {getLanguageLabel(post.language)}
         </div>
-        {user?.id && (
-          <button
-            aria-label="Toggle favorite"
-            onClick={onToggleFav}
-            className={`absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center border transition-colors ${fav ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'bg-background/80 text-foreground border-border hover:bg-muted'}`}
-          >
-            <svg className="w-5 h-5" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-        )}
       </div>
 
       <div className="p-4">

@@ -240,42 +240,6 @@ export const DataPrivacySection: React.FC<DataPrivacySectionProps> = ({ onExport
           </div>
         </div>
 
-        {/* Privacy Settings */}
-        <div>
-          <h4 className="text-md font-medium text-gray-900 dark:text-white mb-3">
-            Privacy Settings
-          </h4>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Public Profile
-                </label>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Allow other users to see your meditation statistics
-                </p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-700">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-1" />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Session Sharing
-                </label>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Allow sharing meditation sessions with friends
-                </p>
-              </div>
-              <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-700">
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-1" />
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Account Deletion */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <h4 className="text-md font-medium text-red-600 dark:text-red-400 mb-3">

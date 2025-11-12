@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { DhammaArticleList } from '@/components/dhamma/DhammaArticleList';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { FavoritesLibrary } from '@/components/dhamma/FavoritesLibrary';
-import { BookOpen, Heart, ArrowLeft, Sparkles } from 'lucide-react';
+import { BookOpen, ArrowLeft, Sparkles } from 'lucide-react';
 
 export default function DhammaPage() {
-  const [activeTab, setActiveTab] = useState<'library' | 'favorites'>('library');
   const { t } = useLanguage();
 
   return (
@@ -61,51 +59,9 @@ export default function DhammaPage() {
             </div>
           </div>
 
-          {/* Modern Tab Navigation */}
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center bg-muted/50 backdrop-blur-sm rounded-xl p-1.5 border shadow-sm">
-              <button
-                onClick={() => setActiveTab('library')}
-                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === 'library'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>{t('dhamma.posts')}</span>
-                {activeTab === 'library' && (
-                  <span className="ml-1 px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary rounded-full">
-                    Active
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('favorites')}
-                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === 'favorites'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Heart className="w-4 h-4" />
-                <span>Favorites</span>
-                {activeTab === 'favorites' && (
-                  <span className="ml-1 px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary rounded-full">
-                    Active
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Tab Content */}
+          {/* Content */}
           <div className="min-h-[600px]">
-            {activeTab === 'library' ? (
-              <DhammaArticleList />
-            ) : (
-              <FavoritesLibrary />
-            )}
+            <DhammaArticleList />
           </div>
         </main>
       </div>
