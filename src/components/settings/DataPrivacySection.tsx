@@ -162,14 +162,44 @@ export const DataPrivacySection: React.FC<DataPrivacySectionProps> = ({ onExport
 
     setIsDeleting(true);
     try {
-      // Note: In a real app, you'd call a Firebase Function to delete user data
-      // For now, we'll just log out the user
-      alert('Account deletion would be implemented with Firebase Functions in production. For now, logging out.');
-      await logout();
+      // Import Firebase auth and user
+      const { auth } = await import('@/lib/firebase');
+      const { deleteUser } = await import('firebase/auth');
+      const { doc, deleteDoc, collection, query, where, getDocs } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        alert('No authenticated user found. Please log in again.');
+        return;
+      }
+
+      // Delete user data from Firestore
+      // 1. Delete meditation sessions
+      const sessionsQuery = query(collection(db, 'meditation_sessions'), where('userId', '==', user.id));
+      const sessionsSnapshot = await getDocs(sessionsQuery);
+      await Promise.all(sessionsSnapshot.docs.map(doc => deleteDoc(doc.ref)));
+
+      // 2. Delete user document
+      await deleteDoc(doc(db, 'users', user.id));
+
+      // 3. Delete Firebase Authentication account (this also logs out the user)
+      await deleteUser(currentUser);
+
+      alert('Your account has been successfully deleted.');
       router.push('/');
     } catch (error) {
       console.error('Failed to delete account:', error);
-      alert('Failed to delete account. Please try again.');
+      if (error && typeof error === 'object' && 'code' in error) {
+        const authError = error as { code: string };
+        if (authError.code === 'auth/requires-recent-login') {
+          alert('For security reasons, you need to log in again before deleting your account. Please log out and log back in, then try again.');
+        } else {
+          alert(`Failed to delete account: ${authError.code}. Please try again or contact support.`);
+        }
+      } else {
+        alert('Failed to delete account. Please try again.');
+      }
     } finally {
       setIsDeleting(false);
     }
