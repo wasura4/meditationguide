@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Audio Listening Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
                 <div className="p-3 bg-purple-100 rounded-lg">
@@ -154,20 +154,6 @@ export default function AdminDashboardPage() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Audio Listens</p>
                   <p className="text-2xl font-bold text-gray-900">{stats?.totalAudioListens.toLocaleString()}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center">
-                <div className="p-3 bg-indigo-100 rounded-lg">
-                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Audio Listening Minutes</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.totalAudioListeningMinutes.toLocaleString()}</p>
                 </div>
               </div>
             </div>

@@ -81,7 +81,6 @@ export interface AdminStats {
   newUsersThisWeek: number;
   totalMeditationMinutes: number;
   totalAudioListens: number;
-  totalAudioListeningMinutes: number;
   popularAudioFiles: KamatahanAudio[];
   popularDhammaPosts: DhammaPost[];
 }

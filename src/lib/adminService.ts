@@ -462,23 +462,6 @@ export class AdminService {
       // Calculate audio listening statistics
       const totalAudioListens = audioListensSnapshot.size;
 
-      // Calculate total listening minutes by matching audio listens with audio file durations
-      let totalAudioListeningMinutes = 0;
-      const audioFilesMap = new Map();
-
-      // Build a map of audio files with their durations
-      audioSnapshot.docs.forEach(doc => {
-        const data = doc.data();
-        audioFilesMap.set(doc.id, data.duration || 0);
-      });
-
-      // Sum up listening time for all listens
-      audioListensSnapshot.docs.forEach(doc => {
-        const audioId = doc.data().audioId;
-        const audioDuration = audioFilesMap.get(audioId) || 0;
-        totalAudioListeningMinutes += audioDuration;
-      });
-
       return {
         totalUsers,
         totalSessions,
@@ -488,7 +471,6 @@ export class AdminService {
         newUsersThisWeek,
         totalMeditationMinutes: totalMinutes,
         totalAudioListens,
-        totalAudioListeningMinutes: Math.round(totalAudioListeningMinutes),
         popularAudioFiles: [],
         popularDhammaPosts: [],
       };
