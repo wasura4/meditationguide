@@ -143,13 +143,9 @@ export function PlaylistManager() {
   const fetchPlaylists = async () => {
     try {
       setLoading(true);
-      // Use service which resolves audioIds -> full tracks
-      const [publicPlaylists, allPlaylists] = await Promise.all([
-        PlaylistService.getPublic(),
-        PlaylistService.getAll(),
-      ]);
-
-      const mineDocs = allPlaylists.filter((p) => p.createdBy === (user?.id || ''));
+      // Fetch only public playlists (admin-created playlists with isPublic=true)
+      // This ensures all users can view admin playlists regardless of permissions
+      const publicPlaylists = await PlaylistService.getPublic();
 
       const toUi = (p: PlaylistDoc): Playlist => ({
         id: p.id,
@@ -164,15 +160,10 @@ export function PlaylistManager() {
         authorName: p.authorName,
       });
 
-      const pub = publicPlaylists.map(toUi);
-      const mine = mineDocs.map(toUi);
-
-      const mergedMap = new Map<string, Playlist>();
-      [...pub, ...mine].forEach((p) => mergedMap.set(p.id, p));
-      const merged = Array.from(mergedMap.values()).sort(
+      const playlists = publicPlaylists.map(toUi).sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-      setPlaylists(merged);
+      setPlaylists(playlists);
     } catch (error) {
       console.error('Error fetching playlists:', error);
       showToast({
