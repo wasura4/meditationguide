@@ -22,14 +22,17 @@ interface LoginFormProps {
   onSwitchToAnonymous: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ 
-  onSwitchToRegister, 
-  onSwitchToAnonymous 
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onSwitchToRegister,
+  onSwitchToAnonymous
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const router = useRouter();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, resetPassword } = useAuth();
   const { showToast } = useToast();
 
   const {
@@ -84,14 +87,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     try {
       await loginWithGoogle();
-      
+
       showToast({
         type: 'success',
         title: 'Google Login Successful',
         message: 'Welcome! Redirecting to dashboard...',
         duration: 3000
       });
-      
+
       setTimeout(() => router.push('/dashboard'), 1000);
     } catch (error: unknown) {
       console.error('Google login error:', error);
@@ -109,6 +112,140 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       setIsLoading(false);
     }
   };
+
+  const handleResetPassword = async () => {
+    if (!resetEmail.trim()) {
+      showToast({
+        type: 'error',
+        title: 'Email Required',
+        message: 'Please enter your email address.',
+        duration: 3000
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await resetPassword(resetEmail);
+      setResetEmailSent(true);
+
+      showToast({
+        type: 'success',
+        title: 'Email Sent',
+        message: 'Password reset link has been sent to your email.',
+        duration: 5000
+      });
+    } catch (error: unknown) {
+      console.error('Password reset error:', error);
+      if (error && typeof error === 'object' && 'code' in error) {
+        const authError = error as { code: string; message?: string };
+        if (authError.code === 'auth/user-not-found') {
+          setError('No account found with this email address.');
+        } else if (authError.code === 'auth/invalid-email') {
+          setError('Please enter a valid email address.');
+        } else {
+          setError(authError.message || 'Failed to send reset email.');
+        }
+      } else {
+        setError('Failed to send reset email. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Show forgot password modal
+  if (showForgotPassword) {
+    return (
+      <div className="w-full">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-foreground mb-2">
+            Reset Password
+          </h2>
+          <p className="text-muted-foreground">
+            Enter your email to receive a password reset link
+          </p>
+        </div>
+
+        {resetEmailSent ? (
+          <div className="space-y-6">
+            <div className="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-center">
+              <svg className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-2">Email Sent!</h3>
+              <p className="text-sm text-green-600 dark:text-green-300">
+                We've sent a password reset link to <strong>{resetEmail}</strong>. Please check your inbox and follow the instructions.
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setShowForgotPassword(false);
+                setResetEmailSent(false);
+                setResetEmail('');
+                setError('');
+              }}
+            >
+              Back to Login
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            <div>
+              <label htmlFor="reset-email" className="block text-sm font-medium text-foreground mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="reset-email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
+                placeholder="Enter your email"
+                disabled={isLoading}
+              />
+            </div>
+
+            {error && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+              </div>
+            )}
+
+            <Button
+              type="button"
+              className="w-full"
+              onClick={handleResetPassword}
+              loading={isLoading}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Sending...' : 'Send Reset Link'}
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => {
+                setShowForgotPassword(false);
+                setResetEmail('');
+                setError('');
+              }}
+              disabled={isLoading}
+            >
+              Back to Login
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
@@ -144,9 +281,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Password Field */}
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground">
+              Password
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-medium transition-colors"
+            >
+              Forgot Password?
+            </button>
+          </div>
           <input
             {...register('password')}
             type="password"
