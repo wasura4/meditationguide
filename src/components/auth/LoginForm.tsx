@@ -177,7 +177,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               </svg>
               <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-2">Email Sent!</h3>
               <p className="text-sm text-green-600 dark:text-green-300">
-                We've sent a password reset link to <strong>{resetEmail}</strong>. Please check your inbox and follow the instructions.
+                We&apos;ve sent a password reset link to <strong>{resetEmail}</strong>. Please check your inbox and follow the instructions.
               </p>
             </div>
 
@@ -370,29 +370,35 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </>
         )}
 
-        {/* Divider */}
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-3 bg-white dark:bg-gray-800 text-muted-foreground">Or try as guest</span>
-          </div>
-        </div>
+        {/* TEMPORARILY HIDDEN - Guest Login */}
+        {/* Change {false && to {true && to re-enable guest login */}
+        {false && (
+          <>
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-3 bg-white dark:bg-gray-800 text-muted-foreground">Or try as guest</span>
+              </div>
+            </div>
 
-        {/* Anonymous Login Button */}
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full"
-          onClick={onSwitchToAnonymous}
-          disabled={isLoading}
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          Try as Guest
-        </Button>
+            {/* Anonymous Login Button */}
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={onSwitchToAnonymous}
+              disabled={isLoading}
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Try as Guest
+            </Button>
+          </>
+        )}
       </form>
 
       {/* Switch to Register */}
