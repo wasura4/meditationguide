@@ -9,7 +9,7 @@ import { DataPrivacySection } from '@/components/settings/DataPrivacySection';
 import { EditProfileModal } from '@/components/settings/EditProfileModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { User, Settings, Shield, ArrowLeft, LogOut } from 'lucide-react';
+import { User, Settings, Shield, ArrowLeft, LogOut, Info } from 'lucide-react';
 
 interface ExportData {
   user: {
@@ -133,6 +133,25 @@ export default function SettingsPage() {
               {activeTab === 'data' && (
                 <DataPrivacySection onExportData={handleDataExport} />
               )}
+            </div>
+
+            {/* About Us Section */}
+            <div className="mt-8 bg-card rounded-2xl p-6 shadow-sm border">
+              <button
+                onClick={() => router.push('/about')}
+                className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-muted/50 transition-all group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
+                    <Info className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-foreground text-lg">About Us</h3>
+                    <p className="text-sm text-muted-foreground">Learn more about Nirvanaya</p>
+                  </div>
+                </div>
+                <ArrowLeft className="w-5 h-5 text-muted-foreground rotate-180 group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
         </main>
