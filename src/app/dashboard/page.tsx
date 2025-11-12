@@ -96,7 +96,7 @@ export default function DashboardPage() {
 
         try {
           const posts = await DhammaService.getPublishedPosts();
-          setRecommended(posts.slice(0, 4));
+          setRecommended(posts.slice(0, 2));
         } catch {}
 
         // Learning progress (per-user)
