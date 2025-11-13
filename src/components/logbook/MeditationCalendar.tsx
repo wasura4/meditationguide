@@ -222,12 +222,8 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
                 </div>
               )}
 
-              {/* Empty State */}
-              {!hasSessionsToday && isCurrentMonthDate && (
-                <div className="text-xs text-muted-foreground mt-2">
-                  No sessions
-                </div>
-              )}
+              {/* Empty State - Hidden to keep calendar UI clean */}
+              {/* Removed "No sessions" text to avoid lengthy characters that make calendar UI look bad */}
             </button>
           );
         })}
