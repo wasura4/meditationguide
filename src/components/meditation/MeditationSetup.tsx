@@ -24,7 +24,21 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   const [categories, setCategories] = useState<MeditationCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAllTypes, setShowAllTypes] = useState(false);
+  const [timerSoundEnabled, setTimerSoundEnabled] = useState(true);
   const { showToast } = useToast();
+
+  // Load timer sound preference from localStorage
+  useEffect(() => {
+    const savedPreference = localStorage.getItem('meditation_timer_sound');
+    if (savedPreference !== null) {
+      setTimerSoundEnabled(savedPreference === 'true');
+    }
+  }, []);
+
+  // Save timer sound preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('meditation_timer_sound', timerSoundEnabled.toString());
+  }, [timerSoundEnabled]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -341,6 +355,33 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
           <span className="text-sm text-muted-foreground whitespace-nowrap">
             minutes ({TIMER_SETTINGS.minDuration}-{TIMER_SETTINGS.maxDuration})
           </span>
+        </div>
+
+        {/* Timer Sound Toggle */}
+        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border mt-4">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <div>
+              <label className="text-sm font-semibold text-foreground cursor-pointer">
+                Completion Bell Sound
+              </label>
+              <p className="text-xs text-muted-foreground">Play a bell sound when timer ends</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setTimerSoundEnabled(!timerSoundEnabled)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+              timerSoundEnabled ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                timerSoundEnabled ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { TIMER_SETTINGS } from '@/constants';
 import { MeditationSession } from '@/types';
 import { MeditationService } from '@/lib/meditationService';
+import { playBellSound } from '@/lib/audioUtils';
 
 interface MeditationTimerProps {
   defaultDuration?: number;
@@ -110,6 +111,8 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
   // Complete session function
   const completeSession = useCallback(() => {
+    // Play bell sound when timer completes
+    playBellSound();
     handleSessionEnd('completed');
   }, [handleSessionEnd]);
 
