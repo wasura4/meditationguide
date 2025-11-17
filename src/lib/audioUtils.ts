@@ -10,7 +10,8 @@ export const playBellSound = (): void => {
       return;
     }
 
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const audioContext = new AudioContextClass();
 
     // Create oscillators for a bell-like sound (multiple harmonics)
     const now = audioContext.currentTime;
