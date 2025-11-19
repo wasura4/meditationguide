@@ -219,19 +219,27 @@ export function AudioPlayer({ audio }: AudioPlayerProps) {
               {playbackSpeed}x
             </Button>
             {showSpeedMenu && (
-              <div className="absolute right-0 top-full mt-1 bg-popover border rounded-lg shadow-lg z-10 py-1 min-w-[80px]">
-                {PLAYBACK_SPEEDS.map((speed) => (
-                  <button
-                    key={speed}
-                    onClick={() => changePlaybackSpeed(speed)}
-                    className={`w-full px-3 py-1.5 text-xs hover:bg-accent text-left ${
-                      speed === playbackSpeed ? 'bg-accent font-semibold' : ''
-                    }`}
-                  >
-                    {speed}x
-                  </button>
-                ))}
-              </div>
+              <>
+                {/* Backdrop to close menu */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowSpeedMenu(false)}
+                />
+                {/* Speed menu - positioned ABOVE */}
+                <div className="absolute bottom-full right-0 mb-1 bg-popover/95 backdrop-blur-xl border rounded-lg shadow-2xl py-1 min-w-[80px] z-50">
+                  {PLAYBACK_SPEEDS.map((speed) => (
+                    <button
+                      key={speed}
+                      onClick={() => changePlaybackSpeed(speed)}
+                      className={`w-full px-3 py-2 text-sm hover:bg-accent/50 text-left transition-colors ${
+                        speed === playbackSpeed ? 'bg-accent font-semibold text-primary' : 'text-foreground'
+                      }`}
+                    >
+                      {speed}x
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>

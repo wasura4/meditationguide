@@ -18,16 +18,21 @@ interface PlayerState {
   duration: number;
   volume: number;
   isMuted: boolean;
+  playbackSpeed: number;
   start: (guide: PlayableGuide, startIndex?: number) => void;
   stop: () => void;
   toggle: () => void;
   next: () => void;
   prev: () => void;
   seek: (time: number) => void;
+  skip: (seconds: number) => void;
   setVol: (v: number) => void;
+  setSpeed: (speed: number) => void;
 }
 
 const Ctx = createContext<PlayerState | undefined>(undefined);
+
+const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [guide, setGuide] = useState<PlayableGuide | null>(null);
@@ -37,19 +42,39 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const listened = useRef<Set<string>>(new Set());
   // If true, the next loaded track should auto-play once metadata is ready
   const shouldAutoplayRef = useRef(false);
+
+  // Load playback speed from localStorage
+  useEffect(() => {
+    const savedSpeed = localStorage.getItem('audio_playback_speed');
+    if (savedSpeed) {
+      const speed = parseFloat(savedSpeed);
+      if (PLAYBACK_SPEEDS.includes(speed)) {
+        setPlaybackSpeed(speed);
+      }
+    }
+  }, []);
 
   // Lazy create audio element once
   useEffect(() => {
     if (!audioRef.current) {
       const a = new Audio();
       a.preload = 'metadata';
+      a.playbackRate = playbackSpeed;
       audioRef.current = a;
     }
-  }, []);
+  }, [playbackSpeed]);
+
+  // Apply playback speed to audio element
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
 
   // Wire events
   useEffect(() => {
@@ -205,11 +230,26 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setCurrentTime(t);
   }, []);
 
+  const skip = useCallback((seconds: number) => {
+    if (!audioRef.current) return;
+    const newTime = Math.max(0, Math.min(audioRef.current.currentTime + seconds, duration));
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  }, [duration]);
+
   const setVol = useCallback((v: number) => {
     if (!audioRef.current) return;
     audioRef.current.volume = v;
     setVolume(v);
     setIsMuted(v === 0);
+  }, []);
+
+  const setSpeed = useCallback((speed: number) => {
+    setPlaybackSpeed(speed);
+    localStorage.setItem('audio_playback_speed', speed.toString());
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
   }, []);
 
   const value = useMemo<PlayerState>(() => ({
@@ -220,14 +260,17 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     duration,
     volume,
     isMuted,
+    playbackSpeed,
     start,
     stop,
     toggle,
     next,
     prev,
     seek,
+    skip,
     setVol,
-  }), [guide, index, isPlaying, currentTime, duration, volume, isMuted, start, stop, toggle, next, prev, seek, setVol]);
+    setSpeed,
+  }), [guide, index, isPlaying, currentTime, duration, volume, isMuted, playbackSpeed, start, stop, toggle, next, prev, seek, skip, setVol, setSpeed]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
