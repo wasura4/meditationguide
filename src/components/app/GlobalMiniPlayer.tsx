@@ -76,7 +76,7 @@ export function GlobalMiniPlayer() {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowSpeedMenu(false)}
                   />
-                  <div className="absolute bottom-full right-0 mb-1 bg-popover/98 backdrop-blur-xl border border-border/60 rounded-lg shadow-xl py-1 min-w-[72px] z-50 animate-in fade-in duration-100">
+                  <div className="absolute bottom-full right-0 mb-1 bg-popover backdrop-blur-xl border border-border rounded-lg shadow-xl py-1 min-w-[72px] z-50 animate-in fade-in duration-100">
                     {PLAYBACK_SPEEDS.map((speed) => (
                       <button
                         key={speed}
@@ -158,7 +158,7 @@ export function GlobalMiniPlayer() {
             aria-label="Skip backward 10 seconds"
           >
             <svg className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
             </svg>
           </button>
 
@@ -201,7 +201,7 @@ export function GlobalMiniPlayer() {
             aria-label="Skip forward 10 seconds"
           >
             <svg className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
             </svg>
           </button>
 
