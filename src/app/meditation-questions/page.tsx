@@ -71,24 +71,45 @@ export default function MeditationQuestionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <div
-                key={s}
-                className={`w-full h-2 rounded-full mx-1 transition-all ${
-                  s <= step ? 'bg-primary' : 'bg-muted'
-                }`}
-              />
-            ))}
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 pb-16 lg:pb-0">
+      {/* Header */}
+      <div className="bg-card border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.back()}
+              className="p-2 hover:bg-accent rounded-lg transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Meditation Questions</h1>
+              <p className="text-sm text-muted-foreground">භාවනා ගැටළු</p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground text-center">
-            පියවර {step} / {totalSteps}
-          </p>
         </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex items-center justify-center p-4 py-8">
+        <div className="w-full max-w-2xl">
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex justify-between mb-2">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <div
+                  key={s}
+                  className={`w-full h-2 rounded-full mx-1 transition-all ${
+                    s <= step ? 'bg-primary' : 'bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              පියවර {step} / {totalSteps}
+            </p>
+          </div>
 
         {/* Card Container */}
         <div className="bg-card border border-border rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
@@ -325,6 +346,7 @@ export default function MeditationQuestionsPage() {
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
