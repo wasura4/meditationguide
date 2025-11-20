@@ -8,6 +8,7 @@ export default function MeditationQuestionsPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     meditationType: '',
@@ -44,8 +45,8 @@ export default function MeditationQuestionsPage() {
         throw new Error('Failed to send question');
       }
 
-      // Move to thank you step
-      setStep(5);
+      // Mark as submitted to show thank you message
+      setSubmitted(true);
     } catch (error) {
       console.error('Error sending question:', error);
       alert('දෝෂයක් ඇතිවිය. කරුණාකර නැවත උත්සාහ කරන්න.');
@@ -247,7 +248,7 @@ export default function MeditationQuestionsPage() {
           )}
 
           {/* Step 5: Contact Info & Submit */}
-          {step === 5 && !loading && formData.contact === '' && (
+          {step === 5 && !loading && !submitted && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="text-center space-y-4">
                 <h2 className="text-xl sm:text-2xl font-semibold text-foreground leading-relaxed">
@@ -300,7 +301,7 @@ export default function MeditationQuestionsPage() {
           )}
 
           {/* Thank You Message */}
-          {step === 5 && !loading && formData.contact !== '' && (
+          {step === 5 && !loading && submitted && (
             <div className="space-y-6 text-center animate-in fade-in duration-300">
               <div className="space-y-4">
                 <div className="text-6xl mb-4">🙏</div>
