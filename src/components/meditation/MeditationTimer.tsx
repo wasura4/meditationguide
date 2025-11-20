@@ -7,6 +7,7 @@ import { TIMER_SETTINGS } from '@/constants';
 import { MeditationSession } from '@/types';
 import { MeditationService } from '@/lib/meditationService';
 import { playBellSound } from '@/lib/audioUtils';
+import { useNativeBridge } from '@/hooks/useNativeBridge';
 
 interface MeditationTimerProps {
   defaultDuration?: number;
@@ -23,6 +24,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   onSessionComplete
 }) => {
   const { user } = useAuth();
+  const nativeBridge = useNativeBridge();
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -145,10 +147,19 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
   // Complete session function
   const completeSession = useCallback(() => {
-    // Play bell sound when timer completes
+    // Play bell sound when timer completes (web fallback)
     playBellSound();
+
+    // Notify native app (Android/iOS) about meditation completion
+    // Native apps will handle their own notification and sound
+    nativeBridge.notifyMeditationComplete({
+      durationMinutes: Math.round(total / 60),
+      typeName: meditationTypeName || 'Meditation',
+      typeId: meditationType,
+    });
+
     handleSessionEnd('completed');
-  }, [handleSessionEnd]);
+  }, [handleSessionEnd, nativeBridge, total, meditationTypeName, meditationType]);
 
   // Load timer state from localStorage on mount
   useEffect(() => {
@@ -291,6 +302,13 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       // Request wake lock to keep screen awake
       await requestWakeLock();
 
+      // Notify native app (Android/iOS) about meditation start
+      nativeBridge.notifyMeditationStart({
+        durationMinutes: Math.round(total / 60),
+        typeName: meditationTypeName || 'Meditation',
+        typeId: meditationType,
+      });
+
       setIsRunning(true);
       setIsPaused(false);
       setStartTime(new Date());
@@ -319,12 +337,16 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
         });
       }, 1000);
     }
-  }, [isRunning, total, completeSession, startTime, sessionId, saveTimerState, requestWakeLock]);
+  }, [isRunning, total, completeSession, startTime, sessionId, saveTimerState, requestWakeLock, nativeBridge, meditationTypeName, meditationType]);
 
   const pauseTimer = useCallback(async () => {
     if (isRunning && !isPaused) {
       setIsPaused(true);
       pauseTimeRef.current = Date.now();
+
+      // Notify native app (Android/iOS) about meditation pause
+      const remainingSeconds = total - elapsed;
+      nativeBridge.notifyMeditationPause(elapsed, remainingSeconds);
 
       // Release wake lock when paused
       await releaseWakeLock();
@@ -338,11 +360,15 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
         saveTimerState(elapsed, total, true, true, startTime, sessionId);
       }
     }
-  }, [isRunning, isPaused, elapsed, total, startTime, sessionId, saveTimerState, releaseWakeLock]);
+  }, [isRunning, isPaused, elapsed, total, startTime, sessionId, saveTimerState, releaseWakeLock, nativeBridge]);
 
   const resumeTimer = useCallback(async () => {
     if (isRunning && isPaused) {
       const now = Date.now();
+
+      // Notify native app (Android/iOS) about meditation resume
+      const remainingSeconds = total - elapsed;
+      nativeBridge.notifyMeditationResume(remainingSeconds);
 
       // Reacquire wake lock when resuming
       await requestWakeLock();
@@ -375,10 +401,13 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
         });
       }, 1000);
     }
-  }, [isRunning, isPaused, total, completeSession, startTime, sessionId, saveTimerState, requestWakeLock]);
+  }, [isRunning, isPaused, total, completeSession, startTime, sessionId, saveTimerState, requestWakeLock, nativeBridge, elapsed]);
 
   const stopTimer = useCallback(async () => {
     if (isRunning && startTime) {
+      // Notify native app (Android/iOS) about meditation stop
+      nativeBridge.notifyMeditationStop(elapsed);
+
       // Handle stopped session
       handleSessionEnd('abandoned');
     } else {
@@ -394,7 +423,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
     // Clear timer state
     clearTimerState();
-  }, [isRunning, startTime, handleSessionEnd, clearTimerState, releaseWakeLock]);
+  }, [isRunning, startTime, handleSessionEnd, clearTimerState, releaseWakeLock, nativeBridge, elapsed]);
 
   // Cleanup on unmount
   useEffect(() => {
