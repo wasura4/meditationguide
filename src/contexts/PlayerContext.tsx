@@ -3,6 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { KamatahanAudio } from '@/types/admin';
 import { recordAudioListen } from '@/lib/metricsService';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface PlayableGuide {
   id: string;
@@ -35,6 +36,7 @@ const Ctx = createContext<PlayerState | undefined>(undefined);
 const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [guide, setGuide] = useState<PlayableGuide | null>(null);
   const [index, setIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -112,7 +114,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const tr = guide?.audioFiles[index];
       if (tr?.id && !listened.current.has(tr.id)) {
         listened.current.add(tr.id);
-        recordAudioListen(tr.id, undefined);
+        recordAudioListen(tr.id, user?.id);
       }
     };
     const onPause = () => {
