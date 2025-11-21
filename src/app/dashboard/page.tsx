@@ -291,12 +291,12 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Stats Grid - Modern Cards */}
+          {/* Stats Grid - Modern Cards with Visual Hierarchy */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Total Sessions */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-primary/50 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
@@ -309,10 +309,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Current Streak */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-orange-500/50 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
-                  <Flame className="w-5 h-5 text-orange-600" />
+                <div className="w-10 h-10 bg-orange-500/10 dark:bg-orange-500/20 rounded-xl flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                 </div>
               </div>
               <div>
@@ -322,10 +322,10 @@ export default function DashboardPage() {
             </div>
 
             {/* This Week */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-green-500/50 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-green-500/10 dark:bg-green-500/20 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                 </div>
@@ -337,10 +337,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Longest Streak */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-purple-500/50 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-purple-500/10 dark:bg-purple-500/20 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                   </svg>
                 </div>
@@ -352,10 +352,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Average Session */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-indigo-500/50 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -370,10 +370,10 @@ export default function DashboardPage() {
           {/* Progress & Learning - 2 Column Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Weekly Progress */}
-            <div className="bg-card rounded-2xl p-6 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-md hover:shadow-xl transition-all">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Weekly Progress</h3>
-                <span className="text-sm font-medium text-primary">{Math.round(getProgressPercentage())}%</span>
+                <span className="text-sm font-medium text-primary bg-primary/10 dark:bg-primary/20 px-3 py-1 rounded-full">{Math.round(getProgressPercentage())}%</span>
               </div>
               <div className="space-y-4">
                 <div>
@@ -402,43 +402,43 @@ export default function DashboardPage() {
             </div>
 
             {/* Learning Progress */}
-            <div className="bg-card rounded-2xl p-6 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-md hover:shadow-xl transition-all">
               <h3 className="text-lg font-semibold mb-4">Learning Progress</h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 bg-blue-500/5 rounded-xl hover:bg-blue-500/10 transition-colors">
+                <div className="flex items-center justify-between p-4 bg-blue-500/5 dark:bg-blue-500/10 rounded-xl border border-blue-500/20 hover:border-blue-500/40 hover:bg-blue-500/10 dark:hover:bg-blue-500/15 transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 bg-blue-500/10 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253" />
                       </svg>
                     </div>
                     <span className="font-medium">Dhamma Posts</span>
                   </div>
-                  <span className="text-2xl font-bold text-blue-600">{stats?.dhammaPostsRead || 0}</span>
+                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats?.dhammaPostsRead || 0}</span>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-purple-500/5 rounded-xl hover:bg-purple-500/10 transition-colors">
+                <div className="flex items-center justify-between p-4 bg-purple-500/5 dark:bg-purple-500/10 rounded-xl border border-purple-500/20 hover:border-purple-500/40 hover:bg-purple-500/10 dark:hover:bg-purple-500/15 transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 bg-purple-500/10 dark:bg-purple-500/20 rounded-xl flex items-center justify-center">
+                      <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                       </svg>
                     </div>
                     <span className="font-medium">Audio Sessions</span>
                   </div>
-                  <span className="text-2xl font-bold text-purple-600">{stats?.audioSessions || 0}</span>
+                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.audioSessions || 0}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Quick Actions - Modern Grid */}
-          <div className="bg-card rounded-2xl p-6 shadow-sm">
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-md">
             <h3 className="text-lg font-semibold mb-4">{t('dashboard.actions.quick_actions')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               <button
                 onClick={() => router.push('/logbook')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-primary/50 hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-primary/10 group-hover:bg-primary/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -450,7 +450,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/kamatahan')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-purple-500/50 hover:shadow-md hover:bg-purple-500/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-purple-500/10 group-hover:bg-purple-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,7 +462,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/dhamma')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-primary/50 hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -474,7 +474,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/analytics')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-primary/50 hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-green-500/10 group-hover:bg-green-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -486,7 +486,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/pitaka')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-primary/50 hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-amber-500/10 group-hover:bg-amber-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -498,7 +498,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/mypath')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-primary/50 hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-violet-500/10 group-hover:bg-violet-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -510,7 +510,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/meditation-questions')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-primary/50 hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-orange-500/10 group-hover:bg-orange-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -522,7 +522,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push('/books')}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card shadow-sm hover:shadow-md hover:bg-primary/5 transition-all group"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-background border border-border hover:border-primary/50 hover:shadow-md hover:bg-primary/5 transition-all group"
               >
                 <div className="w-10 h-10 bg-rose-500/10 group-hover:bg-rose-500/20 rounded-xl flex items-center justify-center transition-colors">
                   <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -536,14 +536,14 @@ export default function DashboardPage() {
 
           {/* Meditation Types Breakdown */}
           {stats?.meditationTypes && stats.meditationTypes.length > 0 && (
-            <div className="bg-card rounded-2xl p-6 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-md">
               <h3 className="text-lg font-semibold mb-4">Meditation Types Breakdown</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {stats.meditationTypes.map((type) => (
-                  <div key={type.typeId} className="bg-muted/50 rounded-xl p-4 hover:bg-muted transition-colors">
+                  <div key={type.typeId} className="bg-muted/30 dark:bg-muted/50 border border-border rounded-xl p-4 hover:bg-muted/50 dark:hover:bg-muted/70 hover:border-primary/30 transition-all">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold">{type.typeName}</span>
-                      <span className="text-xs text-muted-foreground px-2 py-1 bg-background rounded-full">{type.sessions}</span>
+                      <span className="text-xs text-muted-foreground px-2 py-1 bg-background border border-border rounded-full">{type.sessions}</span>
                     </div>
                     <div className="text-2xl font-bold text-primary">{type.minutes} min</div>
                   </div>
@@ -571,11 +571,11 @@ export default function DashboardPage() {
 
           {/* Recent Sessions */}
           {stats?.recentSessions && stats.recentSessions.length > 0 && (
-            <div className="bg-card rounded-2xl p-6 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-md">
               <h3 className="text-lg font-semibold mb-4">Recent Sessions</h3>
               <div className="space-y-2">
                 {stats.recentSessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 rounded-xl transition-colors">
+                  <div key={session.id} className="flex items-center justify-between p-4 bg-muted/20 dark:bg-muted/40 hover:bg-muted/40 dark:hover:bg-muted/60 border border-border hover:border-primary/30 rounded-xl transition-all">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                         <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
