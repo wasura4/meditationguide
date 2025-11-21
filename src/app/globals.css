@@ -156,23 +156,8 @@
   --ring: #6b9e7a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: #0f172a;
-    --foreground: #e2e8f0;
-    --primary: #6b9e7a;
-    --primary-foreground: #ffffff;
-    --secondary: #a68b7a;
-    --secondary-foreground: #ffffff;
-    --accent: #1f2937;
-    --accent-foreground: #e5e7eb;
-    --muted: #111827;
-    --muted-foreground: #94a3b8;
-    --border: #334155;
-    --input: #334155;
-    --ring: #6b9e7a;
-  }
-}
+/* Media query removed - next-themes handles dark mode via .dark class above */
+/* This prevents conflicts between system preference and user-selected theme */
 
 body {
   background: var(--background);

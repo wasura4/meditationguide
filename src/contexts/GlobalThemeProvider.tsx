@@ -17,21 +17,19 @@ export function useGlobalTheme() {
 function applyThemeToCSS(theme: AdminTheme) {
   if (typeof document === 'undefined') return;
   const r = document.documentElement;
+  // Only apply accent/brand colors from admin theme
+  // Base theme colors (background, foreground, muted, border, input) are controlled by next-themes + globals.css
   const map: Record<string, string> = {
     '--primary': theme.primary,
     '--secondary': theme.secondary,
-    '--background': theme.background,
-    '--foreground': theme.foreground,
     '--accent': theme.accent,
     '--accent-foreground': theme.accentForeground,
-    '--muted': theme.muted,
-    '--muted-foreground': theme.mutedForeground,
-    '--border': theme.border,
-    '--input': theme.input,
     '--ring': theme.ring,
     '--header-bg': theme.headerBg || DEFAULT_ADMIN_THEME.headerBg!,
     '--brand-grad-from': theme.brandGradFrom || DEFAULT_ADMIN_THEME.brandGradFrom!,
     '--brand-grad-to': theme.brandGradTo || DEFAULT_ADMIN_THEME.brandGradTo!,
+    // DO NOT override: --background, --foreground, --muted, --muted-foreground, --border, --input
+    // These are managed by next-themes + .dark class in globals.css
   };
   Object.entries(map).forEach(([k, v]) => r.style.setProperty(k, v));
 }

@@ -450,7 +450,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   const remaining = total - elapsed;
 
   return (
-    <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+    <div className="max-w-md mx-auto bg-card rounded-2xl shadow-xl p-8">
       {/* Timer Display */}
       <div className="text-center mb-8">
         <div className="relative w-64 h-64 mx-auto mb-6">

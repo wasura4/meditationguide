@@ -45,9 +45,11 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
         console.error('Failed to parse saved preferences:', error);
       }
     } else {
-      setPreferences(prev => ({ ...prev, language: currentLanguage }));
+      // Sync current theme from next-themes
+      const currentTheme = (theme === 'system' ? 'auto' : theme) as 'light' | 'dark' | 'auto';
+      setPreferences(prev => ({ ...prev, language: currentLanguage, theme: currentTheme || 'auto' }));
     }
-  }, [currentLanguage]);
+  }, [currentLanguage, theme]);
 
   const handlePreferenceChange = (key: keyof AppPreferences, value: AppPreferences[keyof AppPreferences]) => {
     setPreferences(prev => ({ ...prev, [key]: value }));
@@ -57,6 +59,8 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
   const handleSave = () => {
     localStorage.setItem('nirvanaya-preferences', JSON.stringify(preferences));
     setLanguage(preferences.language);
+    // Apply theme directly via next-themes
+    setTheme(preferences.theme === 'auto' ? 'system' : preferences.theme);
     onSavePreferences(preferences);
     setIsDirty(false);
   };
@@ -177,7 +181,34 @@ export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePr
           </div>
           <div>
             <h3 className="text-lg font-semibold text-foreground">General Settings</h3>
-            <p className="text-sm text-muted-foreground">Language and notifications</p>
+            <p className="text-sm text-muted-foreground">Theme, language and notifications</p>
+          </div>
+        </div>
+
+        {/* Theme Mode */}
+        <div>
+          <label className="text-sm font-medium text-foreground mb-3 block">Theme Mode</label>
+          <div className="grid grid-cols-3 gap-3">
+            {([
+              { mode: 'light', label: 'Light', icon: '☀️' },
+              { mode: 'dark', label: 'Dark', icon: '🌙' },
+              { mode: 'auto', label: 'Auto', icon: '💫' }
+            ] as const).map((themeOption) => (
+              <button
+                key={themeOption.mode}
+                onClick={() => handlePreferenceChange('theme', themeOption.mode)}
+                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                  preferences.theme === themeOption.mode
+                    ? 'border-primary bg-primary/5 shadow-sm'
+                    : 'border-border hover:border-primary/30 hover:bg-muted/50'
+                }`}
+              >
+                <div className="text-center">
+                  <div className="text-2xl mb-2">{themeOption.icon}</div>
+                  <div className="text-sm font-medium text-foreground">{themeOption.label}</div>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 

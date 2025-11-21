@@ -12,7 +12,7 @@ type ThemeSettings = {
   radius: number;
   setAccent: (a: Accent) => void;
   setRadius: (r: number) => void;
-  setMode: (m: 'light' | 'dark' | 'system') => void;
+  // Theme mode is now managed by next-themes directly, not here
 };
 
 const ThemeSettingsContext = createContext<ThemeSettings | undefined>(undefined);
@@ -28,7 +28,7 @@ const ACCENTS: Record<Accent, string> = {
 
 export function ThemeSettingsProvider({ children }: { children: React.ReactNode }) {
   const { user, updateUserPreferences } = useAuth();
-  const { setTheme } = useTheme();
+  // Removed setTheme - theme mode is managed by next-themes directly
   const [accent, setAccentState] = useState<Accent>('green');
   const [radius, setRadiusState] = useState<number>(8);
 
@@ -57,12 +57,9 @@ export function ThemeSettingsProvider({ children }: { children: React.ReactNode 
     if (user) updateUserPreferences({ appearance: { accent, radius: r } });
   };
 
-  const setMode = (m: 'light' | 'dark' | 'system') => {
-    setTheme(m);
-    if (user) updateUserPreferences({ theme: m });
-  };
+  // Removed setMode function - theme mode should be managed directly via next-themes useTheme() hook
 
-  const value = { accent, radius, setAccent, setRadius, setMode };
+  const value = { accent, radius, setAccent, setRadius };
 
   return (
     <ThemeSettingsContext.Provider value={value}>{children}</ThemeSettingsContext.Provider>
