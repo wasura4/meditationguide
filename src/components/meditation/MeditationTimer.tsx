@@ -99,10 +99,9 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     const typeName = meditationTypeName || meditationType;
     const endedAt = new Date();
     const startedAt = startTime ?? (startTimeRef.current ? new Date(startTimeRef.current) : new Date());
-    // Compute duration both from state (elapsed seconds) and from wall clock, use the larger to avoid undercounting
-    const minutesFromElapsed = Math.max(1, Math.round(elapsed / 60));
-    const minutesFromClock = Math.max(1, Math.round((endedAt.getTime() - startedAt.getTime()) / 60000));
-    const durationMinutes = Math.max(minutesFromElapsed, minutesFromClock);
+    // Use elapsed seconds from timer state as the accurate duration
+    // This already includes background time calculated during restoration
+    const durationMinutes = Math.max(1, Math.round(elapsed / 60));
 
     const sessionData: Omit<MeditationSession, 'id'> = {
       userId: user?.id || 'anonymous',
@@ -477,7 +476,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
               strokeDasharray={`${2 * Math.PI * 45}`}
               strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
               strokeLinecap="round"
-              className="transition-all duration-1000 ease-out"
+              className="text-[var(--primary)] transition-all duration-1000 ease-out"
             />
           </svg>
           
