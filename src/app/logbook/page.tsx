@@ -705,79 +705,163 @@ export default function LogbookPage() {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Page {currentPage} of {totalPages}
+                  <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                    {/* Mobile View */}
+                    <div className="sm:hidden">
+                      <div className="text-sm text-center text-gray-600 dark:text-gray-400 mb-3">
+                        Page {currentPage} of {totalPages}
+                      </div>
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          onClick={handlePreviousPage}
+                          disabled={currentPage === 1}
+                          variant="outline"
+                          size="sm"
+                          className="px-3"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </Button>
+
+                        {/* Show limited page numbers on mobile */}
+                        <div className="flex items-center gap-1">
+                          {totalPages <= 3 ? (
+                            // Show all pages if 3 or fewer
+                            Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                              <Button
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                variant={currentPage === page ? "meditation" : "outline"}
+                                size="sm"
+                                className="min-w-[32px] h-8 px-2 text-xs"
+                              >
+                                {page}
+                              </Button>
+                            ))
+                          ) : (
+                            // Show smart pagination for more than 3 pages
+                            <>
+                              {currentPage > 1 && (
+                                <Button
+                                  onClick={() => handlePageChange(1)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="min-w-[32px] h-8 px-2 text-xs"
+                                >
+                                  1
+                                </Button>
+                              )}
+                              {currentPage > 2 && <span className="text-gray-400 text-xs">...</span>}
+
+                              <Button
+                                onClick={() => handlePageChange(currentPage)}
+                                variant="meditation"
+                                size="sm"
+                                className="min-w-[32px] h-8 px-2 text-xs"
+                              >
+                                {currentPage}
+                              </Button>
+
+                              {currentPage < totalPages - 1 && <span className="text-gray-400 text-xs">...</span>}
+                              {currentPage < totalPages && (
+                                <Button
+                                  onClick={() => handlePageChange(totalPages)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="min-w-[32px] h-8 px-2 text-xs"
+                                >
+                                  {totalPages}
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        <Button
+                          onClick={handleNextPage}
+                          disabled={currentPage === totalPages}
+                          variant="outline"
+                          size="sm"
+                          className="px-3"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </Button>
+                      </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {/* Previous Button */}
-                      <Button
-                        onClick={handlePreviousPage}
-                        disabled={currentPage === 1}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        Previous
-                      </Button>
 
-                      {/* Page Numbers */}
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                          // Show first page, last page, current page, and pages around current
-                          const showPage = 
-                            page === 1 || 
-                            page === totalPages || 
-                            (page >= currentPage - 1 && page <= currentPage + 1) ||
-                            (currentPage <= 3 && page <= 5) ||
-                            (currentPage >= totalPages - 2 && page >= totalPages - 4);
-
-                          if (!showPage) {
-                            // Show ellipsis
-                            const prevPage = page - 1;
-                            const nextPage = page + 1;
-                            if (
-                              (prevPage === 1 || prevPage === currentPage - 2) &&
-                              (nextPage === totalPages || nextPage === currentPage + 2)
-                            ) {
-                              return (
-                                <span key={page} className="px-2 text-gray-400">
-                                  ...
-                                </span>
-                              );
-                            }
-                            return null;
-                          }
-
-                          return (
-                            <Button
-                              key={page}
-                              onClick={() => handlePageChange(page)}
-                              variant={currentPage === page ? "meditation" : "outline"}
-                              size="sm"
-                              className="min-w-[40px]"
-                            >
-                              {page}
-                            </Button>
-                          );
-                        })}
+                    {/* Desktop View */}
+                    <div className="hidden sm:flex items-center justify-between gap-4">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        Page {currentPage} of {totalPages}
                       </div>
 
-                      {/* Next Button */}
-                      <Button
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Next
-                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={handlePreviousPage}
+                          disabled={currentPage === 1}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                          Previous
+                        </Button>
+
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                            const showPage =
+                              page === 1 ||
+                              page === totalPages ||
+                              (page >= currentPage - 1 && page <= currentPage + 1) ||
+                              (currentPage <= 3 && page <= 5) ||
+                              (currentPage >= totalPages - 2 && page >= totalPages - 4);
+
+                            if (!showPage) {
+                              const prevPage = page - 1;
+                              const nextPage = page + 1;
+                              if (
+                                (prevPage === 1 || prevPage === currentPage - 2) &&
+                                (nextPage === totalPages || nextPage === currentPage + 2)
+                              ) {
+                                return (
+                                  <span key={page} className="px-2 text-gray-400">
+                                    ...
+                                  </span>
+                                );
+                              }
+                              return null;
+                            }
+
+                            return (
+                              <Button
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                variant={currentPage === page ? "meditation" : "outline"}
+                                size="sm"
+                                className="min-w-[40px]"
+                              >
+                                {page}
+                              </Button>
+                            );
+                          })}
+                        </div>
+
+                        <Button
+                          onClick={handleNextPage}
+                          disabled={currentPage === totalPages}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Next
+                          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}

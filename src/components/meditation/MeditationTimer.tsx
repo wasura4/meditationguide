@@ -483,10 +483,10 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
           {/* Time Display */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-4xl font-bold text-white mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
                 {formatTime(remaining)}
               </div>
-              <div className="text-sm text-white/80">
+              <div className="text-sm text-gray-600 dark:text-gray-300">
                 {isPaused ? 'Paused' : isRunning ? 'Meditating' : 'Ready'}
               </div>
             </div>
@@ -495,10 +495,10 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
         {/* Session Info */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             {meditationTypeName || (meditationType.charAt(0).toUpperCase() + meditationType.slice(1))} Meditation
           </h3>
-          <p className="text-sm text-white/70">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Session {sessionId.slice(-6)}
           </p>
         </div>
