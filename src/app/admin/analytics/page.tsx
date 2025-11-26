@@ -50,11 +50,22 @@ interface AnalyticsData {
   };
 }
 
+interface UsersByStage {
+  [stage: number]: Array<{
+    id: string;
+    email: string;
+    displayName: string;
+  }>;
+}
+
 export default function AdminAnalyticsPage() {
   const { hasPermission } = useAdminAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [usersByStage, setUsersByStage] = useState<UsersByStage | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+  const [showUserDetails, setShowUserDetails] = useState(false);
   const { showToast } = useToast();
 
   const loadAnalytics = useCallback(async () => {
@@ -74,6 +85,25 @@ export default function AdminAnalyticsPage() {
       setLoading(false);
     }
   }, [timeRange, showToast]);
+
+  const loadUsersByStage = useCallback(async () => {
+    try {
+      setLoadingUsers(true);
+      const users = await AdminService.getUsersByStage();
+      setUsersByStage(users);
+      setShowUserDetails(true);
+    } catch (error) {
+      console.error('Error loading users by stage:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load user details',
+        duration: 5000,
+      });
+    } finally {
+      setLoadingUsers(false);
+    }
+  }, [showToast]);
 
   useEffect(() => {
     loadAnalytics();
@@ -328,7 +358,30 @@ export default function AdminAnalyticsPage() {
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Seven Purifications Path Distribution</h3>
-                <span className="text-sm text-gray-500">{analytics.pathProgress.totalWithProgress} users on the path</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-500">{analytics.pathProgress.totalWithProgress} users on the path</span>
+                  <Button
+                    onClick={loadUsersByStage}
+                    disabled={loadingUsers}
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    {loadingUsers ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[var(--primary)]"></div>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                        {showUserDetails ? 'Refresh' : 'View User Details'}
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {PATH_STAGES.map((stage) => {
@@ -351,6 +404,80 @@ export default function AdminAnalyticsPage() {
                         />
                       </div>
                       <p className="text-xs text-violet-600 mt-1 text-right">{percentage.toFixed(1)}%</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* User Details by Stage */}
+          {showUserDetails && usersByStage && (
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Users by Stage - Detailed View</h3>
+                <Button
+                  onClick={() => setShowUserDetails(false)}
+                  size="sm"
+                  variant="ghost"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
+              </div>
+              <div className="space-y-6">
+                {PATH_STAGES.map((stage) => {
+                  const users = usersByStage[stage.order] || [];
+                  if (users.length === 0) return null;
+
+                  return (
+                    <div key={stage.order} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-4 py-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-white font-semibold">Stage {stage.order}: {stage.name}</h4>
+                            <p className="text-violet-100 text-sm">{stage.nameEn}</p>
+                          </div>
+                          <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            {users.length} {users.length === 1 ? 'user' : 'users'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="bg-white">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                #
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Email
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {users.map((user, index) => (
+                              <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                  {index + 1}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {user.displayName || 'No name'}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <div className="text-sm text-gray-600">{user.email}</div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   );
                 })}

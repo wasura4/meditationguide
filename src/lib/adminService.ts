@@ -479,4 +479,54 @@ export class AdminService {
       throw new Error('Failed to fetch admin stats');
     }
   }
+
+  // Get users grouped by path stage
+  static async getUsersByStage(): Promise<Record<number, User[]>> {
+    try {
+      const usersQuery = query(collection(db, 'users'));
+      const usersSnapshot = await getDocs(usersQuery);
+
+      const usersByStage: Record<number, User[]> = {};
+
+      // Initialize all stages
+      for (let stage = 1; stage <= 8; stage++) {
+        usersByStage[stage] = [];
+      }
+
+      usersSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const user: User = {
+          id: doc.id,
+          email: data.email || '',
+          displayName: data.displayName || '',
+          photoURL: data.photoURL || null,
+          role: data.role || 'user',
+          lastLoginAt: data.lastLoginAt?.toDate() || new Date(),
+          isAnonymous: data.isAnonymous || false,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          preferences: data.preferences || {
+            theme: 'light',
+            language: 'en',
+            notifications: { email: true, push: true },
+          },
+          pathProgress: data.pathProgress ? {
+            currentStage: data.pathProgress.currentStage,
+            updatedAt: data.pathProgress.updatedAt?.toDate() || new Date(),
+            history: []
+          } : undefined,
+        };
+
+        // Add user to their current stage
+        if (user.pathProgress && user.pathProgress.currentStage >= 1 && user.pathProgress.currentStage <= 8) {
+          usersByStage[user.pathProgress.currentStage].push(user);
+        }
+      });
+
+      return usersByStage;
+    } catch (error) {
+      console.error('Error fetching users by stage:', error);
+      throw new Error('Failed to fetch users by stage');
+    }
+  }
 }
