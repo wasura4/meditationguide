@@ -99,9 +99,13 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     const typeName = meditationTypeName || meditationType;
     const endedAt = new Date();
     const startedAt = startTime ?? (startTimeRef.current ? new Date(startTimeRef.current) : new Date());
-    // Use elapsed seconds from timer state as the accurate duration
-    // This already includes background time calculated during restoration
-    const durationMinutes = Math.max(1, Math.round(elapsed / 60));
+    // Calculate duration using elapsed time (preferred) as it accurately tracks timer state
+    // Fall back to wall clock time if elapsed is not available or seems incorrect
+    const minutesFromElapsed = Math.round(elapsed / 60);
+    const minutesFromClock = Math.round((endedAt.getTime() - startedAt.getTime()) / 60000);
+    // Use elapsed time if it's reasonable, otherwise use wall clock time
+    // This handles cases where timer state might be corrupted or not updated
+    const durationMinutes = Math.max(1, minutesFromElapsed > 0 ? minutesFromElapsed : minutesFromClock);
 
     const sessionData: Omit<MeditationSession, 'id'> = {
       userId: user?.id || 'anonymous',
