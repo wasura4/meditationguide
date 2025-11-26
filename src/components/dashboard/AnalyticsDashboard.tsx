@@ -87,8 +87,8 @@ export const AnalyticsDashboard: React.FC = () => {
     }
 
     const totalSessions = sessions.length;
-    const totalMinutes = sessions.reduce((sum, session) => sum + session.duration, 0);
-    const averageSessionLength = Math.round(totalMinutes / totalSessions);
+    const totalMinutes = sessions.reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
+    const averageSessionLength = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
 
     // Calculate favorite type
     const typeCounts: Record<string, number> = {};
@@ -146,11 +146,11 @@ export const AnalyticsDashboard: React.FC = () => {
 
     const weeklyMinutes = sessions
       .filter(session => session.createdAt >= weekAgo)
-      .reduce((sum, session) => sum + session.duration, 0);
+      .reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
 
     const monthlyMinutes = sessions
       .filter(session => session.createdAt >= monthAgo)
-      .reduce((sum, session) => sum + session.duration, 0);
+      .reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
 
     return {
       totalSessions,
@@ -191,13 +191,13 @@ export const AnalyticsDashboard: React.FC = () => {
     return days.map(day => {
       const dayStart = startOfDay(day);
       const dayEnd = endOfDay(day);
-      
-      const daySessions = filteredSessions.filter(session => 
+
+      const daySessions = filteredSessions.filter(session =>
         session.createdAt >= dayStart && session.createdAt <= dayEnd
       );
-      
-      const minutes = daySessions.reduce((sum, session) => sum + session.duration, 0);
-      
+
+      const minutes = daySessions.reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
+
       return {
         date: format(day, 'MMM dd'),
         minutes,
@@ -217,7 +217,7 @@ export const AnalyticsDashboard: React.FC = () => {
         typeStats[session.typeId] = { sessions: 0, minutes: 0 };
       }
       typeStats[session.typeId].sessions++;
-      typeStats[session.typeId].minutes += session.duration;
+      typeStats[session.typeId].minutes += (Number(session.duration) || 0);
     });
 
     return Object.entries(typeStats)
@@ -249,13 +249,13 @@ export const AnalyticsDashboard: React.FC = () => {
   const minutesByWeekday = useMemo(() => {
     const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const buckets = Array.from({ length: 7 }, () => 0);
-    sessions.forEach(s => { buckets[new Date(s.createdAt).getDay()] += s.duration; });
+    sessions.forEach(s => { buckets[new Date(s.createdAt).getDay()] += (Number(s.duration) || 0); });
     return buckets.map((m, i) => ({ day: labels[i], minutes: m }));
   }, [sessions]);
 
   const minutesByHour = useMemo(() => {
     const buckets = Array.from({ length: 24 }, () => 0);
-    sessions.forEach(s => { buckets[new Date(s.createdAt).getHours()] += s.duration; });
+    sessions.forEach(s => { buckets[new Date(s.createdAt).getHours()] += (Number(s.duration) || 0); });
     return buckets.map((m, i) => ({ hour: i, minutes: m }));
   }, [sessions]);
 
@@ -269,7 +269,7 @@ export const AnalyticsDashboard: React.FC = () => {
     sessions.forEach(s => {
       const k = format(s.createdAt, 'MMM yy');
       const item = arr.find(a => a.key === k);
-      if (item) item.minutes += s.duration;
+      if (item) item.minutes += (Number(s.duration) || 0);
     });
     return arr;
   }, [sessions]);
@@ -277,9 +277,10 @@ export const AnalyticsDashboard: React.FC = () => {
   const lengthDistribution = useMemo(() => {
     const buckets: Record<string, number> = { '<10': 0, '10-19': 0, '20-29': 0, '30+': 0 };
     sessions.forEach(s => {
-      if (s.duration < 10) buckets['<10']++;
-      else if (s.duration < 20) buckets['10-19']++;
-      else if (s.duration < 30) buckets['20-29']++;
+      const duration = Number(s.duration) || 0;
+      if (duration < 10) buckets['<10']++;
+      else if (duration < 20) buckets['10-19']++;
+      else if (duration < 30) buckets['20-29']++;
       else buckets['30+']++;
     });
     return Object.entries(buckets).map(([range, count]) => ({ range, count }));
