@@ -67,8 +67,8 @@ export default function DashboardPage() {
           session.createdAt >= lastWeekStart && session.createdAt <= lastWeekEnd
         );
 
-        const thisWeekMinutes = thisWeekSessions.reduce((sum, session) => sum + session.duration, 0);
-        const lastWeekMinutes = lastWeekSessions.reduce((sum, session) => sum + session.duration, 0);
+        const thisWeekMinutes = thisWeekSessions.reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
+        const lastWeekMinutes = lastWeekSessions.reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
         const weeklyGoal = 200;
         const weeklyGoalProgress = Math.min((thisWeekMinutes / weeklyGoal) * 100, 100);
 
@@ -79,7 +79,7 @@ export default function DashboardPage() {
             typeCounts[session.typeId] = { sessions: 0, minutes: 0, name: session.typeName };
           }
           typeCounts[session.typeId].sessions += 1;
-          typeCounts[session.typeId].minutes += session.duration;
+          typeCounts[session.typeId].minutes += (Number(session.duration) || 0);
         });
 
         const meditationTypes = Object.entries(typeCounts).map(([typeId, data]) => ({
