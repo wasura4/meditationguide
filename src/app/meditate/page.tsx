@@ -326,7 +326,7 @@ export default function MeditatePage() {
         </div>
 
         {/* Main Content Area */}
-        <main className={`relative z-10 max-w-5xl mx-auto px-4 sm:px-6 transition-all duration-1000 ${mode === 'timer' ? 'h-screen flex items-center justify-center -mt-20' : 'py-6'}`}>
+        <main className={`relative z-10 max-w-5xl mx-auto px-4 sm:px-6 transition-all duration-1000 ${mode === 'timer' ? 'h-screen flex items-center justify-center -mt-20' : 'pt-6 pb-32'}`}>
           {renderContent()}
         </main>
       </div>
