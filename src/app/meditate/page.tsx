@@ -78,7 +78,7 @@ export default function MeditatePage() {
   const handleSessionComplete = (session: MeditationSession) => {
     setCompletedSession(session);
     setMode('reflection');
-    
+
     showToast({
       type: 'success',
       title: 'Session Complete!',
@@ -97,10 +97,10 @@ export default function MeditatePage() {
         distractions: session.distractions,
         insights: session.insights,
       });
-      
+
       setCompletedSession(session);
       setMode('complete');
-      
+
       showToast({
         type: 'success',
         title: 'Reflection Saved',
@@ -109,14 +109,14 @@ export default function MeditatePage() {
       });
     } catch (error) {
       console.error('Failed to save reflection:', error);
-      
+
       showToast({
         type: 'error',
         title: 'Save Failed',
         message: 'Failed to save reflection notes, but your session is recorded.',
         duration: 5000
       });
-      
+
       // Still show completion screen
       setCompletedSession(session);
       setMode('complete');
@@ -163,22 +163,10 @@ export default function MeditatePage() {
             onCancel={() => router.push('/dashboard')}
           />
         );
-      
+
       case 'timer':
         return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <Button
-                onClick={handleCancel}
-                variant="ghost"
-                className="mb-4"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to Setup
-              </Button>
-            </div>
+          <div className="w-full">
             <MeditationTimer
               defaultDuration={duration}
               meditationType={meditationType}
@@ -188,124 +176,94 @@ export default function MeditatePage() {
             />
           </div>
         );
-      
-                   case 'reflection':
-               return (
-                 <SessionReflectionForm
-                   session={completedSession!}
-                   onSave={handleReflectionSave}
-                   onSkip={handleReflectionSkip}
-                 />
-               );
-             
-             case 'complete':
-               return (
-                 <div className="max-w-md mx-auto bg-card/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center">
-                   <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                     <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                     </svg>
-                   </div>
 
-                   <h2 className="text-2xl font-bold mb-2">
-                     Session Complete!
-                   </h2>
-                   <p className="text-muted-foreground mb-6">
-                     Great job! You&apos;ve completed your meditation session.
-                   </p>
-                   
-                   {completedSession && (
-                     <div className="bg-muted/50 rounded-lg p-4 mb-6">
-                       <h3 className="font-semibold mb-3">
-                         Session Summary
-                       </h3>
-                       <div className="grid grid-cols-2 gap-4 text-sm">
-                         <div>
-                           <span className="text-muted-foreground">Type:</span>
-                           <span className="ml-2 font-medium">
-                             {completedSession.typeName}
-                           </span>
-                         </div>
-                         <div>
-                           <span className="text-muted-foreground">Duration:</span>
-                           <span className="ml-2 font-medium">
-                             {completedSession.duration}m
-                           </span>
-                         </div>
-                         <div>
-                           <span className="text-muted-foreground">Started:</span>
-                           <span className="ml-2 font-medium">
-                             {completedSession.startTime.toLocaleTimeString()}
-                           </span>
-                         </div>
-                         <div>
-                           <span className="text-muted-foreground">Completed:</span>
-                           <span className="ml-2 font-medium">
-                             {completedSession.endTime?.toLocaleTimeString()}
-                           </span>
-                         </div>
-                         {completedSession.rating && (
-                           <div>
-                             <span className="text-muted-foreground">Rating:</span>
-                             <span className="ml-2 font-medium">
-                               {'⭐'.repeat(completedSession.rating)}
-                             </span>
-                           </div>
-                         )}
-                         {completedSession.mood && (
-                           <div>
-                             <span className="text-muted-foreground">Mood:</span>
-                             <span className="ml-2 font-medium capitalize">
-                               {completedSession.mood}
-                             </span>
-                           </div>
-                         )}
-                       </div>
-                       {completedSession.notes && (
-                         <div className="mt-4 pt-4 border-t">
-                           <h4 className="font-medium mb-2">Notes:</h4>
-                           <p className="text-sm text-muted-foreground italic">
-                             &quot;{completedSession.notes}&quot;
-                           </p>
-                         </div>
-                       )}
-                     </div>
-                   )}
-                   
-                   <div className="space-y-3">
-                     <Button
-                       onClick={handleNewSession}
-                       variant="meditation"
-                       className="w-full"
-                     >
-                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                       </svg>
-                       Start New Session
-                     </Button>
-                     
-                     <Button
-                       onClick={handleViewLogbook}
-                       variant="outline"
-                       className="w-full"
-                     >
-                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                       </svg>
-                       View Logbook
-                     </Button>
-                     
-                     <Button
-                       onClick={() => router.push('/dashboard')}
-                       variant="ghost"
-                       className="w-full"
-                     >
-                       Back to Dashboard
-                     </Button>
-                   </div>
-                 </div>
-               );
-      
+      case 'reflection':
+        return (
+          <div className="max-w-2xl mx-auto">
+            <SessionReflectionForm
+              session={completedSession!}
+              onSave={handleReflectionSave}
+              onSkip={handleReflectionSkip}
+            />
+          </div>
+        );
+
+      case 'complete':
+        return (
+          <div className="max-w-md mx-auto bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 text-center animate-in fade-in zoom-in duration-500">
+            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+              <svg className="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+
+            <h2 className="text-3xl font-bold mb-2 text-foreground">
+              Namaste!
+            </h2>
+            <p className="text-muted-foreground mb-8 text-lg">
+              Your session is complete. Peace is within you.
+            </p>
+
+            {completedSession && (
+              <div className="bg-background/50 rounded-2xl p-6 mb-8 text-left border border-white/5">
+                <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground">
+                  Session Summary
+                </h3>
+                <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                  <div>
+                    <span className="text-muted-foreground block text-xs mb-1">Type</span>
+                    <span className="font-medium text-foreground text-base">
+                      {completedSession.typeName}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs mb-1">Duration</span>
+                    <span className="font-medium text-foreground text-base">
+                      {completedSession.duration}m
+                    </span>
+                  </div>
+                  {completedSession.rating && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground block text-xs mb-1">Rating</span>
+                      <span className="font-medium text-yellow-500 text-base">
+                        {'⭐'.repeat(completedSession.rating)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <Button
+                onClick={handleNewSession}
+                variant="default"
+                size="lg"
+                className="w-full h-12 rounded-xl text-base"
+              >
+                Start New Session
+              </Button>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={handleViewLogbook}
+                  variant="outline"
+                  className="w-full h-12 rounded-xl"
+                >
+                  Logbook
+                </Button>
+                <Button
+                  onClick={() => router.push('/dashboard')}
+                  variant="ghost"
+                  className="w-full h-12 rounded-xl"
+                >
+                  Dashboard
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -313,57 +271,51 @@ export default function MeditatePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background pb-28">
-        {/* Hero Header */}
-        <div className="bg-gradient-to-b from-muted/50 to-background shadow-sm">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-            <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-                {mode === 'setup' && '🧘 Prepare Your Meditation'}
-                {mode === 'timer' && '🧘‍♂️ Meditation in Progress'}
-                {mode === 'reflection' && '📝 Reflect on Your Session'}
-                {mode === 'complete' && '✨ Session Complete'}
-              </h1>
-              <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-                {mode === 'setup' && 'Choose your practice and set your intention for a mindful session'}
-                {mode === 'timer' && 'Stay present and focused on your meditation practice'}
-                {mode === 'reflection' && 'Take a moment to capture insights from your practice'}
-                {mode === 'complete' && 'Well done! Your dedication to practice brings you closer to peace'}
-              </p>
-            </div>
+      <div className={`min-h-screen transition-all duration-1000 ease-in-out ${mode === 'timer'
+          ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-black'
+          : 'bg-gradient-to-br from-background via-primary/5 to-secondary/5 animate-gradient-x'
+        }`}>
 
-            {/* Progress Stepper - Only show in setup, timer, and reflection modes */}
+        {/* Dynamic Background Elements (Blobs) */}
+        {mode !== 'timer' && (
+          <div className="fixed inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-blob" />
+            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
+            <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
+          </div>
+        )}
+
+        {/* Header & Stepper - Hide in Timer Mode */}
+        <div className={`transition-all duration-700 ${mode === 'timer' ? 'opacity-0 -translate-y-10 pointer-events-none absolute' : 'opacity-100 translate-y-0 relative'}`}>
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+            {/* Stepper */}
             {mode !== 'complete' && (
-              <div className="mt-8 max-w-md mx-auto">
+              <div className="max-w-md mx-auto">
                 <div className="flex items-center justify-between">
                   {steps.map((step, index) => (
                     <React.Fragment key={step.key}>
-                      <div className="flex flex-col items-center">
+                      <div className="flex flex-col items-center z-10">
                         <div
-                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-semibold transition-all ${
-                            mode === step.key
-                              ? 'bg-primary text-primary-foreground shadow-lg scale-110'
+                          className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-500 ${mode === step.key
+                              ? 'bg-primary text-primary-foreground shadow-lg scale-110 ring-4 ring-primary/20'
                               : steps.findIndex(s => s.key === mode) > index
-                              ? 'bg-primary/20 text-primary'
-                              : 'bg-muted text-muted-foreground'
-                          }`}
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground'
+                            }`}
                         >
                           {steps.findIndex(s => s.key === mode) > index ? (
-                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                           ) : (
-                            <span className="text-sm sm:text-base">{index + 1}</span>
+                            <span className="text-sm">{index + 1}</span>
                           )}
                         </div>
-                        <span className={`mt-2 text-xs sm:text-sm font-medium ${mode === step.key ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        <span className={`mt-2 text-xs font-medium transition-colors duration-300 ${mode === step.key ? 'text-primary' : 'text-muted-foreground'}`}>
                           {step.label}
                         </span>
                       </div>
                       {index < steps.length - 1 && (
-                        <div className={`flex-1 h-1 mx-2 sm:mx-4 rounded-full transition-all ${
-                          steps.findIndex(s => s.key === mode) > index ? 'bg-primary' : 'bg-muted'
-                        }`} />
+                        <div className={`flex-1 h-0.5 mx-2 rounded-full transition-all duration-500 ${steps.findIndex(s => s.key === mode) > index ? 'bg-primary' : 'bg-muted'
+                          }`} />
                       )}
                     </React.Fragment>
                   ))}
@@ -373,12 +325,11 @@ export default function MeditatePage() {
           </div>
         </div>
 
-        {/* Main Content */}
-        <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Main Content Area */}
+        <main className={`relative z-10 max-w-5xl mx-auto px-4 sm:px-6 transition-all duration-1000 ${mode === 'timer' ? 'h-screen flex items-center justify-center -mt-20' : 'py-6'}`}>
           {renderContent()}
         </main>
       </div>
     </ProtectedRoute>
   );
 }
-

@@ -141,28 +141,28 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10 border border-primary/20 p-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/5 rounded-full blur-3xl" />
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Choose Your Practice</h1>
-          <p className="text-muted-foreground">Select a meditation type and duration to begin your journey</p>
-        </div>
+    <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-700">
+      {/* Header Section - Minimal & Clean */}
+      <div className="text-center space-y-4 py-8">
+        <h1 className="text-4xl md:text-5xl font-light tracking-tight text-foreground">
+          Choose Your <span className="font-medium text-primary">Practice</span>
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-light">
+          Select a meditation style and duration to begin your journey to mindfulness.
+        </p>
       </div>
 
-      {/* Search and Filter Bar */}
-      <div className="bg-card rounded-xl p-6 shadow-sm border space-y-4">
+      {/* Search and Filter Bar - Glass Effect */}
+      <div className="bg-background/40 backdrop-blur-xl rounded-2xl p-2 shadow-lg border border-white/10 dark:border-white/5 flex flex-col md:flex-row gap-2">
         {/* Search */}
-        <div className="relative group">
+        <div className="relative flex-1 group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             type="text"
-            placeholder="Search meditation types, categories, or keywords..."
+            placeholder="Search practices..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl bg-muted/60 border border-border px-12 py-3.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            className="w-full h-12 rounded-xl bg-transparent border-none px-12 text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-0"
           />
           {searchQuery && (
             <button
@@ -174,254 +174,178 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
           )}
         </div>
 
-        {/* Category Pills */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
+        {/* Category Filter */}
+        <div className="relative min-w-[200px]">
+           <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
             <Filter className="w-4 h-4 text-muted-foreground" />
-            <label className="text-sm font-medium text-foreground">Filter by Category</label>
-          </div>
-          <div className="flex w-full max-w-sm">
+           </div>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full rounded-xl bg-muted/60 border border-border px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              className="w-full h-12 appearance-none rounded-xl bg-background/50 border-l border-white/10 pl-10 pr-8 text-foreground focus:outline-none cursor-pointer hover:bg-background/70 transition-colors"
             >
-              <option value="all">All</option>
+              <option value="all">All Categories</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
-          </div>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
         </div>
       </div>
 
       {/* Meditation Types Grid */}
-      <div className="bg-card rounded-xl p-6 shadow-sm border">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              {isFiltering ? 'Search Results' : showAllTypes ? 'All Meditation Types' : 'Featured Practices'}
-            </h2>
-            {!isFiltering && !showAllTypes && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Discover our top meditation practices
-              </p>
-            )}
-          </div>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between px-2">
+          <h2 className="text-xl font-semibold text-foreground/90">
+            {isFiltering ? 'Search Results' : showAllTypes ? 'All Practices' : 'Featured'}
+          </h2>
           {isFiltering && (
             <span className="text-sm text-muted-foreground">
-              {filteredMeditations.length} {filteredMeditations.length === 1 ? 'result' : 'results'}
+              {filteredMeditations.length} results
             </span>
           )}
         </div>
 
         {displayedMeditations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-              <Search className="w-8 h-8 text-muted-foreground" />
+           <div className="flex flex-col items-center justify-center py-20 text-center bg-background/20 backdrop-blur-sm rounded-3xl border border-dashed border-muted">
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 animate-pulse">
+              <Search className="w-10 h-10 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">No meditation types found</h3>
-            <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-              Try adjusting your search or filter to find what you&apos;re looking for.
-            </p>
-            <Button onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }} variant="outline" size="sm">
+            <h3 className="text-xl font-medium text-foreground mb-2">No matches found</h3>
+            <p className="text-muted-foreground mb-6">Try adjusting your filters</p>
+            <Button onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }} variant="outline">
               Clear Filters
             </Button>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {displayedMeditations.map((type) => {
               const categoryInfo = categories.find(c => c.id === type.category);
+              const isSelected = selectedType === type.id;
+              
               return (
                 <button
                   key={type.id}
                   onClick={() => handleTypeSelect(type.id)}
-                  className={`group relative p-5 rounded-xl border-2 text-left transition-all duration-200 ${
-                    selectedType === type.id
-                      ? 'border-primary bg-primary/5 shadow-lg scale-105'
-                      : 'border-border hover:border-primary/50 hover:shadow-md'
+                  className={`group relative p-6 rounded-3xl text-left transition-all duration-300 border ${
+                    isSelected
+                      ? 'bg-primary/10 border-primary/50 shadow-[0_0_30px_-10px_rgba(var(--primary-rgb),0.3)] scale-[1.02]'
+                      : 'bg-background/40 backdrop-blur-md border-white/10 hover:bg-background/60 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1'
                   }`}
                 >
-                  {/* Content */}
-                  <div className="mb-3">
-                    <h4 className="font-bold text-base text-foreground mb-1 leading-tight group-hover:text-primary transition-colors">
+                  {/* Selection Indicator */}
+                  <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30 group-hover:border-primary/50'
+                  }`}>
+                    {isSelected && <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
+                  </div>
+
+                  <div className="mb-4">
+                    {categoryInfo && (
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-primary/80 mb-2 block">
+                        {categoryInfo.name}
+                      </span>
+                    )}
+                    <h4 className={`font-bold text-xl mb-2 transition-colors ${isSelected ? 'text-primary' : 'text-foreground group-hover:text-primary'}`}>
                       {type.name}
                     </h4>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                       {type.description}
                     </p>
                   </div>
 
-                  {/* Meta Info */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 bg-muted rounded-full font-medium">
-                      <Clock className="w-3 h-3" />
-                      {type.defaultDuration}m
-                    </span>
-                    {categoryInfo && (
-                      <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-primary/10 to-purple-500/10 text-primary rounded-full font-medium">
-                        {categoryInfo.name}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/80">
+                    <Clock className="w-3.5 h-3.5" />
+                    {type.defaultDuration} min
                   </div>
-
-                  {/* Selected Indicator */}
-                  {selectedType === type.id && (
-                    <div className="absolute top-3 right-3 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-4 h-4 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
                 </button>
               );
             })}
             </div>
-
-            {/* Show All / Show Less Button */}
+            
+            {/* Show All Button */}
             {!isFiltering && remainingMeditations.length > 0 && (
-              <div className="mt-6 text-center">
+               <div className="flex justify-center pt-8">
                 <Button
                   onClick={() => setShowAllTypes(!showAllTypes)}
-                  variant="outline"
-                  size="lg"
-                  className="min-w-[200px]"
+                  variant="ghost"
+                  className="group text-muted-foreground hover:text-primary"
                 >
-                  {showAllTypes ? (
-                    <>
-                      Show Less
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                      </svg>
-                    </>
-                  ) : (
-                    <>
-                      Browse All {meditationTypes.length} Types
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </>
-                  )}
+                  {showAllTypes ? 'Show Less' : `View All (${meditationTypes.length})`}
+                  <svg className={`w-4 h-4 ml-2 transition-transform duration-300 ${showAllTypes ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </Button>
-                {!showAllTypes && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {remainingMeditations.length} more meditation types available
-                  </p>
-                )}
-              </div>
+               </div>
             )}
           </>
         )}
       </div>
 
-      {/* Duration Selection */}
-      <div className="bg-card rounded-xl p-6 shadow-sm border">
-        <h2 className="text-2xl font-bold text-foreground mb-6">Set Duration</h2>
-
-        {/* Quick Duration Buttons */}
-        <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 mb-6">
-          {[5, 10, 15, 20, 30, 45, 60].map((minutes) => (
-            <button
-              key={minutes}
-              onClick={() => setCustomDuration(minutes)}
-              className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                customDuration === minutes
-                  ? 'border-primary bg-primary/5 shadow-sm'
-                  : 'border-border hover:border-primary/30 hover:bg-muted/50'
-              }`}
-            >
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">{minutes}</div>
-                <div className="text-xs text-muted-foreground mt-1">min</div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Custom Duration Input */}
-        <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl border">
-          <label className="text-sm font-semibold text-foreground whitespace-nowrap">
-            Custom Duration:
-          </label>
-          <input
-            type="number"
-            min={TIMER_SETTINGS.minDuration}
-            max={TIMER_SETTINGS.maxDuration}
-            value={customDuration}
-            onChange={(e) => setCustomDuration(Number(e.target.value))}
-            className="flex-1 bg-background border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
-            minutes ({TIMER_SETTINGS.minDuration}-{TIMER_SETTINGS.maxDuration})
-          </span>
-        </div>
-
-        {/* Timer Sound Toggle */}
-        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border mt-4">
-          <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            <div>
-              <label className="text-sm font-semibold text-foreground cursor-pointer">
-                Completion Bell Sound
-              </label>
-              <p className="text-xs text-muted-foreground">Play a bell sound when timer ends</p>
+      {/* Duration & Start Section */}
+      <div className="bg-background/40 backdrop-blur-xl rounded-3xl p-8 shadow-lg border border-white/10">
+        <div className="flex flex-col lg:flex-row gap-10 items-center">
+            {/* Duration Slider/Selector */}
+            <div className="flex-1 w-full space-y-6">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Session Duration</h3>
+                    <span className="text-2xl font-light text-primary">{customDuration} <span className="text-sm text-muted-foreground font-normal">min</span></span>
+                </div>
+                
+                {/* Duration Pills */}
+                <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                  {[5, 10, 15, 20, 30, 45, 60].map((minutes) => (
+                    <button
+                      key={minutes}
+                      onClick={() => setCustomDuration(minutes)}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
+                        customDuration === minutes
+                          ? 'bg-primary text-primary-foreground shadow-lg scale-110'
+                          : 'bg-background/50 hover:bg-primary/10 text-muted-foreground hover:text-primary'
+                      }`}
+                    >
+                      {minutes}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Manual Input Fallback */}
+                 <div className="flex items-center gap-4 pt-2">
+                    <label className="text-sm text-muted-foreground">Custom:</label>
+                    <input
+                        type="number"
+                        min={TIMER_SETTINGS.minDuration}
+                        max={TIMER_SETTINGS.maxDuration}
+                        value={customDuration}
+                        onChange={(e) => setCustomDuration(Number(e.target.value))}
+                        className="w-20 bg-transparent border-b border-border focus:border-primary text-center py-1 focus:outline-none"
+                    />
+                 </div>
             </div>
-          </div>
-          <button
-            onClick={() => setTimerSoundEnabled(!timerSoundEnabled)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-              timerSoundEnabled ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                timerSoundEnabled ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
+
+            {/* Start Action */}
+            <div className="w-full lg:w-auto flex flex-col gap-4 min-w-[250px]">
+                 <div className="flex items-center justify-between px-4 py-3 bg-background/30 rounded-xl">
+                    <span className="text-sm font-medium">Completion Bell</span>
+                    <button
+                        onClick={() => setTimerSoundEnabled(!timerSoundEnabled)}
+                        className={`w-10 h-5 rounded-full transition-colors relative ${timerSoundEnabled ? 'bg-primary' : 'bg-muted'}`}
+                    >
+                        <span className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${timerSoundEnabled ? 'translate-x-5' : ''}`} />
+                    </button>
+                 </div>
+
+                 <Button
+                    onClick={handleStart}
+                    size="lg"
+                    className="w-full h-14 text-lg rounded-xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-[1.02]"
+                 >
+                    Start Meditation
+                 </Button>
+            </div>
         </div>
       </div>
-
-      {/* Selected Summary & Actions */}
-      {selectedMeditation && (
-        <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-4 sm:p-6 border border-primary/20">
-          <div className="flex flex-col gap-4">
-            {/* Selected Practice Info */}
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Selected Practice</h3>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">{selectedMeditation.name}</h2>
-              <p className="text-sm text-muted-foreground mb-3">{selectedMeditation.description}</p>
-              <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Clock className="w-5 h-5 text-primary" />
-                {customDuration} minutes
-              </div>
-            </div>
-
-            {/* Action Buttons - Responsive */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <Button
-                onClick={onCancel}
-                variant="outline"
-                size="lg"
-                className="w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleStart}
-                variant="default"
-                size="lg"
-                className="w-full sm:w-auto sm:min-w-[140px]"
-              >
-                Begin Practice
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
