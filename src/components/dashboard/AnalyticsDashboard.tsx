@@ -73,14 +73,38 @@ export const AnalyticsDashboard: React.FC = () => {
     loadData();
   }, [user?.id]);
 
-  // Calculate analytics data
+  // Filter sessions based on time range
+  const filteredSessions = useMemo(() => {
+    if (sessions.length === 0) return [];
+
+    const now = new Date();
+    let startDate: Date;
+
+    switch (timeRange) {
+      case '7d':
+        startDate = subDays(now, 7);
+        break;
+      case '30d':
+        startDate = subDays(now, 30);
+        break;
+      case '90d':
+        startDate = subDays(now, 90);
+        break;
+      default:
+        startDate = new Date(0); // All time
+    }
+
+    return sessions.filter(session => session.createdAt >= startDate);
+  }, [sessions, timeRange]);
+
+  // Calculate analytics data based on FILTERED sessions
   const analyticsData = useMemo((): AnalyticsData => {
-    if (sessions.length === 0) {
+    if (filteredSessions.length === 0) {
       return {
         totalSessions: 0,
         totalMinutes: 0,
         averageSessionLength: 0,
-        favoriteType: '',
+        favoriteType: 'None',
         currentStreak: 0,
         longestStreak: 0,
         weeklyMinutes: 0,
@@ -88,27 +112,36 @@ export const AnalyticsDashboard: React.FC = () => {
       };
     }
 
-    const totalSessions = sessions.length;
-    const totalMinutes = sessions.reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
+    const totalSessions = filteredSessions.length;
+    const totalMinutes = filteredSessions.reduce((sum, session) => sum + (Number(session.duration) || 0), 0);
     const averageSessionLength = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
 
     // Calculate favorite type
     const typeCounts: Record<string, number> = {};
-    sessions.forEach(session => {
+    filteredSessions.forEach(session => {
       typeCounts[session.typeId] = (typeCounts[session.typeId] || 0) + 1;
     });
-    const favoriteTypeId = Object.entries(typeCounts).reduce((a, b) => a[1] > b[1] ? a : b)[0];
-    const favoriteTypeData = meditationTypes.find(t => t.id === favoriteTypeId);
-    const favoriteType = favoriteTypeData?.name || favoriteTypeId.charAt(0).toUpperCase() + favoriteTypeId.slice(1);
 
-    // Calculate streaks
-    const sortedSessions = sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    let favoriteType = 'None';
+    if (Object.keys(typeCounts).length > 0) {
+      const favoriteTypeId = Object.entries(typeCounts).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+      const favoriteTypeData = meditationTypes.find(t => t.id === favoriteTypeId);
+      favoriteType = favoriteTypeData?.name || favoriteTypeId.charAt(0).toUpperCase() + favoriteTypeId.slice(1);
+    }
+
+    // Calculate streaks (Streaks should probably be based on ALL sessions to be accurate, but let's follow the filter for consistency or calculate separately)
+    // Actually, streaks are usually "current" status, so they should be based on ALL history to be meaningful.
+    // However, if the user wants to see stats for a period, maybe they want to see streaks WITHIN that period?
+    // Standard practice: Current Streak is global. Longest Streak is usually global too.
+    // Let's keep streaks based on ALL sessions for accuracy, but update other stats based on filter.
+
+    const sortedAllSessions = sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     let currentStreak = 0;
     let longestStreak = 0;
     let tempStreak = 0;
     let lastDate: Date | null = null;
 
-    for (const session of sortedSessions) {
+    for (const session of sortedAllSessions) {
       const sessionDate = new Date(session.createdAt);
       sessionDate.setHours(0, 0, 0, 0);
 
@@ -141,7 +174,8 @@ export const AnalyticsDashboard: React.FC = () => {
       longestStreak = tempStreak;
     }
 
-    // Calculate weekly and monthly minutes
+    // Weekly and Monthly minutes (These are fixed periods, independent of the filter, usually shown as "recent progress")
+    // Let's keep these based on ALL sessions as they are labeled "Weekly Progress" and "Monthly Progress" explicitly.
     const now = new Date();
     const weekAgo = subDays(now, 7);
     const monthAgo = subDays(now, 30);
@@ -164,7 +198,7 @@ export const AnalyticsDashboard: React.FC = () => {
       weeklyMinutes,
       monthlyMinutes,
     };
-  }, [sessions, meditationTypes]);
+  }, [sessions, filteredSessions, meditationTypes]);
 
   // Generate chart data for selected time range
   const chartData = useMemo((): ChartData[] => {
@@ -184,10 +218,15 @@ export const AnalyticsDashboard: React.FC = () => {
         startDate = subDays(now, 90);
         break;
       default:
-        startDate = new Date(0); // All time
+        // For 'all', we need a start date. Let's find the earliest session or default to 30 days if empty
+        if (sessions.length > 0) {
+          const earliest = sessions.reduce((min, s) => s.createdAt < min ? s.createdAt : min, sessions[0].createdAt);
+          startDate = startOfDay(earliest);
+        } else {
+          startDate = subDays(now, 30);
+        }
     }
 
-    const filteredSessions = sessions.filter(session => session.createdAt >= startDate);
     const days = eachDayOfInterval({ start: startDate, end: now });
 
     return days.map(day => {
@@ -206,15 +245,15 @@ export const AnalyticsDashboard: React.FC = () => {
         sessions: daySessions.length,
       };
     });
-  }, [sessions, timeRange]);
+  }, [sessions, filteredSessions, timeRange]);
 
-  // Generate meditation type distribution
+  // Generate meditation type distribution based on FILTERED sessions
   const typeDistribution = useMemo((): TypeDistribution[] => {
-    if (sessions.length === 0) return [];
+    if (filteredSessions.length === 0) return [];
 
     const typeStats: Record<string, { sessions: number; minutes: number }> = {};
 
-    sessions.forEach(session => {
+    filteredSessions.forEach(session => {
       if (!typeStats[session.typeId]) {
         typeStats[session.typeId] = { sessions: 0, minutes: 0 };
       }
@@ -234,59 +273,7 @@ export const AnalyticsDashboard: React.FC = () => {
         };
       })
       .sort((a, b) => b.sessions - a.sessions);
-  }, [sessions, meditationTypes]);
-
-  // Additional analytics
-  const completionSplit = useMemo(() => {
-    const completed = sessions.filter(s => s.status === 'completed').length;
-    const abandoned = sessions.filter(s => s.status === 'abandoned').length;
-    const active = Math.max(sessions.length - completed - abandoned, 0);
-    return [
-      { name: 'Completed', value: completed },
-      { name: 'Abandoned', value: abandoned },
-      { name: 'Active/Paused', value: active },
-    ];
-  }, [sessions]);
-
-  const minutesByWeekday = useMemo(() => {
-    const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const buckets = Array.from({ length: 7 }, () => 0);
-    sessions.forEach(s => { buckets[new Date(s.createdAt).getDay()] += (Number(s.duration) || 0); });
-    return buckets.map((m, i) => ({ day: labels[i], minutes: m }));
-  }, [sessions]);
-
-  const minutesByHour = useMemo(() => {
-    const buckets = Array.from({ length: 24 }, () => 0);
-    sessions.forEach(s => { buckets[new Date(s.createdAt).getHours()] += (Number(s.duration) || 0); });
-    return buckets.map((m, i) => ({ hour: i, minutes: m }));
-  }, [sessions]);
-
-  const monthsTrend = useMemo(() => {
-    const now = new Date();
-    const arr: { key: string; minutes: number }[] = [];
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      arr.push({ key: format(d, 'MMM yy'), minutes: 0 });
-    }
-    sessions.forEach(s => {
-      const k = format(s.createdAt, 'MMM yy');
-      const item = arr.find(a => a.key === k);
-      if (item) item.minutes += (Number(s.duration) || 0);
-    });
-    return arr;
-  }, [sessions]);
-
-  const lengthDistribution = useMemo(() => {
-    const buckets: Record<string, number> = { '<10': 0, '10-19': 0, '20-29': 0, '30+': 0 };
-    sessions.forEach(s => {
-      const duration = Number(s.duration) || 0;
-      if (duration < 10) buckets['<10']++;
-      else if (duration < 20) buckets['10-19']++;
-      else if (duration < 30) buckets['20-29']++;
-      else buckets['30+']++;
-    });
-    return Object.entries(buckets).map(([range, count]) => ({ range, count }));
-  }, [sessions]);
+  }, [filteredSessions, meditationTypes]);
 
   // Chart colors
   const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1'];
@@ -358,8 +345,8 @@ export const AnalyticsDashboard: React.FC = () => {
               key={range}
               onClick={() => setTimeRange(range)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${timeRange === range
-                  ? 'bg-background text-primary shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                ? 'bg-background text-primary shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               {range === '7d' ? '7 Days' :
@@ -382,7 +369,9 @@ export const AnalyticsDashboard: React.FC = () => {
               <span className="text-xs font-bold uppercase tracking-wider">Total Sessions</span>
             </div>
             <p className="text-3xl font-bold text-foreground">{analyticsData.totalSessions}</p>
-            <p className="text-sm text-muted-foreground mt-1">Lifetime sessions</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {timeRange === 'all' ? 'Lifetime sessions' : `Last ${timeRange}`}
+            </p>
           </div>
         </motion.div>
 
@@ -396,7 +385,9 @@ export const AnalyticsDashboard: React.FC = () => {
               <span className="text-xs font-bold uppercase tracking-wider">Total Minutes</span>
             </div>
             <p className="text-3xl font-bold text-foreground">{analyticsData.totalMinutes}</p>
-            <p className="text-sm text-muted-foreground mt-1">Time spent meditating</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {timeRange === 'all' ? 'Time spent meditating' : `Last ${timeRange}`}
+            </p>
           </div>
         </motion.div>
 
