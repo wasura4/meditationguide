@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { MeditationSetup } from '@/components/meditation/MeditationSetup';
 import { MeditationTimer } from '@/components/meditation/MeditationTimer';
@@ -15,6 +15,9 @@ import { MeditationTypeService } from '@/lib/meditationTypeService';
 type MeditationMode = 'setup' | 'timer' | 'complete' | 'reflection';
 
 export default function MeditatePage() {
+  const searchParams = useSearchParams();
+  const eventId = searchParams.get('eventId');
+
   const [mode, setMode] = useState<MeditationMode>('setup');
   const [meditationType, setMeditationType] = useState('mindfulness');
   const [meditationTypeName, setMeditationTypeName] = useState('Mindfulness');
@@ -180,6 +183,7 @@ export default function MeditatePage() {
               defaultDuration={duration}
               meditationType={meditationType}
               meditationTypeName={meditationTypeName}
+              eventId={eventId || undefined}
               onSessionComplete={handleSessionComplete}
             />
           </div>

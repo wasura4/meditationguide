@@ -23,6 +23,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: '🏠', permission: 'analytics:read' },
+    { name: 'Events', href: '/admin/events', icon: '📅', permission: 'content:read' },
     { name: 'Categories', href: '/admin/categories', icon: '📂', permission: 'content:read' },
     { name: 'Types', href: '/admin/types', icon: '🧘', permission: 'content:read' },
     { name: 'Audio', href: '/admin/audio', icon: '🎧', permission: 'audio:read' },

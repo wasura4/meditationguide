@@ -1,6 +1,7 @@
 import { doc, getDoc, getDocs, collection, query, where, orderBy, limit, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { MeditationSession } from '@/types';
+import { EventService } from './eventService';
 
 export class MeditationService {
   // Save a new meditation session
@@ -13,6 +14,21 @@ export class MeditationService {
         createdAt: session.createdAt,
         updatedAt: session.updatedAt,
       });
+
+      // If this session is part of an event, record participation
+      if (session.eventId && session.status === 'completed') {
+        try {
+          await EventService.recordParticipation(
+            session.eventId,
+            session.userId,
+            session.duration
+          );
+        } catch (eventError) {
+          console.error('Error recording event participation:', eventError);
+          // Don't fail the session save if event participation fails
+        }
+      }
+
       return docRef.id;
     } catch (error) {
       console.error('Error saving meditation session:', error);

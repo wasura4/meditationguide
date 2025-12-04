@@ -13,6 +13,7 @@ import { DhammaService } from '@/lib/dhammaService';
 import { getUserAudioSessionCount, getUserDhammaReadsCount } from '@/lib/metricsService';
 import { DhammaPost } from '@/types/admin';
 import { DhammaPostCard } from '@/components/dhamma';
+import { EventBanner } from '@/components/events/EventBanner';
 
 interface DashboardStats {
   totalSessions: number;
@@ -290,6 +291,9 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Event Banner - Show active events */}
+          <EventBanner />
 
           {/* Stats Grid - Modern Cards with Visual Hierarchy */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">

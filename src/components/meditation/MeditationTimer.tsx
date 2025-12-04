@@ -13,6 +13,7 @@ interface MeditationTimerProps {
   defaultDuration?: number;
   meditationType?: string;
   meditationTypeName?: string;
+  eventId?: string;
   onSessionComplete?: (session: MeditationSession) => void;
   onSessionUpdate?: (typeId: string, typeName: string) => void;
 }
@@ -21,6 +22,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   defaultDuration = TIMER_SETTINGS.defaultDuration,
   meditationType = 'mindfulness',
   meditationTypeName,
+  eventId,
   onSessionComplete
 }) => {
   const { user } = useAuth();
@@ -116,6 +118,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       duration: durationMinutes, // in minutes
       status,
       tags: [meditationType],
+      eventId: eventId,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

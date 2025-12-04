@@ -73,7 +73,58 @@ export interface MeditationSession {
   distractions?: string[];
   insights?: string[];
   tags: string[];
+  eventId?: string; // Optional link to meditation event
   createdAt: Date;
+  updatedAt: Date;
+}
+
+// Meditation Event Types
+export interface MeditationEvent {
+  id: string;
+  title: string;
+  titleEn?: string;
+  description: string;
+  descriptionEn?: string;
+  meditationType?: string; // Optional specific meditation type for the event
+  startDate: Date;
+  endDate: Date;
+  isActive: boolean;
+  bannerImageUrl?: string;
+  goalMinutes?: number; // Optional collective goal
+  createdBy: string; // admin user ID
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface EventParticipation {
+  eventId: string;
+  userId: string;
+  totalMinutes: number;
+  sessionCount: number;
+  firstSessionAt?: Date;
+  lastSessionAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface EventStats {
+  eventId: string;
+  totalParticipants: number;
+  totalMinutes: number;
+  totalSessions: number;
+  averageMinutesPerUser: number;
+  topContributors: Array<{
+    userId: string;
+    displayName: string;
+    minutes: number;
+    sessions: number;
+  }>;
+  dailyProgress: Array<{
+    date: string; // YYYY-MM-DD
+    minutes: number;
+    participants: number;
+    sessions: number;
+  }>;
   updatedAt: Date;
 }
 
