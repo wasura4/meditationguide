@@ -6,20 +6,20 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { MeditationService } from '@/lib/meditationService';
 import { MeditationSession } from '@/types';
-import { Button } from '@/components/ui/button';
+
 import { DEFAULT_MEDITATION_TYPES } from '@/constants';
 import { MeditationCalendar } from '@/components/logbook/MeditationCalendar';
 import { DateSessions } from '@/components/logbook/DateSessions';
 import { isSameDay } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Calendar as CalendarIcon, List as ListIcon, Trash2, Clock, Activity, Star, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, List as ListIcon, Trash2, Clock, Activity, Star, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 
 export default function LogbookPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,9 +41,7 @@ export default function LogbookPage() {
       setLoading(true);
       const userSessions = await MeditationService.getUserSessions(user!.id, 1000);
       setSessions(userSessions);
-      setError(null);
     } catch (err) {
-      setError('Failed to load sessions');
       console.error('Error loading sessions:', err);
     } finally {
       setLoading(false);
@@ -214,15 +212,7 @@ export default function LogbookPage() {
     }
   };
 
-  const clearFilters = () => {
-    setSearchQuery('');
-    setSelectedType('all');
-    setSelectedMood('all');
-    setSelectedRating('all');
-    setDateRange('all');
-    setCustomStartDate('');
-    setCustomEndDate('');
-  };
+
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -378,8 +368,8 @@ export default function LogbookPage() {
                 <button
                   onClick={() => setSelectedType('all')}
                   className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedType === 'all'
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                     }`}
                 >
                   All Types
@@ -389,8 +379,8 @@ export default function LogbookPage() {
                     key={type.id}
                     onClick={() => setSelectedType(type.id)}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedType === type.id
-                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                       }`}
                   >
                     {type.name}
@@ -451,7 +441,7 @@ export default function LogbookPage() {
 
                       {session.notes && (
                         <p className="text-sm text-muted-foreground italic mb-3 line-clamp-2">
-                          "{session.notes}"
+                          &quot;{session.notes}&quot;
                         </p>
                       )}
 

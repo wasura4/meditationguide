@@ -67,11 +67,7 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
     return sessionsByDate[dateKey] || [];
   };
 
-  // Get total minutes for a date
-  const getTotalMinutesForDate = (date: Date) => {
-    const daySessions = getSessionsForDate(date);
-    return daySessions.reduce((sum, session) => sum + session.duration, 0);
-  };
+
 
   // Check if date has sessions
   const hasSessions = (date: Date) => {
@@ -152,7 +148,6 @@ export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
         {/* Calendar Days */}
         {calendarDays.map((day, index) => {
           const daySessions = getSessionsForDate(day);
-          const hasSessionsToday = hasSessions(day);
           const isTodayDate = isToday(day);
           const isCurrentMonthDate = isCurrentMonth(day);
           const isSelectedDate = isSelected(day);

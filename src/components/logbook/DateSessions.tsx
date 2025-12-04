@@ -17,7 +17,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
     return (
       <div className="bg-background rounded-xl p-6 shadow-lg border border-border">
         <div className="text-center py-8">
-          <div className="text-4xl mb-4">ðŸ“…</div>
+          <div className="text-4xl mb-4">📅</div>
           <h3 className="text-lg font-medium text-foreground mb-2">No sessions on {format(date, 'MMMM dd, yyyy')}</h3>
           <p className="text-muted-foreground">This was a rest day. Every day is a new opportunity to meditate!</p>
         </div>
@@ -29,15 +29,13 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
   const completedSessions = sessions.filter(s => s.status === 'completed').length;
   const abandonedSessions = sessions.filter(s => s.status === 'abandoned').length;
 
-  const getMoodEmoji = (mood: string) => ({ excellent: 'ðŸŒŸ', good: 'ðŸ™‚', neutral: 'ðŸ˜', challenging: 'ðŸ˜°', difficult: 'ðŸ˜“' }[mood] || 'ðŸ˜');
-
   return (
     <div className="bg-background rounded-xl p-6 shadow-lg border border-border">
       {/* Date Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-foreground">{format(date, 'EEEE, MMMM dd, yyyy')}</h3>
-          <p className="text-sm text-muted-foreground">{sessions.length} session{sessions.length !== 1 ? 's' : ''} â€¢ {totalMinutes} total minutes</p>
+          <p className="text-sm text-muted-foreground">{sessions.length} session{sessions.length !== 1 ? 's' : ''} • {totalMinutes} total minutes</p>
         </div>
 
         {/* Daily Stats */}
@@ -58,7 +56,7 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
       </div>
 
       {/* Sessions List */}
-  <div className="space-y-4">
+      <div className="space-y-4">
         {sessions.map((session) => (
           <div
             key={session.id}
@@ -71,48 +69,47 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-3">
                     <h4 className="text-lg font-medium text-foreground">{session.typeName}</h4>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      session.status === 'completed'
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${session.status === 'completed'
                         ? 'bg-muted text-foreground'
                         : session.status === 'abandoned'
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}>
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}>
                       {session.status}
                     </span>
-  </div>
+                  </div>
 
-      {openSession && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-6" onClick={() => setOpenSession(null)}>
-          <div className="w-full sm:max-w-lg bg-background text-foreground rounded-t-2xl sm:rounded-2xl shadow-xl border border-border" onClick={(e) => e.stopPropagation()}>
-            <div className="p-4 border-b border-border flex items-center justify-between">
-              <div>
-                <div className="text-sm text-muted-foreground">{format(openSession.startTime, 'PPpp')}</div>
-                <div className="text-lg font-semibold">{openSession.typeName}</div>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => setOpenSession(null)}>Close</Button>
-            </div>
-            <div className="p-4 space-y-3">
-              <div className="text-sm"><span className="text-muted-foreground">Duration:</span><span className="ml-2 font-medium">{openSession.duration} minutes</span></div>
-              <div className="text-sm"><span className="text-muted-foreground">Started:</span><span className="ml-2 font-medium">{format(openSession.startTime, 'PPpp')}</span></div>
-              {openSession.endTime && (<div className="text-sm"><span className="text-muted-foreground">Completed:</span><span className="ml-2 font-medium">{format(openSession.endTime, 'PPpp')}</span></div>)}
-              {openSession.rating && (
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Rating:</span>
-                  <span className="ml-2">{openSession.rating}/5</span>
-                </div>
-              )}
-              {openSession.mood && (<div className="text-sm"><span className="text-muted-foreground">Mood:</span><span className="ml-2 capitalize">{openSession.mood}</span></div>)}
-              {openSession.notes && (
-                <div className="pt-3 border-t border-border">
-                  <div className="text-sm text-muted-foreground mb-1">Notes</div>
-                  <p className="text-[15px] leading-relaxed break-words">{openSession.notes}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                  {openSession && (
+                    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-6" onClick={() => setOpenSession(null)}>
+                      <div className="w-full sm:max-w-lg bg-background text-foreground rounded-t-2xl sm:rounded-2xl shadow-xl border border-border" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-4 border-b border-border flex items-center justify-between">
+                          <div>
+                            <div className="text-sm text-muted-foreground">{format(openSession.startTime, 'PPpp')}</div>
+                            <div className="text-lg font-semibold">{openSession.typeName}</div>
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={() => setOpenSession(null)}>Close</Button>
+                        </div>
+                        <div className="p-4 space-y-3">
+                          <div className="text-sm"><span className="text-muted-foreground">Duration:</span><span className="ml-2 font-medium">{openSession.duration} minutes</span></div>
+                          <div className="text-sm"><span className="text-muted-foreground">Started:</span><span className="ml-2 font-medium">{format(openSession.startTime, 'PPpp')}</span></div>
+                          {openSession.endTime && (<div className="text-sm"><span className="text-muted-foreground">Completed:</span><span className="ml-2 font-medium">{format(openSession.endTime, 'PPpp')}</span></div>)}
+                          {openSession.rating && (
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Rating:</span>
+                              <span className="ml-2">{openSession.rating}/5</span>
+                            </div>
+                          )}
+                          {openSession.mood && (<div className="text-sm"><span className="text-muted-foreground">Mood:</span><span className="ml-2 capitalize">{openSession.mood}</span></div>)}
+                          {openSession.notes && (
+                            <div className="pt-3 border-t border-border">
+                              <div className="text-sm text-muted-foreground mb-1">Notes</div>
+                              <p className="text-[15px] leading-relaxed break-words">{openSession.notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-center space-x-2" />
                 </div>
@@ -166,4 +163,3 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
     </div>
   );
 };
-
