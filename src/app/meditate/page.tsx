@@ -198,7 +198,7 @@ export default function MeditatePage() {
             </div>
 
             <h2 className="text-3xl font-bold mb-2 text-foreground">
-              Namaste!
+              තෙරුවන් සරණයි
             </h2>
             <p className="text-muted-foreground mb-8 text-lg">
               Your session is complete. Peace is within you.
@@ -272,8 +272,8 @@ export default function MeditatePage() {
   return (
     <ProtectedRoute>
       <div className={`min-h-screen transition-all duration-1000 ease-in-out ${mode === 'timer'
-          ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-black'
-          : 'bg-gradient-to-br from-background via-primary/5 to-secondary/5 animate-gradient-x'
+        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-black'
+        : 'bg-gradient-to-br from-background via-primary/5 to-secondary/5 animate-gradient-x'
         }`}>
 
         {/* Dynamic Background Elements (Blobs) */}
@@ -297,10 +297,10 @@ export default function MeditatePage() {
                       <div className="flex flex-col items-center z-10">
                         <div
                           className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-500 ${mode === step.key
-                              ? 'bg-primary text-primary-foreground shadow-lg scale-110 ring-4 ring-primary/20'
-                              : steps.findIndex(s => s.key === mode) > index
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted text-muted-foreground'
+                            ? 'bg-primary text-primary-foreground shadow-lg scale-110 ring-4 ring-primary/20'
+                            : steps.findIndex(s => s.key === mode) > index
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground'
                             }`}
                         >
                           {steps.findIndex(s => s.key === mode) > index ? (

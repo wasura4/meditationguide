@@ -77,8 +77,8 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
   const filteredMeditations = useMemo(() => {
     return meditationTypes.filter(type => {
       const matchesSearch = type.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           type.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           type.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        type.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        type.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesCategory = selectedCategory === 'all' || type.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
@@ -176,22 +176,22 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
 
         {/* Category Filter */}
         <div className="relative min-w-[200px]">
-           <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
             <Filter className="w-4 h-4 text-muted-foreground" />
-           </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full h-12 appearance-none rounded-xl bg-background/50 border-l border-white/10 pl-10 pr-8 text-foreground focus:outline-none cursor-pointer hover:bg-background/70 transition-colors"
-            >
-              <option value="all">All Categories</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            </div>
+          </div>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full h-12 appearance-none rounded-xl bg-background/50 border-l border-white/10 pl-10 pr-8 text-foreground focus:outline-none cursor-pointer hover:bg-background/70 transition-colors"
+          >
+            <option value="all">All Categories</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </div>
         </div>
       </div>
 
@@ -209,7 +209,7 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
         </div>
 
         {displayedMeditations.length === 0 ? (
-           <div className="flex flex-col items-center justify-center py-20 text-center bg-background/20 backdrop-blur-sm rounded-3xl border border-dashed border-muted">
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-background/20 backdrop-blur-sm rounded-3xl border border-dashed border-muted">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 animate-pulse">
               <Search className="w-10 h-10 text-primary" />
             </div>
@@ -223,52 +223,50 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {displayedMeditations.map((type) => {
-              const categoryInfo = categories.find(c => c.id === type.category);
-              const isSelected = selectedType === type.id;
-              
-              return (
-                <button
-                  key={type.id}
-                  onClick={() => handleTypeSelect(type.id)}
-                  className={`group relative p-6 rounded-3xl text-left transition-all duration-300 border ${
-                    isSelected
-                      ? 'bg-primary/10 border-primary/50 shadow-[0_0_30px_-10px_rgba(var(--primary-rgb),0.3)] scale-[1.02]'
-                      : 'bg-background/40 backdrop-blur-md border-white/10 hover:bg-background/60 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1'
-                  }`}
-                >
-                  {/* Selection Indicator */}
-                  <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                    isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30 group-hover:border-primary/50'
-                  }`}>
-                    {isSelected && <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
-                  </div>
+                const categoryInfo = categories.find(c => c.id === type.category);
+                const isSelected = selectedType === type.id;
 
-                  <div className="mb-4">
-                    {categoryInfo && (
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-primary/80 mb-2 block">
-                        {categoryInfo.name}
-                      </span>
-                    )}
-                    <h4 className={`font-bold text-xl mb-2 transition-colors ${isSelected ? 'text-primary' : 'text-foreground group-hover:text-primary'}`}>
-                      {type.name}
-                    </h4>
-                    <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                      {type.description}
-                    </p>
-                  </div>
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() => handleTypeSelect(type.id)}
+                    className={`group relative p-6 rounded-3xl text-left transition-all duration-300 border ${isSelected
+                        ? 'bg-primary/10 border-primary/50 shadow-[0_0_30px_-10px_rgba(var(--primary-rgb),0.3)] scale-[1.02]'
+                        : 'bg-background/40 backdrop-blur-md border-white/10 hover:bg-background/60 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1'
+                      }`}
+                  >
+                    {/* Selection Indicator */}
+                    <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30 group-hover:border-primary/50'
+                      }`}>
+                      {isSelected && <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
+                    </div>
 
-                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/80">
-                    <Clock className="w-3.5 h-3.5" />
-                    {type.defaultDuration} min
-                  </div>
-                </button>
-              );
-            })}
+                    <div className="mb-4">
+                      {categoryInfo && (
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-primary/80 mb-2 block">
+                          {categoryInfo.name}
+                        </span>
+                      )}
+                      <h4 className={`font-bold text-xl mb-2 transition-colors ${isSelected ? 'text-primary' : 'text-foreground group-hover:text-primary'}`}>
+                        {type.name}
+                      </h4>
+                      <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                        {type.description}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/80">
+                      <Clock className="w-3.5 h-3.5" />
+                      {type.defaultDuration} min
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-            
+
             {/* Show All Button */}
             {!isFiltering && remainingMeditations.length > 0 && (
-               <div className="flex justify-center pt-8">
+              <div className="flex justify-center pt-8">
                 <Button
                   onClick={() => setShowAllTypes(!showAllTypes)}
                   variant="ghost"
@@ -277,73 +275,72 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({ onStart, onCan
                   {showAllTypes ? 'Show Less' : `View All (${meditationTypes.length})`}
                   <svg className={`w-4 h-4 ml-2 transition-transform duration-300 ${showAllTypes ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </Button>
-               </div>
+              </div>
             )}
           </>
         )}
       </div>
 
       {/* Duration & Start Section */}
-      <div className="bg-background/40 backdrop-blur-xl rounded-3xl p-8 shadow-lg border border-white/10">
-        <div className="flex flex-col lg:flex-row gap-10 items-center">
-            {/* Duration Slider/Selector */}
-            <div className="flex-1 w-full space-y-6">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Session Duration</h3>
-                    <span className="text-2xl font-light text-primary">{customDuration} <span className="text-sm text-muted-foreground font-normal">min</span></span>
-                </div>
-                
-                {/* Duration Pills */}
-                <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                  {[5, 10, 15, 20, 30, 45, 60].map((minutes) => (
-                    <button
-                      key={minutes}
-                      onClick={() => setCustomDuration(minutes)}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                        customDuration === minutes
-                          ? 'bg-primary text-primary-foreground shadow-lg scale-110'
-                          : 'bg-background/50 hover:bg-primary/10 text-muted-foreground hover:text-primary'
-                      }`}
-                    >
-                      {minutes}
-                    </button>
-                  ))}
-                </div>
-                
-                {/* Manual Input Fallback */}
-                 <div className="flex items-center gap-4 pt-2">
-                    <label className="text-sm text-muted-foreground">Custom:</label>
-                    <input
-                        type="number"
-                        min={TIMER_SETTINGS.minDuration}
-                        max={TIMER_SETTINGS.maxDuration}
-                        value={customDuration}
-                        onChange={(e) => setCustomDuration(Number(e.target.value))}
-                        className="w-20 bg-transparent border-b border-border focus:border-primary text-center py-1 focus:outline-none"
-                    />
-                 </div>
+      <div className="bg-background/40 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/10 mb-24">
+        <div className="flex flex-col gap-6">
+          {/* Duration Slider/Selector */}
+          <div className="w-full space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Session Duration</h3>
+              <span className="text-2xl font-light text-primary">{customDuration} <span className="text-sm text-muted-foreground font-normal">min</span></span>
             </div>
 
-            {/* Start Action */}
-            <div className="w-full lg:w-auto flex flex-col gap-4 min-w-[250px]">
-                 <div className="flex items-center justify-between px-4 py-3 bg-background/30 rounded-xl">
-                    <span className="text-sm font-medium">Completion Bell</span>
-                    <button
-                        onClick={() => setTimerSoundEnabled(!timerSoundEnabled)}
-                        className={`w-10 h-5 rounded-full transition-colors relative ${timerSoundEnabled ? 'bg-primary' : 'bg-muted'}`}
-                    >
-                        <span className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${timerSoundEnabled ? 'translate-x-5' : ''}`} />
-                    </button>
-                 </div>
-
-                 <Button
-                    onClick={handleStart}
-                    size="lg"
-                    className="w-full h-14 text-lg rounded-xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-[1.02]"
-                 >
-                    Start Meditation
-                 </Button>
+            {/* Duration Pills - Horizontal Scroll for Mobile */}
+            <div className="flex overflow-x-auto pb-2 gap-3 no-scrollbar -mx-2 px-2">
+              {[5, 10, 15, 20, 30, 45, 60].map((minutes) => (
+                <button
+                  key={minutes}
+                  onClick={() => setCustomDuration(minutes)}
+                  className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${customDuration === minutes
+                      ? 'bg-primary text-primary-foreground shadow-lg scale-110'
+                      : 'bg-background/50 hover:bg-primary/10 text-muted-foreground hover:text-primary'
+                    }`}
+                >
+                  {minutes}
+                </button>
+              ))}
             </div>
+
+            {/* Manual Input Fallback */}
+            <div className="flex items-center gap-4 pt-2">
+              <label className="text-sm text-muted-foreground">Custom:</label>
+              <input
+                type="number"
+                min={TIMER_SETTINGS.minDuration}
+                max={TIMER_SETTINGS.maxDuration}
+                value={customDuration}
+                onChange={(e) => setCustomDuration(Number(e.target.value))}
+                className="w-20 bg-transparent border-b border-border focus:border-primary text-center py-1 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Start Action */}
+          <div className="w-full flex flex-col gap-4">
+            <div className="flex items-center justify-between px-4 py-3 bg-background/30 rounded-xl">
+              <span className="text-sm font-medium">Completion Bell</span>
+              <button
+                onClick={() => setTimerSoundEnabled(!timerSoundEnabled)}
+                className={`w-10 h-5 rounded-full transition-colors relative ${timerSoundEnabled ? 'bg-primary' : 'bg-muted'}`}
+              >
+                <span className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${timerSoundEnabled ? 'translate-x-5' : ''}`} />
+              </button>
+            </div>
+
+            <Button
+              onClick={handleStart}
+              size="lg"
+              className="w-full h-14 text-lg rounded-xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-[1.02]"
+            >
+              Start Meditation
+            </Button>
+          </div>
         </div>
       </div>
     </div>

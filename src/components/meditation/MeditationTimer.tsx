@@ -456,17 +456,23 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   const remaining = total - elapsed;
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto min-h-[60vh] animate-in fade-in zoom-in duration-1000">
+    <div className="flex flex-col items-center justify-between w-full max-w-md mx-auto h-[75vh] py-8 animate-in fade-in zoom-in duration-500">
 
-      {/* Timer Display Container */}
-      <div className="relative mb-12 group">
+      {/* Top Section: Session Info */}
+      <div className="text-center space-y-2 pt-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+          {meditationTypeName || (meditationType.charAt(0).toUpperCase() + meditationType.slice(1))}
+        </h2>
+        <p className="text-primary font-medium uppercase tracking-wider text-sm">
+          {isPaused ? 'Session Paused' : isRunning ? 'Focus' : 'Ready to Start'}
+        </p>
+      </div>
 
-        {/* Breathing Background Halo */}
-        <div className={`absolute inset-0 bg-primary/20 rounded-full blur-3xl transition-all duration-1000 ${isRunning && !isPaused ? 'animate-breathe scale-110' : 'scale-100 opacity-50'}`} />
-
-        <div className="relative w-72 h-72 sm:w-96 sm:h-96 flex items-center justify-center">
+      {/* Middle Section: Timer */}
+      <div className="relative flex items-center justify-center">
+        <div className="relative w-72 h-72 md:w-80 md:h-80 flex items-center justify-center">
           {/* Progress SVG */}
-          <svg className="w-full h-full transform -rotate-90 drop-shadow-2xl" viewBox="0 0 100 100">
+          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             {/* Track */}
             <circle
               cx="50"
@@ -474,8 +480,8 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
               r="45"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
-              className="text-muted-foreground/20"
+              strokeWidth="6"
+              className="text-white/10"
             />
             {/* Progress */}
             <circle
@@ -484,56 +490,38 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
               r="45"
               fill="none"
               stroke="currentColor"
-              strokeWidth="3"
+              strokeWidth="6"
               strokeDasharray={`${2 * Math.PI * 45}`}
               strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
               strokeLinecap="round"
-              className={`text-primary transition-all duration-1000 ease-linear ${isRunning && !isPaused ? 'opacity-100' : 'opacity-80'}`}
+              className="text-primary transition-all duration-500 ease-linear drop-shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"
             />
           </svg>
 
           {/* Center Content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10">
-            <div className="text-7xl sm:text-8xl font-thin tracking-tighter tabular-nums text-foreground drop-shadow-sm select-none">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <div className="text-7xl md:text-8xl font-bold tracking-tighter tabular-nums text-white select-none">
               {formatTime(remaining)}
-            </div>
-            <div className="mt-4 text-lg font-medium text-muted-foreground/80 tracking-wide uppercase">
-              {isPaused ? 'Paused' : isRunning ? 'Breathe' : 'Ready'}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Session Info (Subtle) */}
-      <div className="text-center mb-10 space-y-2">
-        <h2 className="text-2xl font-light text-foreground/90">
-          {meditationTypeName || (meditationType.charAt(0).toUpperCase() + meditationType.slice(1))}
-        </h2>
-        {isRunning && !isPaused && (
-          <div className="flex items-center justify-center gap-2 text-xs font-medium text-primary/60 uppercase tracking-widest animate-pulse">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-            Focus Mode Active
-          </div>
-        )}
-      </div>
-
-      {/* Controls - Minimalist */}
-      <div className="flex items-center gap-8">
+      {/* Bottom Section: Controls */}
+      <div className="flex items-center justify-center gap-8 pb-8">
         {!isRunning ? (
           <button
             onClick={startTimer}
-            className="group relative flex items-center justify-center w-20 h-20 rounded-full bg-primary text-primary-foreground shadow-2xl hover:scale-110 transition-all duration-300"
+            className="flex items-center justify-center w-20 h-20 rounded-full bg-primary text-primary-foreground shadow-xl hover:scale-105 transition-all active:scale-95"
           >
-            <div className="absolute inset-0 rounded-full bg-primary/50 blur-md group-hover:blur-xl transition-all" />
-            <svg className="w-8 h-8 relative z-10 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+            <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
           </button>
         ) : (
           <>
             {/* Stop Button */}
             <button
               onClick={stopTimer}
-              className="flex items-center justify-center w-14 h-14 rounded-full bg-muted/30 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 backdrop-blur-sm"
-              title="End Session"
+              className="flex items-center justify-center w-16 h-16 rounded-full bg-white/10 text-white backdrop-blur-md hover:bg-red-500/20 hover:text-red-500 transition-all active:scale-95"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z" /></svg>
             </button>
@@ -542,17 +530,16 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
             {isPaused ? (
               <button
                 onClick={resumeTimer}
-                className="group relative flex items-center justify-center w-20 h-20 rounded-full bg-primary text-primary-foreground shadow-2xl hover:scale-110 transition-all duration-300"
+                className="flex items-center justify-center w-24 h-24 rounded-full bg-primary text-primary-foreground shadow-2xl hover:scale-105 transition-all active:scale-95"
               >
-                <div className="absolute inset-0 rounded-full bg-primary/50 blur-md group-hover:blur-xl transition-all" />
-                <svg className="w-8 h-8 relative z-10 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                <svg className="w-10 h-10 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
               </button>
             ) : (
               <button
                 onClick={pauseTimer}
-                className="group relative flex items-center justify-center w-20 h-20 rounded-full bg-background/50 backdrop-blur-md border border-white/10 text-foreground shadow-xl hover:scale-110 transition-all duration-300"
+                className="flex items-center justify-center w-24 h-24 rounded-full bg-white text-black shadow-xl hover:scale-105 transition-all active:scale-95"
               >
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
               </button>
             )}
           </>
@@ -561,12 +548,10 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
       {/* Screen Awake Indicator */}
       {isRunning && !isPaused && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/40 font-medium">
-          Screen will stay awake
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white/30 font-medium uppercase tracking-widest">
+          Screen Awake
         </div>
       )}
     </div>
   );
 };
-
-
