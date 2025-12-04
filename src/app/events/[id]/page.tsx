@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { BottomNav } from '@/components/layout/BottomNav';
+import { BottomNav } from '@/components/app/BottomNav';
 import { EventService } from '@/lib/eventService';
 import { MeditationEvent, EventStats, EventParticipation } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
