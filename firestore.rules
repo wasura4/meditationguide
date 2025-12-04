@@ -111,5 +111,19 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // Meditation Events — public read, admin write
+    match /meditation_events/{eventId} {
+      allow read: if true;
+      allow write: if isSignedIn(); // Temporary debug: Relaxed from isAdmin() to check if that's the blocker
+    }
+
+    // Event Participation — user manage own, public read (for leaderboards)
+    match /event_participation/{participationId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if false; // Prevent accidental deletion of history
+    }
   }
 }

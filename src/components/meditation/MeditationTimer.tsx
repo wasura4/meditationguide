@@ -118,7 +118,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       duration: durationMinutes, // in minutes
       status,
       tags: [meditationType],
-      eventId: eventId,
+      ...(eventId && { eventId }), // Only include eventId if it exists
       createdAt: new Date(),
       updatedAt: new Date(),
     };
