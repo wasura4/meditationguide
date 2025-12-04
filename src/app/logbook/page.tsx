@@ -6,8 +6,6 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { MeditationService } from '@/lib/meditationService';
 import { MeditationSession } from '@/types';
-
-import { DEFAULT_MEDITATION_TYPES } from '@/constants';
 import { MeditationCalendar } from '@/components/logbook/MeditationCalendar';
 import { DateSessions } from '@/components/logbook/DateSessions';
 import { isSameDay } from 'date-fns';
@@ -154,6 +152,20 @@ export default function LogbookPage() {
       handlePageChange(currentPage + 1);
     }
   };
+
+  // Get unique meditation types from sessions
+  const uniqueMeditationTypes = useMemo(() => {
+    const typesMap = new Map<string, { id: string; name: string }>();
+    sessions.forEach(session => {
+      if (!typesMap.has(session.typeId)) {
+        typesMap.set(session.typeId, {
+          id: session.typeId,
+          name: session.typeName
+        });
+      }
+    });
+    return Array.from(typesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [sessions]);
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -374,7 +386,7 @@ export default function LogbookPage() {
                 >
                   All Types
                 </button>
-                {DEFAULT_MEDITATION_TYPES.map(type => (
+                {uniqueMeditationTypes.map(type => (
                   <button
                     key={type.id}
                     onClick={() => setSelectedType(type.id)}

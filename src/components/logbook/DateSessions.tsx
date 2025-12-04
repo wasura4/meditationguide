@@ -30,89 +30,58 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
   const abandonedSessions = sessions.filter(s => s.status === 'abandoned').length;
 
   return (
-    <div className="bg-background rounded-xl p-6 shadow-lg border border-border">
-      {/* Date Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">{format(date, 'EEEE, MMMM dd, yyyy')}</h3>
-          <p className="text-sm text-muted-foreground">{sessions.length} session{sessions.length !== 1 ? 's' : ''} • {totalMinutes} total minutes</p>
+    <>
+      <div className="bg-background rounded-xl p-6 shadow-lg border border-border">
+        {/* Date Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">{format(date, 'EEEE, MMMM dd, yyyy')}</h3>
+            <p className="text-sm text-muted-foreground">{sessions.length} session{sessions.length !== 1 ? 's' : ''} • {totalMinutes} total minutes</p>
+          </div>
+
+          {/* Daily Stats */}
+          <div className="flex space-x-4">
+            <div className="text-center">
+              <div className="text-lg font-bold text-[var(--primary)]">{completedSessions}</div>
+              <div className="text-xs text-muted-foreground">Completed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-red-600">{abandonedSessions}</div>
+              <div className="text-xs text-muted-foreground">Abandoned</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-[var(--primary)]">{totalMinutes}</div>
+              <div className="text-xs text-muted-foreground">Minutes</div>
+            </div>
+          </div>
         </div>
 
-        {/* Daily Stats */}
-        <div className="flex space-x-4">
-          <div className="text-center">
-            <div className="text-lg font-bold text-[var(--primary)]">{completedSessions}</div>
-            <div className="text-xs text-muted-foreground">Completed</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-red-600">{abandonedSessions}</div>
-            <div className="text-xs text-muted-foreground">Abandoned</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-[var(--primary)]">{totalMinutes}</div>
-            <div className="text-xs text-muted-foreground">Minutes</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sessions List */}
-      <div className="space-y-4">
-        {sessions.map((session) => (
-          <div
-            key={session.id}
-            className="border border-border rounded-lg p-4 hover:bg-muted/60 transition-colors cursor-pointer"
-            onClick={() => setOpenSession(session)}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                {/* Session Header */}
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-3">
-                    <h4 className="text-lg font-medium text-foreground">{session.typeName}</h4>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${session.status === 'completed'
-                        ? 'bg-muted text-foreground'
-                        : session.status === 'abandoned'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                      {session.status}
-                    </span>
-                  </div>
-
-                  {openSession && (
-                    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-6" onClick={() => setOpenSession(null)}>
-                      <div className="w-full sm:max-w-lg bg-background text-foreground rounded-t-2xl sm:rounded-2xl shadow-xl border border-border" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-4 border-b border-border flex items-center justify-between">
-                          <div>
-                            <div className="text-sm text-muted-foreground">{format(openSession.startTime, 'PPpp')}</div>
-                            <div className="text-lg font-semibold">{openSession.typeName}</div>
-                          </div>
-                          <Button variant="ghost" size="sm" onClick={() => setOpenSession(null)}>Close</Button>
-                        </div>
-                        <div className="p-4 space-y-3">
-                          <div className="text-sm"><span className="text-muted-foreground">Duration:</span><span className="ml-2 font-medium">{openSession.duration} minutes</span></div>
-                          <div className="text-sm"><span className="text-muted-foreground">Started:</span><span className="ml-2 font-medium">{format(openSession.startTime, 'PPpp')}</span></div>
-                          {openSession.endTime && (<div className="text-sm"><span className="text-muted-foreground">Completed:</span><span className="ml-2 font-medium">{format(openSession.endTime, 'PPpp')}</span></div>)}
-                          {openSession.rating && (
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Rating:</span>
-                              <span className="ml-2">{openSession.rating}/5</span>
-                            </div>
-                          )}
-                          {openSession.mood && (<div className="text-sm"><span className="text-muted-foreground">Mood:</span><span className="ml-2 capitalize">{openSession.mood}</span></div>)}
-                          {openSession.notes && (
-                            <div className="pt-3 border-t border-border">
-                              <div className="text-sm text-muted-foreground mb-1">Notes</div>
-                              <p className="text-[15px] leading-relaxed break-words">{openSession.notes}</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+        {/* Sessions List */}
+        <div className="space-y-4">
+          {sessions.map((session) => (
+            <div
+              key={session.id}
+              className="border border-border rounded-lg p-4 hover:bg-muted/60 transition-colors cursor-pointer"
+              onClick={() => setOpenSession(session)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  {/* Session Header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <h4 className="text-lg font-medium text-foreground">{session.typeName}</h4>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${session.status === 'completed'
+                          ? 'bg-muted text-foreground'
+                          : session.status === 'abandoned'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-amber-100 text-amber-700'
+                        }`}>
+                        {session.status}
+                      </span>
                     </div>
-                  )}
 
-                  <div className="flex items-center space-x-2" />
-                </div>
+                    <div className="flex items-center space-x-2" />
+                  </div>
 
                 {/* Session Details */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3 text-sm">
@@ -161,5 +130,39 @@ export const DateSessions: React.FC<DateSessionsProps> = ({ date, sessions, onDe
         ))}
       </div>
     </div>
+
+    {/* Session Details Modal */}
+    {openSession && (
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-6 pb-[80px]" onClick={() => setOpenSession(null)}>
+        <div className="w-full sm:max-w-lg bg-background text-foreground rounded-t-2xl sm:rounded-2xl shadow-xl border border-border" onClick={(e) => e.stopPropagation()}>
+          <div className="p-4 border-b border-border flex items-center justify-between">
+            <div>
+              <div className="text-sm text-muted-foreground">{format(openSession.startTime, 'PPpp')}</div>
+              <div className="text-lg font-semibold">{openSession.typeName}</div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setOpenSession(null)}>Close</Button>
+          </div>
+          <div className="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+            <div className="text-sm"><span className="text-muted-foreground">Duration:</span><span className="ml-2 font-medium">{openSession.duration} minutes</span></div>
+            <div className="text-sm"><span className="text-muted-foreground">Started:</span><span className="ml-2 font-medium">{format(openSession.startTime, 'PPpp')}</span></div>
+            {openSession.endTime && (<div className="text-sm"><span className="text-muted-foreground">Completed:</span><span className="ml-2 font-medium">{format(openSession.endTime, 'PPpp')}</span></div>)}
+            {openSession.rating && (
+              <div className="text-sm">
+                <span className="text-muted-foreground">Rating:</span>
+                <span className="ml-2">{openSession.rating}/5 ⭐</span>
+              </div>
+            )}
+            {openSession.mood && (<div className="text-sm"><span className="text-muted-foreground">Mood:</span><span className="ml-2 capitalize">{openSession.mood}</span></div>)}
+            {openSession.notes && (
+              <div className="pt-3 border-t border-border">
+                <div className="text-sm text-muted-foreground mb-1">Notes</div>
+                <p className="text-[15px] leading-relaxed break-words">{openSession.notes}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 };
