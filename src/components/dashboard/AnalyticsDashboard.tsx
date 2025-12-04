@@ -11,6 +11,8 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area
 } from 'recharts';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { Activity, Clock, Calendar, Trophy, TrendingUp, BarChart2, PieChart as PieChartIcon } from 'lucide-react';
 
 interface AnalyticsData {
   totalSessions: number;
@@ -162,7 +164,7 @@ export const AnalyticsDashboard: React.FC = () => {
       weeklyMinutes,
       monthlyMinutes,
     };
-  }, [sessions]);
+  }, [sessions, meditationTypes]);
 
   // Generate chart data for selected time range
   const chartData = useMemo((): ChartData[] => {
@@ -287,14 +289,14 @@ export const AnalyticsDashboard: React.FC = () => {
   }, [sessions]);
 
   // Chart colors
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1'];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-96">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading analytics...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading analytics...</p>
         </div>
       </div>
     );
@@ -302,8 +304,8 @@ export const AnalyticsDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+      <div className="text-center py-12">
+        <p className="text-red-500 mb-4">{error}</p>
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
     );
@@ -311,302 +313,282 @@ export const AnalyticsDashboard: React.FC = () => {
 
   if (sessions.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">🧘‍♀️</div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+      <div className="text-center py-20">
+        <div className="text-6xl mb-6">🧘‍♀️</div>
+        <h3 className="text-xl font-bold text-foreground mb-2">
           No meditation sessions yet
         </h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Start your meditation journey to see beautiful analytics and insights!
+        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+          Start your meditation journey to see beautiful analytics and insights about your practice!
         </p>
-        <Button variant="meditation" size="lg">
+        <Button variant="default" size="lg" className="rounded-full px-8">
           Start Meditating
         </Button>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Meditation Analytics
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Track your progress and discover insights about your practice
-        </p>
-      </div>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8"
+    >
       {/* Time Range Filter */}
-      <div className="flex justify-center space-x-2">
-        {(['7d', '30d', '90d', 'all'] as const).map((range) => (
-          <Button
-            key={range}
-            variant={timeRange === range ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setTimeRange(range)}
-          >
-            {range === '7d' ? '7 Days' : 
-             range === '30d' ? '30 Days' : 
-             range === '90d' ? '90 Days' : 'All Time'}
-          </Button>
-        ))}
+      <div className="flex justify-center">
+        <div className="bg-muted/50 p-1 rounded-full inline-flex">
+          {(['7d', '30d', '90d', 'all'] as const).map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimeRange(range)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${timeRange === range
+                  ? 'bg-background text-primary shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+              {range === '7d' ? '7 Days' :
+                range === '30d' ? '30 Days' :
+                  range === '90d' ? '90 Days' : 'All Time'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <div className="flex items-center">
-            <div className="p-2 bg-muted dark:bg-blue-900 rounded-lg">
-              <svg className="w-6 h-6 text-[var(--primary)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Sessions</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.totalSessions}</p>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div variants={itemVariants} className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-3xl p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Activity size={80} />
           </div>
-        </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 text-blue-500 mb-2">
+              <Activity size={18} />
+              <span className="text-xs font-bold uppercase tracking-wider">Total Sessions</span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">{analyticsData.totalSessions}</p>
+            <p className="text-sm text-muted-foreground mt-1">Lifetime sessions</p>
+          </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <div className="flex items-center">
-            <div className="p-2 bg-muted dark:bg-green-900 rounded-lg">
-              <svg className="w-6 h-6 text-[var(--primary)] dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Minutes</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.totalMinutes}</p>
-            </div>
+        <motion.div variants={itemVariants} className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-3xl p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Clock size={80} />
           </div>
-        </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 text-emerald-500 mb-2">
+              <Clock size={18} />
+              <span className="text-xs font-bold uppercase tracking-wider">Total Minutes</span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">{analyticsData.totalMinutes}</p>
+            <p className="text-sm text-muted-foreground mt-1">Time spent meditating</p>
+          </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <div className="flex items-center">
-            <div className="p-2 bg-muted dark:bg-purple-900 rounded-lg">
-              <svg className="w-6 h-6 text-[var(--primary)] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Duration</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.averageSessionLength}m</p>
-            </div>
+        <motion.div variants={itemVariants} className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 rounded-3xl p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <TrendingUp size={80} />
           </div>
-        </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 text-purple-500 mb-2">
+              <TrendingUp size={18} />
+              <span className="text-xs font-bold uppercase tracking-wider">Avg Duration</span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">{analyticsData.averageSessionLength}m</p>
+            <p className="text-sm text-muted-foreground mt-1">Per session</p>
+          </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <div className="flex items-center">
-            <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Current Streak</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.currentStreak} days</p>
-            </div>
+        <motion.div variants={itemVariants} className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20 rounded-3xl p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Trophy size={80} />
           </div>
-        </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 text-amber-500 mb-2">
+              <Trophy size={18} />
+              <span className="text-xs font-bold uppercase tracking-wider">Current Streak</span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">{analyticsData.currentStreak} days</p>
+            <p className="text-sm text-muted-foreground mt-1">Keep it up!</p>
+          </div>
+        </motion.div>
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Daily Minutes Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Daily Meditation Minutes
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9CA3AF" />
-              <YAxis stroke="#9CA3AF" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1F2937', 
-                  border: 'none', 
-                  borderRadius: '8px',
-                  color: '#F9FAFB'
-                }}
-              />
-              <Area type="monotone" dataKey="minutes" stroke="#6b9e7a" fill="#6b9e7a22" strokeWidth={3} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+        <motion.div variants={itemVariants} className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+              <BarChart2 size={20} />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">Daily Minutes</h3>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorMinutes" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(255,255,255,0.3)"
+                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                  dy={10}
+                />
+                <YAxis
+                  stroke="rgba(255,255,255,0.3)"
+                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                  dx={-10}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(20, 20, 20, 0.9)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    color: '#fff',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                  }}
+                  itemStyle={{ color: '#10b981' }}
+                  cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="minutes"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorMinutes)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
 
         {/* Meditation Type Distribution */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Meditation Type Distribution
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={typeDistribution}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ type, sessions }) => `${type} (${sessions})`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="sessions"
-              >
-                {typeDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1F2937', 
-                  border: 'none', 
-                  borderRadius: '8px',
-                  color: '#F9FAFB'
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+        <motion.div variants={itemVariants} className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+              <PieChartIcon size={20} />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">Type Distribution</h3>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={typeDistribution}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={5}
+                  dataKey="sessions"
+                  stroke="none"
+                >
+                  {typeDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(20, 20, 20, 0.9)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    color: '#fff',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 mt-4">
+            {typeDistribution.slice(0, 4).map((entry, index) => (
+              <div key={index} className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                <span className="text-xs text-muted-foreground">{entry.type}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
 
-      {/* Additional Stats */}
+      {/* Additional Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Weekly Progress</h4>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-[var(--primary)] dark:text-blue-400 mb-2">
-              {analyticsData.weeklyMinutes}
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">minutes this week</p>
-          </div>
-        </div>
+        <motion.div variants={itemVariants} className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl text-center">
+          <p className="text-sm text-muted-foreground mb-2">Weekly Progress</p>
+          <div className="text-4xl font-bold text-primary mb-1">{analyticsData.weeklyMinutes}</div>
+          <p className="text-xs text-muted-foreground">minutes this week</p>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Progress</h4>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-[var(--primary)] dark:text-green-400 mb-2">
-              {analyticsData.monthlyMinutes}
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">minutes this month</p>
-          </div>
-        </div>
+        <motion.div variants={itemVariants} className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl text-center">
+          <p className="text-sm text-muted-foreground mb-2">Monthly Progress</p>
+          <div className="text-4xl font-bold text-emerald-500 mb-1">{analyticsData.monthlyMinutes}</div>
+          <p className="text-xs text-muted-foreground">minutes this month</p>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Longest Streak</h4>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-[var(--primary)] dark:text-purple-400 mb-2">
-              {analyticsData.longestStreak}
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">consecutive days</p>
-          </div>
-        </div>
+        <motion.div variants={itemVariants} className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl text-center">
+          <p className="text-sm text-muted-foreground mb-2">Longest Streak</p>
+          <div className="text-4xl font-bold text-amber-500 mb-1">{analyticsData.longestStreak}</div>
+          <p className="text-xs text-muted-foreground">consecutive days</p>
+        </motion.div>
       </div>
 
-      {/* Completion split */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Completion split</h3>
-        <ResponsiveContainer width="100%" height={280}>
-          <PieChart>
-            <Pie data={completionSplit} cx="50%" cy="50%" outerRadius={90} dataKey="value" label>
-              {completionSplit.map((entry, index) => (
-                <Cell key={`cs-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Minutes by weekday */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Minutes by weekday</h3>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={minutesByWeekday}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="day" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" />
-            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
-            <Bar dataKey="minutes" fill="#6b9e7a" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Minutes by hour */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Minutes by hour</h3>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={minutesByHour}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="hour" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" />
-            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
-            <Bar dataKey="minutes" fill="#6b9e7a" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Monthly minutes last 12 months */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly minutes (last 12 months)</h3>
-        <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={monthsTrend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="key" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" />
-            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
-            <Area dataKey="minutes" stroke="#6b9e7a" fill="#6b9e7a22" />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Session length distribution */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Session length distribution</h3>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={lengthDistribution}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="range" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" />
-            <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: 8, color: '#F9FAFB' }} />
-            <Bar dataKey="count" fill="#6b9e7a" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
       {/* Recent Activity */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Recent Activity
-        </h3>
-        <div className="space-y-3">
-          {sessions.slice(0, 5).map((session) => (
-            <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+      <motion.div variants={itemVariants} className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+            <Calendar size={20} />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">Recent Activity</h3>
+        </div>
+        <div className="space-y-4">
+          {sessions.slice(0, 5).map((session, index) => (
+            <div key={session.id} className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors border border-white/5">
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${session.status === 'completed' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'
+                  }`}>
+                  {session.status === 'completed' ? <Activity size={18} /> : <Clock size={18} />}
+                </div>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {session.typeName} Meditation
+                  <p className="font-medium text-foreground">
+                    {session.typeName}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {format(session.createdAt, 'MMM dd, yyyy')} • {session.duration} minutes
+                  <p className="text-xs text-muted-foreground">
+                    {format(session.createdAt, 'MMM dd, yyyy • h:mm a')}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {session.status === 'completed' ? '✅' : '⏹️'}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {session.status}
-                </p>
+                <span className="text-sm font-bold text-foreground">{session.duration}m</span>
               </div>
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
-
