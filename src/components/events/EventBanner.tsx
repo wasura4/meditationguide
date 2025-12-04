@@ -16,10 +16,13 @@ export const EventBanner: React.FC = () => {
   useEffect(() => {
     const loadActiveEvents = async () => {
       try {
+        console.log('[EventBanner] Loading active events...');
         const events = await EventService.getActiveEvents();
+        console.log('[EventBanner] Active events loaded:', events);
+        console.log('[EventBanner] Number of active events:', events.length);
         setActiveEvents(events);
       } catch (error) {
-        console.error('Error loading active events:', error);
+        console.error('[EventBanner] Error loading active events:', error);
       } finally {
         setLoading(false);
       }

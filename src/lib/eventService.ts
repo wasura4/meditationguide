@@ -156,6 +156,9 @@ export class EventService {
       const now = Timestamp.now();
       const eventsRef = collection(db, EVENTS_COLLECTION);
 
+      console.log('[EventService] Fetching active events...');
+      console.log('[EventService] Current date:', now.toDate());
+
       // Get all events and filter client-side for date range
       const q = query(
         eventsRef,
@@ -164,6 +167,8 @@ export class EventService {
       );
 
       const querySnapshot = await getDocs(q);
+      console.log('[EventService] Found events with isActive=true:', querySnapshot.size);
+
       const allEvents = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -176,11 +181,25 @@ export class EventService {
         } as MeditationEvent;
       });
 
+      console.log('[EventService] All isActive events:', allEvents);
+
       // Filter for active date range
       const currentDate = now.toDate();
-      return allEvents.filter(
-        (event) => event.startDate <= currentDate && event.endDate >= currentDate
+      const activeEvents = allEvents.filter(
+        (event) => {
+          const isActive = event.startDate <= currentDate && event.endDate >= currentDate;
+          console.log(`[EventService] Event "${event.title}":`, {
+            startDate: event.startDate,
+            endDate: event.endDate,
+            currentDate,
+            isActive
+          });
+          return isActive;
+        }
       );
+
+      console.log('[EventService] Filtered active events:', activeEvents.length);
+      return activeEvents;
     } catch (error) {
       console.error('Error getting active events:', error);
       throw error;
