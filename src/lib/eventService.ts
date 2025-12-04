@@ -27,13 +27,26 @@ export class EventService {
       const eventsRef = collection(db, EVENTS_COLLECTION);
       const now = Timestamp.now();
 
-      const docRef = await addDoc(eventsRef, {
-        ...eventData,
+      // Remove undefined fields to avoid Firestore errors
+      const cleanedData: Record<string, unknown> = {
+        title: eventData.title,
+        description: eventData.description,
         startDate: Timestamp.fromDate(eventData.startDate),
         endDate: Timestamp.fromDate(eventData.endDate),
+        isActive: eventData.isActive,
+        createdBy: eventData.createdBy,
         createdAt: now,
         updatedAt: now,
-      });
+      };
+
+      // Only add optional fields if they have values
+      if (eventData.titleEn) cleanedData.titleEn = eventData.titleEn;
+      if (eventData.descriptionEn) cleanedData.descriptionEn = eventData.descriptionEn;
+      if (eventData.meditationType) cleanedData.meditationType = eventData.meditationType;
+      if (eventData.bannerImageUrl) cleanedData.bannerImageUrl = eventData.bannerImageUrl;
+      if (eventData.goalMinutes !== undefined) cleanedData.goalMinutes = eventData.goalMinutes;
+
+      const docRef = await addDoc(eventsRef, cleanedData);
 
       return docRef.id;
     } catch (error) {
@@ -50,9 +63,18 @@ export class EventService {
     try {
       const eventRef = doc(db, EVENTS_COLLECTION, eventId);
       const updateData: Record<string, unknown> = {
-        ...updates,
         updatedAt: Timestamp.now(),
       };
+
+      // Only include fields that are not undefined
+      if (updates.title !== undefined) updateData.title = updates.title;
+      if (updates.titleEn !== undefined) updateData.titleEn = updates.titleEn;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.descriptionEn !== undefined) updateData.descriptionEn = updates.descriptionEn;
+      if (updates.meditationType !== undefined) updateData.meditationType = updates.meditationType;
+      if (updates.isActive !== undefined) updateData.isActive = updates.isActive;
+      if (updates.bannerImageUrl !== undefined) updateData.bannerImageUrl = updates.bannerImageUrl;
+      if (updates.goalMinutes !== undefined) updateData.goalMinutes = updates.goalMinutes;
 
       if (updates.startDate) {
         updateData.startDate = Timestamp.fromDate(updates.startDate);

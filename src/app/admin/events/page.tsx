@@ -43,16 +43,25 @@ export default function AdminEventsPage() {
 
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!adminUser) return;
+    if (!adminUser) {
+      console.error('No admin user found');
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Admin user not authenticated',
+        duration: 5000,
+      });
+      return;
+    }
 
     const formData = new FormData(e.currentTarget);
 
     try {
       const eventData = {
         title: formData.get('title') as string,
-        titleEn: formData.get('titleEn') as string,
+        titleEn: (formData.get('titleEn') as string) || '',
         description: formData.get('description') as string,
-        descriptionEn: formData.get('descriptionEn') as string,
+        descriptionEn: (formData.get('descriptionEn') as string) || '',
         meditationType: (formData.get('meditationType') as string) || undefined,
         startDate: new Date(formData.get('startDate') as string),
         endDate: new Date(formData.get('endDate') as string),
@@ -63,7 +72,10 @@ export default function AdminEventsPage() {
         createdBy: adminUser.id,
       };
 
+      console.log('Creating event with data:', eventData);
       await EventService.createEvent(eventData);
+      console.log('Event created successfully');
+
       showToast({
         type: 'success',
         title: 'Success',
@@ -75,10 +87,11 @@ export default function AdminEventsPage() {
       (e.target as HTMLFormElement).reset();
     } catch (error) {
       console.error('Error creating event:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showToast({
         type: 'error',
         title: 'Error',
-        message: 'Failed to create event',
+        message: `Failed to create event: ${errorMessage}`,
         duration: 5000,
       });
     }
