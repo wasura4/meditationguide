@@ -34,7 +34,9 @@ export function GlobalMiniPlayer() {
   };
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (info.offset.y > 100) {
+    // Lower threshold for easier dismissal (was 100)
+    // Also check velocity to allow "flick" to dismiss
+    if (info.offset.y > 50 || info.velocity.y > 200) {
       setIsExpanded(false);
     }
   };
@@ -51,10 +53,16 @@ export function GlobalMiniPlayer() {
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           drag="y"
           dragConstraints={{ top: 0, bottom: 0 }}
-          dragElastic={{ top: 0, bottom: 0.2 }}
+          dragElastic={{ top: 0, bottom: 0.1 }}
+          dragMomentum={false}
           onDragEnd={handleDragEnd}
           className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-3xl flex flex-col safe-area-inset-bottom"
         >
+          {/* Drag Handle */}
+          <div className="w-full flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing" onClick={() => setIsExpanded(false)}>
+            <div className="w-16 h-1.5 bg-muted/50 rounded-full" />
+          </div>
+
           {/* Header */}
           <div className="flex items-center justify-between p-6 pt-12">
             <button
