@@ -1,271 +1,213 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { usePlayer } from '@/contexts/PlayerContext';
-import { Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, X } from 'lucide-react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import {
+  Play, Pause, SkipBack, SkipForward, X,
+  Maximize2, Volume2, VolumeX, ChevronDown,
+  Repeat, Shuffle
+} from 'lucide-react';
 
 const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 export function GlobalMiniPlayer() {
   const p = usePlayer();
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
-  const [hoverTime, setHoverTime] = useState<number | null>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
 
-  // Handle progress bar hover for preview - MUST be before early return
-  const handleProgressHover = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressBarRef.current) return;
-    const rect = progressBarRef.current.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    const time = percent * p.duration;
-    setHoverTime(time);
-  }, [p.duration]);
-
-  const handleProgressLeave = useCallback(() => {
-    setHoverTime(null);
-  }, []);
+  // Close player when track ends or stopped
+  useEffect(() => {
+    if (!p.guide) setIsExpanded(false);
+  }, [p.guide]);
 
   if (!p.guide) return null;
 
   const track = p.guide.audioFiles[p.index];
   const progress = (p.currentTime / (p.duration || 1)) * 100;
 
-  const verticalSliderStyle = {
-    writingMode: 'bt-lr',
-    WebkitAppearance: 'slider-vertical',
-    appearance: 'slider-vertical',
-  } as unknown as React.CSSProperties;
-
-  const format = (t: number) => {
+  const formatTime = (t: number) => {
     const m = Math.floor(t / 60);
     const s = Math.floor(t % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
 
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (info.offset.y > 100) {
+      setIsExpanded(false);
+    }
+  };
+
   return (
-    <div className="fixed bottom-16 lg:bottom-0 inset-x-0 z-50 bg-gradient-to-t from-background via-background/98 to-background/95 backdrop-blur-xl border-t border-border/40 shadow-[0_-2px_16px_rgba(0,0,0,0.06)] dark:shadow-[0_-2px_24px_rgba(0,0,0,0.25)] pb-[max(0px,env(safe-area-inset-bottom))]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
-        {/* Track Title & Guide Name */}
-        <div className="text-center mb-3">
-          <h3 className="text-base sm:text-lg font-bold text-foreground mb-0.5 truncate px-4">
-            {track?.title || 'Untitled'}
-          </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground/80">
-            {p.guide.name} • Track {p.index + 1}/{p.guide.audioFiles.length}
-          </p>
-        </div>
+    <AnimatePresence mode="wait">
+      {isExpanded ? (
+        // FULL SCREEN PLAYER
+        <motion.div
+          key="fullscreen"
+          initial={{ opacity: 0, y: '100%' }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: '100%' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={{ top: 0, bottom: 0.2 }}
+          onDragEnd={handleDragEnd}
+          className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-3xl flex flex-col safe-area-inset-bottom"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 pt-12">
+            <button
+              onClick={() => setIsExpanded(false)}
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+            >
+              <ChevronDown className="w-8 h-8 text-foreground" />
+            </button>
+            <span className="text-sm font-medium tracking-widest uppercase text-muted-foreground">
+              Now Playing
+            </span>
+            <button
+              onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+              className="px-3 py-1 rounded-full border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"
+            >
+              {p.playbackSpeed}x
+            </button>
+          </div>
 
-        {/* Progress Bar with Time & Speed */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-1.5 px-1">
-            <span className="text-xs font-mono text-muted-foreground">{format(p.currentTime)}</span>
+          {/* Speed Menu Overlay */}
+          {showSpeedMenu && (
+            <div className="absolute top-20 right-6 z-50 bg-popover/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 w-24">
+              {PLAYBACK_SPEEDS.map(speed => (
+                <button
+                  key={speed}
+                  onClick={() => { p.setSpeed(speed); setShowSpeedMenu(false); }}
+                  className={`px-3 py-2 rounded-xl text-sm transition-colors ${p.playbackSpeed === speed ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10'
+                    }`}
+                >
+                  {speed}x
+                </button>
+              ))}
+            </div>
+          )}
 
-            {/* Playback Speed */}
-            <div className="relative">
-              <button
-                onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                className="px-2 py-0.5 rounded text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors"
-                aria-label="Playback speed"
-              >
-                {p.playbackSpeed}x
-              </button>
-              {showSpeedMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowSpeedMenu(false)}
-                  />
-                  <div className="absolute bottom-full right-0 mb-1 bg-popover backdrop-blur-xl border border-border rounded-lg shadow-xl py-1 min-w-[72px] z-50 animate-in fade-in duration-100">
-                    {PLAYBACK_SPEEDS.map((speed) => (
-                      <button
-                        key={speed}
-                        onClick={() => {
-                          p.setSpeed(speed);
-                          setShowSpeedMenu(false);
-                        }}
-                        className={`w-full px-3 py-1.5 text-xs hover:bg-accent/60 text-left transition-colors ${
-                          speed === p.playbackSpeed ? 'bg-accent/80 font-semibold text-primary' : 'text-foreground'
-                        }`}
-                      >
-                        {speed}x
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col items-center justify-center px-8 pb-12">
+            {/* Album Art Placeholder */}
+            <motion.div
+              className="w-64 h-64 sm:w-80 sm:h-80 rounded-3xl bg-gradient-to-br from-primary/20 to-purple-500/20 shadow-[0_0_50px_rgba(var(--primary-rgb),0.2)] mb-12 flex items-center justify-center relative overflow-hidden"
+              animate={{ scale: p.isPlaying ? 1 : 0.95 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10" />
+              <div className="w-32 h-32 rounded-full bg-primary/10 animate-pulse" />
+            </motion.div>
+
+            {/* Track Info */}
+            <div className="text-center mb-8 w-full">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 truncate">
+                {track?.title || 'Untitled'}
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                {p.guide.name}
+              </p>
             </div>
 
-            <span className="text-xs font-mono text-muted-foreground">{format(p.duration)}</span>
-          </div>
+            {/* Progress Bar */}
+            <div className="w-full mb-8 group">
+              <div
+                className="relative h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const percent = (e.clientX - rect.left) / rect.width;
+                  p.seek(percent * (p.duration || 1));
+                }}
+              >
+                <motion.div
+                  className="absolute h-full bg-primary rounded-full"
+                  style={{ width: `${progress}%` }}
+                  layoutId="progressBar"
+                />
+              </div>
+              <div className="flex justify-between mt-2 text-xs font-medium text-muted-foreground">
+                <span>{formatTime(p.currentTime)}</span>
+                <span>{formatTime(p.duration)}</span>
+              </div>
+            </div>
 
-          {/* Progress Bar */}
+            {/* Controls */}
+            <div className="flex items-center justify-between w-full max-w-xs">
+              <button onClick={() => p.skip(-10)} className="p-3 rounded-full hover:bg-white/5 transition-colors text-muted-foreground hover:text-foreground">
+                <SkipBack className="w-8 h-8" />
+              </button>
+
+              <button
+                onClick={p.toggle}
+                className="w-20 h-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all"
+              >
+                {p.isPlaying ? (
+                  <Pause className="w-8 h-8 fill-current" />
+                ) : (
+                  <Play className="w-8 h-8 fill-current ml-1" />
+                )}
+              </button>
+
+              <button onClick={() => p.skip(10)} className="p-3 rounded-full hover:bg-white/5 transition-colors text-muted-foreground hover:text-foreground">
+                <SkipForward className="w-8 h-8" />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      ) : (
+        // MINI PLAYER
+        <motion.div
+          key="mini"
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          className="fixed bottom-[90px] inset-x-4 z-40 lg:bottom-4 lg:right-4 lg:left-auto lg:w-96"
+        >
           <div
-            ref={progressBarRef}
-            className="relative h-2 bg-muted/50 rounded-full overflow-hidden group cursor-pointer"
-            onMouseMove={handleProgressHover}
-            onMouseLeave={handleProgressLeave}
+            onClick={() => setIsExpanded(true)}
+            className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center gap-4 cursor-pointer hover:bg-background/90 transition-colors"
           >
-            <div
-              className="absolute h-full bg-primary transition-all duration-150 ease-out rounded-full"
-              style={{ width: `${progress}%` }}
-            />
-            {hoverTime !== null && (
-              <div
-                className="absolute top-0 w-0.5 h-full bg-foreground/50"
-                style={{ left: `${(hoverTime / (p.duration || 1)) * 100}%` }}
+            {/* Mini Art */}
+            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <div className={`w-2 h-2 rounded-full bg-primary ${p.isPlaying ? 'animate-ping' : ''}`} />
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-sm truncate">{track?.title || 'Untitled'}</h4>
+              <p className="text-xs text-muted-foreground truncate">{p.guide.name}</p>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+              <button
+                onClick={p.toggle}
+                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
+              >
+                {p.isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
+              </button>
+              <button
+                onClick={p.stop}
+                className="w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Progress Bar Background */}
+            <div className="absolute bottom-0 left-3 right-3 h-[2px] bg-white/5 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-primary"
+                style={{ width: `${progress}%` }}
+                layoutId="progressBar"
               />
-            )}
-            <input
-              type="range"
-              min={0}
-              max={p.duration || 0}
-              value={p.currentTime}
-              onChange={(e) => p.seek(parseFloat(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              aria-label="Seek"
-            />
-            {hoverTime !== null && (
-              <div
-                className="absolute -top-7 bg-popover/95 backdrop-blur-sm border border-border px-2 py-0.5 rounded text-xs font-mono shadow-lg pointer-events-none z-20"
-                style={{ left: `${(hoverTime / (p.duration || 1)) * 100}%`, transform: 'translateX(-50%)' }}
-              >
-                {format(hoverTime)}
-              </div>
-            )}
+            </div>
           </div>
-        </div>
-
-        {/* Control Buttons */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3">
-          {/* Skip -30s - Desktop only */}
-          <button
-            onClick={() => p.skip(-30)}
-            className="hidden sm:flex w-9 h-9 rounded-lg hover:bg-accent/50 active:bg-accent transition-all items-center justify-center group"
-            title="Skip backward 30 seconds"
-            aria-label="Skip backward 30 seconds"
-          >
-            <svg className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
-            </svg>
-          </button>
-
-          {/* Skip -10s */}
-          <button
-            onClick={() => p.skip(-10)}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg hover:bg-accent/50 active:bg-accent transition-all flex items-center justify-center group"
-            title="Skip backward 10 seconds"
-            aria-label="Skip backward 10 seconds"
-          >
-            <svg className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
-            </svg>
-          </button>
-
-          {/* Previous */}
-          <button
-            onClick={p.prev}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg hover:bg-accent/50 active:bg-accent transition-all flex items-center justify-center group"
-            aria-label="Previous track"
-          >
-            <SkipBack className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </button>
-
-          {/* Play/Pause */}
-          <button
-            onClick={p.toggle}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
-            aria-label={p.isPlaying ? 'Pause' : 'Play'}
-          >
-            {p.isPlaying ? (
-              <Pause className="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" />
-            ) : (
-              <Play className="w-6 h-6 sm:w-7 sm:h-7 ml-0.5" fill="currentColor" />
-            )}
-          </button>
-
-          {/* Next */}
-          <button
-            onClick={p.next}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg hover:bg-accent/50 active:bg-accent transition-all flex items-center justify-center group"
-            aria-label="Next track"
-          >
-            <SkipForward className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </button>
-
-          {/* Skip +10s */}
-          <button
-            onClick={() => p.skip(10)}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg hover:bg-accent/50 active:bg-accent transition-all flex items-center justify-center group"
-            title="Skip forward 10 seconds"
-            aria-label="Skip forward 10 seconds"
-          >
-            <svg className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
-            </svg>
-          </button>
-
-          {/* Skip +30s - Desktop only */}
-          <button
-            onClick={() => p.skip(30)}
-            className="hidden sm:flex w-9 h-9 rounded-lg hover:bg-accent/50 active:bg-accent transition-all items-center justify-center group"
-            title="Skip forward 30 seconds"
-            aria-label="Skip forward 30 seconds"
-          >
-            <svg className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
-            </svg>
-          </button>
-
-          {/* Volume - Desktop only */}
-          <div className="hidden lg:flex items-center relative">
-            <button
-              onClick={() => p.setVol(p.volume === 0 ? 1 : 0)}
-              onMouseEnter={() => setShowVolumeSlider(true)}
-              className="w-9 h-9 rounded-lg hover:bg-accent/50 transition-all flex items-center justify-center group"
-              aria-label={p.volume === 0 ? 'Unmute' : 'Mute'}
-            >
-              {p.volume === 0 || p.isMuted ? (
-                <VolumeX className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-              ) : (
-                <Volume2 className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-              )}
-            </button>
-            {showVolumeSlider && (
-              <div
-                className="absolute bottom-full right-0 mb-2 bg-popover/98 backdrop-blur-xl border border-border/60 rounded-lg shadow-xl p-2.5 animate-in fade-in duration-100"
-                onMouseLeave={() => setShowVolumeSlider(false)}
-              >
-                <div className="flex flex-col items-center gap-1.5">
-                  <div className="text-[10px] font-medium text-muted-foreground">
-                    {Math.round(p.volume * 100)}%
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={p.volume}
-                    onChange={(e) => p.setVol(parseFloat(e.target.value))}
-                    className="h-20 w-1.5 accent-primary cursor-pointer"
-                    style={verticalSliderStyle}
-                    aria-label="Volume"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Close */}
-          <button
-            onClick={p.stop}
-            className="w-9 h-9 rounded-lg hover:bg-red-500/10 active:bg-red-500/15 transition-all flex items-center justify-center group"
-            aria-label="Close player"
-          >
-            <X className="w-4 h-4 text-muted-foreground group-hover:text-red-500 transition-colors" />
-          </button>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
