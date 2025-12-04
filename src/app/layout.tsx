@@ -11,6 +11,7 @@ import { ThemeSettingsProvider } from "@/contexts/ThemeSettingsContext";
 import { GlobalThemeProvider } from "@/contexts/GlobalThemeProvider";
 import { AppChrome } from "@/components/app/AppChrome";
 import { PlayerProvider } from "@/contexts/PlayerContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -79,6 +80,7 @@ export default async function RootLayout({
           </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
