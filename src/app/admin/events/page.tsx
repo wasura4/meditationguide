@@ -170,7 +170,7 @@ export default function AdminEventsPage() {
 
   return (
     <AdminProtectedRoute requiredPermission={{ resource: 'content', action: 'read' }}>
-      <AdminLayout>
+      <AdminLayout currentPage="/admin/events">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
