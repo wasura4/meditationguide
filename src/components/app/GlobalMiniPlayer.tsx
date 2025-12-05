@@ -4,9 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Play, Pause, SkipBack, SkipForward, X,
-  Maximize2, Volume2, VolumeX, ChevronDown,
-  Repeat, Shuffle
+  Play, Pause, SkipBack, SkipForward, X, ChevronDown
 } from 'lucide-react';
 
 const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -14,7 +12,6 @@ const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 export function GlobalMiniPlayer() {
   const p = usePlayer();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
 
   // Close player when track ends or stopped
@@ -33,7 +30,7 @@ export function GlobalMiniPlayer() {
     return `${m}:${s}`;
   };
 
-  const handleDragEnd = (event: any, info: { offset: { y: number }; velocity: { y: number } }) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number }; velocity: { y: number } }) => {
     // Lower threshold for easier dismissal (was 100)
     // Also check velocity to allow "flick" to dismiss
     if (info.offset.y > 50 || info.velocity.y > 200) {
