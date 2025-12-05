@@ -119,28 +119,49 @@ export function GlobalMiniPlayer() {
 
 
             {/* Progress Bar */}
-            <div className="w-full mb-12 group">
-              <div
-                className="relative h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const percent = (e.clientX - rect.left) / rect.width;
-                  p.seek(percent * (p.duration || 1));
-                }}
-              >
-                <motion.div
-                  className="absolute h-full bg-primary rounded-full"
-                  style={{ width: `${progress}%` }}
-                  layoutId="progressBar"
-                />
+            <div className="w-full mb-12">
+              <div className="relative py-2">
+                {/* Background Track */}
+                <div
+                  className="relative h-1 bg-white/10 rounded-full"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    p.seek(percent * (p.duration || 1));
+                  }}
+                >
+                  {/* Progress Fill */}
+                  <motion.div
+                    className="absolute h-full bg-primary rounded-full"
+                    style={{ width: `${progress}%` }}
+                    layoutId="progressBar"
+                  />
+                </div>
 
-                {/* Thumb */}
+                {/* Draggable Thumb */}
                 <motion.div
-                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ left: `calc(${progress}% - 8px)` }}
-                  whileHover={{ scale: 1.2 }}
-                />
+                  className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing"
+                  style={{ left: `calc(${progress}% - 10px)` }}
+                  drag="x"
+                  dragConstraints={{ left: -10, right: window.innerWidth - 10 }}
+                  dragElastic={0}
+                  dragMomentum={false}
+                  onDrag={(event, info) => {
+                    const parent = (event.target as HTMLElement).parentElement;
+                    if (parent) {
+                      const rect = parent.getBoundingClientRect();
+                      const newProgress = Math.min(Math.max((info.point.x - rect.left) / rect.width, 0), 1);
+                      p.seek(newProgress * (p.duration || 1));
+                    }
+                  }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="w-2 h-2 bg-primary rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                </motion.div>
               </div>
+
+              {/* Time Labels */}
               <div className="flex justify-between mt-2 text-xs font-medium text-muted-foreground">
                 <span>{formatTime(p.currentTime)}</span>
                 <span>{formatTime(p.duration)}</span>
