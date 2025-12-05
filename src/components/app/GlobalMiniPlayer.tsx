@@ -121,22 +121,64 @@ export function GlobalMiniPlayer() {
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full mb-8 group">
+            <div className="w-full mb-8 group relative h-10 flex items-center justify-center">
               <div
-                className="relative h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
+                className="absolute inset-x-0 h-10 flex items-center cursor-pointer"
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const percent = (e.clientX - rect.left) / rect.width;
                   p.seek(percent * (p.duration || 1));
                 }}
               >
-                <motion.div
-                  className="absolute h-full bg-primary rounded-full"
-                  style={{ width: `${progress}%` }}
-                  layoutId="progressBar"
-                />
+                {/* Track Background */}
+                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                  {/* Fill */}
+                  <motion.div
+                    className="h-full bg-primary rounded-full"
+                    style={{ width: `${progress}%` }}
+                    layoutId="progressBar"
+                  />
+                </div>
               </div>
-              <div className="flex justify-between mt-2 text-xs font-medium text-muted-foreground">
+
+              {/* Draggable Thumb */}
+              <motion.div
+                className="absolute left-0 w-6 h-6 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing flex items-center justify-center"
+                style={{ left: `calc(${progress}% - 12px)` }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0}
+                dragMomentum={false}
+                onDragStart={() => {
+                  // Optional: Pause updates while dragging if needed
+                }}
+                onDrag={(event, info) => {
+                  const progressBar = event.target?.parentElement?.parentElement;
+                  if (progressBar) {
+                    const rect = progressBar.getBoundingClientRect();
+                    const percent = Math.min(Math.max((info.point.x - rect.left) / rect.width, 0), 1);
+                    // We might want to update a local state for smooth visual dragging
+                    // But for now, let's rely on the seek function if it's performant enough
+                    // or just use the visual position.
+                    // Actually, better to seek on drag end to avoid stuttering audio
+                  }
+                }}
+                onDragEnd={(event, info) => {
+                  const progressBar = event.target?.parentElement?.parentElement;
+                  if (progressBar) {
+                    const rect = progressBar.getBoundingClientRect();
+                    const percent = Math.min(Math.max((info.point.x - rect.left) / rect.width, 0), 1);
+                    p.seek(percent * (p.duration || 1));
+                  }
+                }}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <div className="w-2 h-2 bg-primary rounded-full" />
+              </motion.div>
+
+              {/* Time Labels */}
+              <div className="absolute -bottom-6 left-0 right-0 flex justify-between text-xs font-medium text-muted-foreground">
                 <span>{formatTime(p.currentTime)}</span>
                 <span>{formatTime(p.duration)}</span>
               </div>
