@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { AudioLibrary } from '@/components/audio/AudioLibrary';
 import { PlaylistManager } from '@/components/audio/PlaylistManager';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Headphones, Library, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function KamatahanPage() {
   const { t } = useLanguage();
@@ -15,98 +18,116 @@ export default function KamatahanPage() {
 
   const handleTabChange = (tab: 'library' | 'playlists') => {
     setActiveTab(tab);
-    showToast({
-      type: 'info',
-      title: 'View Changed',
-      message: `Switched to ${tab === 'library' ? 'audio library' : 'meditation guides'} view.`,
-      duration: 1500
-    });
   };
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background pb-28">
-        {/* Hero Header */}
-        <div className="bg-gradient-to-b from-muted/50 to-background shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-            <div className="flex items-center justify-between mb-6">
-              <Button
-                onClick={() => window.history.back()}
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span className="hidden sm:inline">Back</span>
-              </Button>
-            </div>
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        {/* Dynamic Background */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] opacity-30 animate-pulse" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[150px] opacity-30" />
+        </div>
 
-            <div className="text-center">
-              {/* Icon */}
-              <div className="inline-flex w-16 h-16 sm:w-20 sm:h-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/80 shadow-lg mb-4">
-                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        {/* Content */}
+        <div className="relative z-10 pb-28">
+          {/* Header */}
+          <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/60 border-b border-white/10 supports-[backdrop-filter]:bg-background/60">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={() => window.history.back()}
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full hover:bg-white/10"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20">
+                    <Headphones className="w-4 h-4 text-white" />
+                  </div>
+                  <h1 className="text-lg font-semibold tracking-tight">Kamatahan</h1>
+                </div>
               </div>
-
-              <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-                Kamatahan
-              </h1>
-              <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-                Guided meditations and dharma teachings to support your practice
-              </p>
             </div>
+          </header>
 
-            {/* Tab Navigation */}
-            <div className="mt-8 flex justify-center">
-              <div className="inline-flex bg-muted/50 rounded-lg p-1 gap-1">
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Hero Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-10"
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                Meditation Sanctuary
+              </h2>
+              <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
+                Explore guided meditations and deep Dhamma teachings to elevate your practice.
+              </p>
+            </motion.div>
+
+            {/* Glassmorphic Tab Navigation */}
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex p-1.5 rounded-2xl bg-muted/30 backdrop-blur-md border border-white/10 relative">
+                {/* Animated Background Pill */}
+                <motion.div
+                  className="absolute inset-y-1.5 rounded-xl bg-background shadow-sm border border-white/5"
+                  initial={false}
+                  animate={{
+                    x: activeTab === 'playlists' ? 0 : '100%',
+                    width: '50%' // Assuming equal width tabs
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  style={{ left: 6, width: 'calc(50% - 6px)' }}
+                />
+
                 <button
                   onClick={() => handleTabChange('playlists')}
-                  className={`px-4 sm:px-6 py-2.5 rounded-md font-medium text-sm transition-all ${
-                    activeTab === 'playlists'
-                      ? 'bg-background text-primary shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className={cn(
+                    "relative z-10 px-6 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 min-w-[140px] justify-center",
+                    activeTab === 'playlists' ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  )}
                 >
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                    </svg>
-                    <span className="hidden sm:inline">Meditation Guides</span>
-                    <span className="sm:hidden">Guides</span>
-                  </div>
+                  <Headphones className="w-4 h-4" />
+                  <span>Guides</span>
                 </button>
                 <button
                   onClick={() => handleTabChange('library')}
-                  className={`px-4 sm:px-6 py-2.5 rounded-md font-medium text-sm transition-all ${
-                    activeTab === 'library'
-                      ? 'bg-background text-primary shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className={cn(
+                    "relative z-10 px-6 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 min-w-[140px] justify-center",
+                    activeTab === 'library' ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  )}
                 >
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                    </svg>
-                    <span className="hidden sm:inline">{t('dashboard.actions.audio_library')}</span>
-                    <span className="sm:hidden">Library</span>
-                  </div>
+                  <Library className="w-4 h-4" />
+                  <span>Library</span>
                 </button>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {activeTab === 'library' ? (
-            <AudioLibrary />
-          ) : (
-            <PlaylistManager />
-          )}
-        </main>
+            {/* Content Area */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {activeTab === 'library' ? (
+                  <div className="bg-card/30 backdrop-blur-md rounded-3xl border border-white/10 p-1 sm:p-6 shadow-xl shadow-black/5">
+                    <AudioLibrary />
+                  </div>
+                ) : (
+                  <div className="bg-card/30 backdrop-blur-md rounded-3xl border border-white/10 p-1 sm:p-6 shadow-xl shadow-black/5">
+                    <PlaylistManager />
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
     </ProtectedRoute>
   );
