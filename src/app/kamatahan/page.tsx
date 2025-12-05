@@ -61,7 +61,7 @@ export default function KamatahanPage() {
               className="text-center mb-10"
             >
               <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                Meditation Sanctuary
+                Meditation Instructions
               </h2>
               <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
                 Explore guided meditations and deep Dhamma teachings to elevate your practice.
