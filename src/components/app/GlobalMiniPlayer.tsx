@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePlayer } from '@/contexts/PlayerContext';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play, Pause, SkipBack, SkipForward, X,
   Maximize2, Volume2, VolumeX, ChevronDown,
@@ -16,8 +16,6 @@ export function GlobalMiniPlayer() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
-
-  const progressBarRef = useRef<HTMLDivElement>(null);
 
   // Close player when track ends or stopped
   useEffect(() => {
@@ -35,7 +33,7 @@ export function GlobalMiniPlayer() {
     return `${m}:${s}`;
   };
 
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (event: any, info: { offset: { y: number }; velocity: { y: number } }) => {
     // Lower threshold for easier dismissal (was 100)
     // Also check velocity to allow "flick" to dismiss
     if (info.offset.y > 50 || info.velocity.y > 200) {
@@ -124,63 +122,29 @@ export function GlobalMiniPlayer() {
 
 
             {/* Progress Bar */}
-            <div className="w-full mb-8 group relative h-10 flex items-center justify-center" ref={progressBarRef}>
+            <div className="w-full mb-12 group">
               <div
-                className="absolute inset-x-0 h-10 flex items-center cursor-pointer"
+                className="relative h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const percent = (e.clientX - rect.left) / rect.width;
                   p.seek(percent * (p.duration || 1));
                 }}
               >
-                {/* Track Background */}
-                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                  {/* Fill */}
-                  <motion.div
-                    className="h-full bg-primary rounded-full"
-                    style={{ width: `${progress}%` }}
-                    layoutId="progressBar"
-                  />
-                </div>
+                <motion.div
+                  className="absolute h-full bg-primary rounded-full"
+                  style={{ width: `${progress}%` }}
+                  layoutId="progressBar"
+                />
+
+                {/* Thumb */}
+                <motion.div
+                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ left: `calc(${progress}% - 8px)` }}
+                  whileHover={{ scale: 1.2 }}
+                />
               </div>
-
-              {/* Draggable Thumb */}
-              <motion.div
-                className="absolute left-0 w-6 h-6 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing flex items-center justify-center"
-                style={{ left: `calc(${progress}% - 12px)` }}
-                drag="x"
-                dragConstraints={progressBarRef}
-                dragElastic={0}
-                dragMomentum={false}
-                onDragStart={() => {
-                  // Optional: Pause updates while dragging if needed
-                }}
-                onDrag={(event, info) => {
-                  if (progressBarRef.current) {
-                    const rect = progressBarRef.current.getBoundingClientRect();
-                    // Calculate position relative to the bar
-                    // info.point.x is the global x coordinate
-                    const relativeX = info.point.x - rect.left;
-                    const percent = Math.min(Math.max(relativeX / rect.width, 0), 1);
-                    // We can optionally update a local state here for smoother visual feedback
-                  }
-                }}
-                onDragEnd={(event, info) => {
-                  if (progressBarRef.current) {
-                    const rect = progressBarRef.current.getBoundingClientRect();
-                    const relativeX = info.point.x - rect.left;
-                    const percent = Math.min(Math.max(relativeX / rect.width, 0), 1);
-                    p.seek(percent * (p.duration || 1));
-                  }
-                }}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <div className="w-2 h-2 bg-primary rounded-full" />
-              </motion.div>
-
-              {/* Time Labels */}
-              <div className="absolute -bottom-6 left-0 right-0 flex justify-between text-xs font-medium text-muted-foreground">
+              <div className="flex justify-between mt-2 text-xs font-medium text-muted-foreground">
                 <span>{formatTime(p.currentTime)}</span>
                 <span>{formatTime(p.duration)}</span>
               </div>
