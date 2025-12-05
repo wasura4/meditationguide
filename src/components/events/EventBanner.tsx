@@ -113,7 +113,7 @@ export const EventBanner: React.FC = () => {
                   onClick={() => router.push(`/meditate?eventId=${event.id}`)}
                   className="flex-1 border-primary/20 hover:bg-primary/5 hover:border-primary/40 h-12 rounded-xl text-base font-medium backdrop-blur-sm transition-all"
                 >
-                  Join Session
+                  Meditate
                 </Button>
               </div>
             </div>
