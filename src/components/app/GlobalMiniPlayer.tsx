@@ -17,6 +17,8 @@ export function GlobalMiniPlayer() {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
 
+  const progressBarRef = useRef<HTMLDivElement>(null);
+
   // Close player when track ends or stopped
   useEffect(() => {
     if (!p.guide) setIsExpanded(false);
@@ -120,8 +122,9 @@ export function GlobalMiniPlayer() {
               </p>
             </div>
 
+
             {/* Progress Bar */}
-            <div className="w-full mb-8 group relative h-10 flex items-center justify-center">
+            <div className="w-full mb-8 group relative h-10 flex items-center justify-center" ref={progressBarRef}>
               <div
                 className="absolute inset-x-0 h-10 flex items-center cursor-pointer"
                 onClick={(e) => {
@@ -146,28 +149,27 @@ export function GlobalMiniPlayer() {
                 className="absolute left-0 w-6 h-6 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing flex items-center justify-center"
                 style={{ left: `calc(${progress}% - 12px)` }}
                 drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
+                dragConstraints={progressBarRef}
                 dragElastic={0}
                 dragMomentum={false}
                 onDragStart={() => {
                   // Optional: Pause updates while dragging if needed
                 }}
                 onDrag={(event, info) => {
-                  const progressBar = event.target?.parentElement?.parentElement;
-                  if (progressBar) {
-                    const rect = progressBar.getBoundingClientRect();
-                    const percent = Math.min(Math.max((info.point.x - rect.left) / rect.width, 0), 1);
-                    // We might want to update a local state for smooth visual dragging
-                    // But for now, let's rely on the seek function if it's performant enough
-                    // or just use the visual position.
-                    // Actually, better to seek on drag end to avoid stuttering audio
+                  if (progressBarRef.current) {
+                    const rect = progressBarRef.current.getBoundingClientRect();
+                    // Calculate position relative to the bar
+                    // info.point.x is the global x coordinate
+                    const relativeX = info.point.x - rect.left;
+                    const percent = Math.min(Math.max(relativeX / rect.width, 0), 1);
+                    // We can optionally update a local state here for smoother visual feedback
                   }
                 }}
                 onDragEnd={(event, info) => {
-                  const progressBar = event.target?.parentElement?.parentElement;
-                  if (progressBar) {
-                    const rect = progressBar.getBoundingClientRect();
-                    const percent = Math.min(Math.max((info.point.x - rect.left) / rect.width, 0), 1);
+                  if (progressBarRef.current) {
+                    const rect = progressBarRef.current.getBoundingClientRect();
+                    const relativeX = info.point.x - rect.left;
+                    const percent = Math.min(Math.max(relativeX / rect.width, 0), 1);
                     p.seek(percent * (p.duration || 1));
                   }
                 }}
