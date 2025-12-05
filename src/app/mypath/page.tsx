@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UserPathService } from '@/lib/userPathService';
 import { PathProgress } from '@/types';
 import { PATH_STAGES, calculateProgress, getNextStage } from '@/constants/path';
-import { ArrowLeft, ArrowRight, Check, Lock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Lock, Sparkles, Star, Map } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MyPathPage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function MyPathPage() {
   const [pathProgress, setPathProgress] = useState<PathProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const currentStageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadPath = async () => {
@@ -42,6 +44,15 @@ export default function MyPathPage() {
 
     loadPath();
   }, [user, showToast]);
+
+  // Scroll to current stage on load
+  useEffect(() => {
+    if (!loading && pathProgress && currentStageRef.current) {
+      setTimeout(() => {
+        currentStageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 500);
+    }
+  }, [loading, pathProgress]);
 
   const handleMoveToNextStage = async () => {
     if (!user || !pathProgress) return;
@@ -112,15 +123,10 @@ export default function MyPathPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-background pb-28">
-          <div className="max-w-4xl mx-auto px-4 py-12">
-            <div className="flex flex-col items-center justify-center py-16">
-              <div className="relative w-16 h-16 mb-6">
-                <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
-                <div className="absolute inset-0 rounded-full border-4 border-t-primary animate-spin" />
-              </div>
-              <h2 className="text-xl font-semibold text-foreground">Loading Your Path...</h2>
-            </div>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+            <div className="absolute inset-0 rounded-full border-4 border-t-primary animate-spin" />
           </div>
         </div>
       </ProtectedRoute>
@@ -130,11 +136,9 @@ export default function MyPathPage() {
   if (!pathProgress) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-background pb-28">
-          <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Unable to load path</h2>
-            <Button onClick={() => router.push('/dashboard')}>Return to Dashboard</Button>
-          </div>
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Unable to load path</h2>
+          <Button onClick={() => router.push('/dashboard')}>Return to Dashboard</Button>
         </div>
       </ProtectedRoute>
     );
@@ -147,169 +151,206 @@ export default function MyPathPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background pb-28">
-        {/* Header */}
-        <div className="bg-gradient-to-b from-muted/50 to-background border-b">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-            <div className="flex items-center justify-between mb-6">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Back</span>
-              </button>
-            </div>
-
-            <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold mb-3">මගේ නිවන් මඟ</h1>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                සත්ත විශුද්ධිය - The Seven Purifications
-              </p>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mt-8">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-foreground">Overall Progress</span>
-                <span className="text-sm font-semibold text-primary">{progress}%</span>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                <span>Stage {pathProgress.currentStage} of 8</span>
-                <span>Last updated: {pathProgress.updatedAt.toLocaleDateString()}</span>
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background relative overflow-hidden pb-32">
+        {/* Background Gradients */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background" />
+          <div className="absolute top-40 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 left-20 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
-        {/* Path Visualization */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-          <div className="space-y-4">
+        {/* Header */}
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-white/10 shadow-sm supports-[backdrop-filter]:bg-background/60">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="p-2 rounded-full hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-lg font-semibold text-foreground truncate">My Path</h1>
+          </div>
+        </header>
+
+        <main className="max-w-3xl mx-auto px-4 py-8 relative z-10">
+          {/* Title Section */}
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 text-primary mb-4"
+            >
+              <Map className="w-6 h-6" />
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-3xl sm:text-4xl font-bold mb-2 tracking-tight"
+            >
+              මගේ නිවන් මඟ
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-muted-foreground"
+            >
+              The Seven Purifications • Path to Liberation
+            </motion.p>
+          </div>
+
+          {/* Overall Progress Card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mb-12 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 sm:p-8 relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    Journey Progress
+                  </h3>
+                </div>
+                <span className="text-2xl font-bold text-primary">{progress}%</span>
+              </div>
+
+              <div className="h-4 w-full overflow-hidden rounded-full bg-black/20 backdrop-blur-sm border border-white/5">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-primary to-purple-500 relative"
+                >
+                  <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                </motion.div>
+              </div>
+
+              <div className="flex justify-between mt-3 text-xs text-muted-foreground font-medium">
+                <span>Stage {pathProgress.currentStage} of 8</span>
+                <span>Updated {pathProgress.updatedAt.toLocaleDateString()}</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Timeline */}
+          <div className="relative space-y-8 pl-8 sm:pl-0">
+            {/* Vertical Line (Mobile: Left, Desktop: Center) */}
+            <div className="absolute left-8 sm:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent -translate-x-1/2 hidden sm:block" />
+            <div className="absolute left-[2.25rem] top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent -translate-x-1/2 sm:hidden" />
+
             {PATH_STAGES.map((stage, index) => {
               const isCompleted = stage.order < pathProgress.currentStage;
               const isCurrent = stage.order === pathProgress.currentStage;
               const isLocked = stage.order > pathProgress.currentStage;
 
               return (
-                <div
+                <motion.div
                   key={stage.order}
-                  className={`relative p-6 rounded-2xl border-2 transition-all duration-300 ${
-                    isCurrent
-                      ? 'border-primary bg-primary/5 shadow-lg scale-[1.02]'
-                      : isCompleted
-                      ? 'border-primary/30 bg-primary/5'
-                      : 'border-border bg-card'
-                  }`}
+                  ref={isCurrent ? currentStageRef : null}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`relative flex items-center gap-8 ${index % 2 === 0 ? 'sm:flex-row' : 'sm:flex-row-reverse'
+                    }`}
                 >
-                  {/* Connector Line */}
-                  {index < PATH_STAGES.length - 1 && (
+                  {/* Timeline Node */}
+                  <div className="absolute left-0 sm:left-1/2 -translate-x-1/2 z-20 flex items-center justify-center">
                     <div
-                      className={`absolute left-10 top-full w-0.5 h-4 ${
-                        isCompleted || isCurrent ? 'bg-primary' : 'bg-border'
-                      }`}
-                    />
-                  )}
-
-                  <div className="flex items-start gap-4">
-                    {/* Stage Icon */}
-                    <div
-                      className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg transition-all ${
-                        isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-lg'
+                      className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all duration-500 ${isCurrent
+                          ? 'bg-background border-primary shadow-[0_0_20px_rgba(var(--primary),0.5)] scale-110'
                           : isCompleted
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
+                            ? 'bg-primary border-primary text-primary-foreground'
+                            : 'bg-background border-muted text-muted-foreground'
+                        }`}
                     >
                       {isCompleted ? (
-                        <Check className="w-8 h-8" />
+                        <Check className="w-5 h-5" />
                       ) : isLocked ? (
-                        <Lock className="w-6 h-6" />
+                        <Lock className="w-4 h-4" />
                       ) : (
-                        stage.order
+                        <span className="text-sm font-bold text-primary">{stage.order}</span>
                       )}
                     </div>
+                  </div>
 
-                    {/* Stage Content */}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h3 className={`text-xl font-bold mb-1 ${isCurrent ? 'text-primary' : 'text-foreground'}`}>
-                            {stage.name}
-                          </h3>
-                          <p className="text-sm text-muted-foreground font-medium mb-2">{stage.nameEn}</p>
-                          <p className="text-sm text-foreground/80">{stage.description}</p>
+                  {/* Spacer for Desktop Layout */}
+                  <div className="hidden sm:block flex-1" />
+
+                  {/* Card */}
+                  <div className="flex-1 w-full sm:w-auto pl-12 sm:pl-0">
+                    <div
+                      className={`relative p-6 rounded-2xl border transition-all duration-300 group ${isCurrent
+                          ? 'bg-primary/5 border-primary/50 shadow-lg shadow-primary/5'
+                          : isCompleted
+                            ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                            : 'bg-white/5 border-white/5 opacity-70'
+                        }`}
+                    >
+                      {isCurrent && (
+                        <div className="absolute -top-3 left-6 px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-lg">
+                          Current Stage
                         </div>
+                      )}
 
-                        {isCurrent && (
-                          <div className="flex-shrink-0">
-                            <div className="px-3 py-1 bg-primary/10 border border-primary/30 rounded-full">
-                              <span className="text-xs font-semibold text-primary">Current</span>
-                            </div>
-                          </div>
-                        )}
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <h3 className={`text-lg font-bold ${isCurrent ? 'text-primary' : 'text-foreground'}`}>
+                          {stage.name}
+                        </h3>
+                        {isCompleted && <Star className="w-4 h-4 text-amber-500 fill-amber-500" />}
                       </div>
+
+                      <p className="text-sm font-medium text-muted-foreground mb-3">{stage.nameEn}</p>
+                      <p className="text-sm text-foreground/80 leading-relaxed">{stage.description}</p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
 
-          {/* Action Buttons */}
-          <div className="mt-8 bg-card rounded-2xl p-6 border">
-            <h3 className="text-lg font-semibold mb-4 text-foreground">Update Your Progress</h3>
-
-            <div className="flex flex-col sm:flex-row gap-3">
+          {/* Floating Action Bar */}
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            className="fixed bottom-24 left-4 right-4 z-50 max-w-xl mx-auto"
+          >
+            <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex items-center gap-3">
               <Button
                 onClick={handleMoveToPreviousStage}
                 variant="outline"
                 disabled={!canGoBack || updating}
-                className="flex-1"
+                className="flex-1 h-12 rounded-xl border-white/10 hover:bg-white/5"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Move Back
+                Back
               </Button>
 
               <Button
                 onClick={handleMoveToNextStage}
-                variant="default"
                 disabled={!canGoForward || updating}
-                className="flex-1"
+                className="flex-[2] h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 font-semibold text-base"
               >
                 {updating ? (
-                  'Updating...'
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Updating...</span>
+                  </div>
                 ) : (
-                  <>
-                    Advance to Next Stage
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
+                  <div className="flex items-center gap-2">
+                    <span>Complete Stage</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 )}
               </Button>
             </div>
-
-            {nextStage && canGoForward && (
-              <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                <p className="text-sm text-muted-foreground mb-1">Next Stage:</p>
-                <p className="text-sm font-semibold text-foreground">{nextStage.name} - {nextStage.nameEn}</p>
-              </div>
-            )}
-
-            {!canGoForward && (
-              <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-lg text-center">
-                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                  🙏 Congratulations! You have reached Nibbana - The ultimate liberation
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+          </motion.div>
+        </main>
       </div>
     </ProtectedRoute>
   );

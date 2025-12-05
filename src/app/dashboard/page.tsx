@@ -11,7 +11,9 @@ import {
   Headphones,
   TrendingUp,
   ArrowRight,
-  Play
+  Play,
+  HelpCircle,
+  Library
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -280,7 +282,7 @@ export default function DashboardPage() {
             {/* Quick Actions */}
             <motion.div variants={itemVariants}>
               <h3 className="text-lg font-semibold mb-4 px-1">Quick Actions</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
                 {[
                   { label: 'Logbook', icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10', path: '/logbook' },
                   { label: 'Audio', icon: Headphones, color: 'text-purple-500', bg: 'bg-purple-500/10', path: '/kamatahan' },
@@ -288,6 +290,8 @@ export default function DashboardPage() {
                   { label: 'Analytics', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10', path: '/analytics' },
                   { label: 'Tripitaka', icon: BookOpen, color: 'text-rose-500', bg: 'bg-rose-500/10', path: '/pitaka' },
                   { label: 'My Path', icon: TrendingUp, color: 'text-indigo-500', bg: 'bg-indigo-500/10', path: '/mypath' },
+                  { label: 'Questions', icon: HelpCircle, color: 'text-cyan-500', bg: 'bg-cyan-500/10', path: '/meditation-questions' },
+                  { label: 'Books', icon: Library, color: 'text-orange-500', bg: 'bg-orange-500/10', path: '/books' },
                 ].map((action, index) => (
                   <button
                     key={index}
