@@ -13,6 +13,8 @@ export function GlobalMiniPlayer() {
   const p = usePlayer();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
+  const [dragProgress, setDragProgress] = useState(0);
 
   // Close player when track ends or stopped
   useEffect(() => {
@@ -23,6 +25,7 @@ export function GlobalMiniPlayer() {
 
   const track = p.guide.audioFiles[p.index];
   const progress = (p.currentTime / (p.duration || 1)) * 100;
+  const displayProgress = isDraggingSlider ? dragProgress : progress;
 
   const formatTime = (t: number) => {
     const m = Math.floor(t / 60);
@@ -118,12 +121,14 @@ export function GlobalMiniPlayer() {
             </div>
 
 
+
+
             {/* Progress Bar */}
             <div className="w-full mb-12">
-              <div className="relative py-2">
+              <div className="relative py-2 group">
                 {/* Background Track */}
                 <div
-                  className="relative h-1 bg-white/10 rounded-full"
+                  className="relative h-1 bg-white/10 rounded-full cursor-pointer"
                   onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const percent = (e.clientX - rect.left) / rect.width;
@@ -133,7 +138,7 @@ export function GlobalMiniPlayer() {
                   {/* Progress Fill */}
                   <motion.div
                     className="absolute h-full bg-primary rounded-full"
-                    style={{ width: `${progress}%` }}
+                    style={{ width: `${displayProgress}%` }}
                     layoutId="progressBar"
                   />
                 </div>
@@ -141,18 +146,26 @@ export function GlobalMiniPlayer() {
                 {/* Draggable Thumb */}
                 <motion.div
                   className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing"
-                  style={{ left: `calc(${progress}% - 10px)` }}
+                  style={{ left: `calc(${displayProgress}% - 10px)` }}
                   drag="x"
-                  dragConstraints={{ left: -10, right: window.innerWidth - 10 }}
+                  dragConstraints={{ left: 0, right: 0 }} // We handle position via state/style
                   dragElastic={0}
                   dragMomentum={false}
+                  onDragStart={() => setIsDraggingSlider(true)}
                   onDrag={(event, info) => {
                     const parent = (event.target as HTMLElement).parentElement;
                     if (parent) {
                       const rect = parent.getBoundingClientRect();
-                      const newProgress = Math.min(Math.max((info.point.x - rect.left) / rect.width, 0), 1);
+                      // Calculate new progress based on pointer position relative to track
+                      const relativeX = info.point.x - rect.left;
+                      const newProgress = Math.min(Math.max(relativeX / rect.width, 0), 1);
+
+                      setDragProgress(newProgress * 100);
                       p.seek(newProgress * (p.duration || 1));
                     }
+                  }}
+                  onDragEnd={() => {
+                    setIsDraggingSlider(false);
                   }}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
