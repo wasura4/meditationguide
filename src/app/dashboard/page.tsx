@@ -13,7 +13,8 @@ import {
   ArrowRight,
   Play,
   HelpCircle,
-  Library
+  Library,
+  MessageCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -277,6 +278,36 @@ export default function DashboardPage() {
             {/* Event Banner */}
             <motion.div variants={itemVariants}>
               <EventBanner />
+            </motion.div>
+
+            {/* WhatsApp Community Join Button */}
+            <motion.div variants={itemVariants}>
+              <a
+                href="https://chat.whatsapp.com/GODZJiLKe60DGRHDzCP9S7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full p-1"
+              >
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#25D366] to-[#128C7E] p-6 text-white shadow-lg transition-all duration-300 hover:shadow-green-500/25 hover:scale-[1.01] group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full blur-2xl -ml-12 -mb-12 pointer-events-none" />
+
+                  <div className="relative z-10 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md border border-white/10">
+                        <MessageCircle className="w-8 h-8 text-white fill-white/20" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">Join Community</h3>
+                        <p className="text-white/90 font-medium">Connect with others on WhatsApp</p>
+                      </div>
+                    </div>
+                    <div className="bg-white/20 p-2.5 rounded-full backdrop-blur-md border border-white/10 group-hover:bg-white/30 transition-colors">
+                      <ArrowRight className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </a>
             </motion.div>
 
             {/* Quick Actions */}
