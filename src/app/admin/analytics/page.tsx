@@ -8,6 +8,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { PATH_STAGES } from '@/constants/path';
+import { User } from '@/types';
 
 type TimeRange = '7d' | '30d' | '90d' | 'all';
 
@@ -48,6 +49,12 @@ interface AnalyticsData {
     byStage: Array<{ stage: number; count: number; percentage: number }>;
     totalWithProgress: number;
   };
+  topUsers: Array<{
+    user: User;
+    sessionCount: number;
+    totalMinutes: number;
+    meditationTypes: Array<{ type: string; count: number }>;
+  }>;
 }
 
 interface UsersByStage {
@@ -262,8 +269,8 @@ export default function AdminAnalyticsPage() {
               </div>
               <p className="text-3xl font-bold text-gray-900">{formatNumber(analytics.sessions.completed)}</p>
               <p className="text-sm text-gray-500 mt-1">
-                {analytics.sessions.total > 0 
-                  ? Math.round((analytics.sessions.completed / analytics.sessions.total) * 100) 
+                {analytics.sessions.total > 0
+                  ? Math.round((analytics.sessions.completed / analytics.sessions.total) * 100)
                   : 0}% completion rate
               </p>
             </div>
@@ -307,7 +314,7 @@ export default function AdminAnalyticsPage() {
                   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                   const dayIndex = new Date().getDay() - (6 - index);
                   const dayName = days[(dayIndex + 7) % 7];
-                  
+
                   return (
                     <div key={index} className="flex-1 flex flex-col items-center">
                       <div className="w-full bg-gray-100 rounded-t relative" style={{ height: '200px' }}>
@@ -333,7 +340,7 @@ export default function AdminAnalyticsPage() {
                 {analytics.engagement.weeklyActive.map((count, index) => {
                   const maxCount = Math.max(...analytics.engagement.weeklyActive, 1);
                   const height = (count / maxCount) * 100;
-                  
+
                   return (
                     <div key={index} className="flex-1 flex flex-col items-center">
                       <div className="w-full bg-gray-100 rounded-t relative" style={{ height: '200px' }}>
@@ -554,11 +561,67 @@ export default function AdminAnalyticsPage() {
               <p className="text-sm text-gray-500 mt-1">Content views</p>
             </div>
           </div>
+
+          {/* Top 20 Users Section */}
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-8">
+            <h3 className="text-xl font-semibold mb-6 text-gray-900">Top 20 Meditators</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 text-left">
+                    <th className="p-4 text-gray-600 font-medium">Rank</th>
+                    <th className="p-4 text-gray-600 font-medium">User</th>
+                    <th className="p-4 text-gray-600 font-medium text-center">Sessions</th>
+                    <th className="p-4 text-gray-600 font-medium text-center">Total Time</th>
+                    <th className="p-4 text-gray-600 font-medium">Top Meditations</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {analytics.topUsers && analytics.topUsers.length > 0 ? (
+                    analytics.topUsers.map((item, index) => (
+                      <tr key={item.user.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="p-4 text-gray-600">#{index + 1}</td>
+                        <td className="p-4">
+                          <div>
+                            <div className="font-medium text-gray-900 mb-0.5">{item.user.displayName || 'Anonymous'}</div>
+                            <div className="text-sm text-gray-500">{item.user.email}</div>
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {formatNumber(item.sessionCount)}
+                          </span>
+                        </td>
+                        <td className="p-4 text-center text-gray-600">
+                          {formatMinutes(item.totalMinutes)}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex flex-wrap gap-2">
+                            {item.meditationTypes.map((type, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700"
+                              >
+                                {type.type} <span className="ml-1 text-gray-400">({type.count})</span>
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="p-4 text-center text-gray-500">
+                        No top users data available.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </AdminLayout>
     </AdminProtectedRoute>
   );
 }
-
-
-

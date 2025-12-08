@@ -47,8 +47,8 @@ export class AdminService {
         } as User);
       });
 
-      const lastDocument = querySnapshot.docs.length > 0 
-        ? querySnapshot.docs[querySnapshot.docs.length - 1] 
+      const lastDocument = querySnapshot.docs.length > 0
+        ? querySnapshot.docs[querySnapshot.docs.length - 1]
         : undefined;
       return { users, lastDoc: lastDocument };
     } catch (error) {
@@ -204,6 +204,12 @@ export class AdminService {
       byStage: Array<{ stage: number; count: number; percentage: number }>;
       totalWithProgress: number;
     };
+    topUsers: Array<{
+      user: User;
+      sessionCount: number;
+      totalMinutes: number;
+      meditationTypes: Array<{ type: string; count: number }>;
+    }>;
   }> {
     try {
       // Get date range
@@ -214,7 +220,7 @@ export class AdminService {
       // Get all users
       const usersQuery = query(collection(db, 'users'));
       const usersSnapshot = await getDocs(usersQuery);
-      
+
       // Get all sessions
       const sessionsQuery = query(collection(db, 'meditation_sessions'), orderBy('createdAt', 'desc'));
       const sessionsSnapshot = await getDocs(sessionsQuery);
@@ -270,19 +276,19 @@ export class AdminService {
       const totalUsers = allUsers.length;
       const activeUsers = new Set(allSessions.map(s => s.userId)).size;
       const newUsers = filteredUsers.length;
-      const previousNewUsers = allUsers.filter(u => 
+      const previousNewUsers = allUsers.filter(u =>
         u.createdAt >= previousPeriodStart && u.createdAt < startDate
       ).length;
-      const userGrowth = previousNewUsers > 0 
-        ? ((newUsers - previousNewUsers) / previousNewUsers) * 100 
+      const userGrowth = previousNewUsers > 0
+        ? ((newUsers - previousNewUsers) / previousNewUsers) * 100
         : newUsers > 0 ? 100 : 0;
 
       const totalSessions = allSessions.length;
       const completedSessions = allSessions.filter(s => s.status === 'completed').length;
-      const averageSession = totalSessions > 0 
+      const averageSession = totalSessions > 0
         ? Math.round(allSessions.reduce((sum, s) => sum + s.duration, 0) / totalSessions)
         : 0;
-      const previousSessions = allSessions.filter(s => 
+      const previousSessions = allSessions.filter(s =>
         s.createdAt >= previousPeriodStart && s.createdAt < startDate
       ).length;
       const sessionGrowth = previousSessions > 0
@@ -333,18 +339,18 @@ export class AdminService {
       // Calculate trends
       const userGrowthTrend: Array<{ date: string; count: number }> = [];
       const sessionGrowthTrend: Array<{ date: string; count: number }> = [];
-      
+
       for (let i = daysBack - 1; i >= 0; i--) {
         const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
         const dateStr = date.toISOString().split('T')[0];
         const dayStart = new Date(date.setHours(0, 0, 0, 0));
         const dayEnd = new Date(date.setHours(23, 59, 59, 999));
-        
+
         userGrowthTrend.push({
           date: dateStr,
           count: allUsers.filter(u => u.createdAt >= dayStart && u.createdAt <= dayEnd).length,
         });
-        
+
         sessionGrowthTrend.push({
           date: dateStr,
           count: allSessions.filter(s => s.createdAt >= dayStart && s.createdAt <= dayEnd).length,
@@ -382,6 +388,40 @@ export class AdminService {
         totalWithProgress: usersWithProgress.length
       } : undefined;
 
+      // Calculate Top 20 Users
+      const userSessionStats = new Map<string, { count: number; minutes: number; types: Map<string, number> }>();
+
+      allSessions.forEach(session => {
+        if (!userSessionStats.has(session.userId)) {
+          userSessionStats.set(session.userId, { count: 0, minutes: 0, types: new Map() });
+        }
+        const stats = userSessionStats.get(session.userId)!;
+        stats.count++;
+        stats.minutes += session.duration;
+        stats.types.set(session.typeName, (stats.types.get(session.typeName) || 0) + 1);
+      });
+
+      const topUsersData = Array.from(userSessionStats.entries())
+        .map(([userId, stats]) => {
+          const user = allUsers.find(u => u.id === userId);
+          if (!user) return null;
+
+          const sortedTypes = Array.from(stats.types.entries())
+            .map(([type, count]) => ({ type, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3); // Top 3 types per user
+
+          return {
+            user,
+            sessionCount: stats.count,
+            totalMinutes: stats.minutes,
+            meditationTypes: sortedTypes
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+        .sort((a, b) => b.sessionCount - a.sessionCount)
+        .slice(0, 20);
+
       return {
         users: {
           total: totalUsers,
@@ -416,6 +456,7 @@ export class AdminService {
           sessionGrowth: sessionGrowthTrend,
         },
         pathProgress: pathProgressData,
+        topUsers: topUsersData,
       };
     } catch (error) {
       console.error('Error fetching admin analytics:', error);
