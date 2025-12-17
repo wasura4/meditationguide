@@ -190,7 +190,7 @@ export default function AdminDashboardPage() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">User Growth</h3>
-                  <p className="text-sm text-gray-500">New users over the last 30 days</p>
+                  <p className="text-sm text-gray-500">Cumulative user growth over the last 30 days</p>
                 </div>
                 <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
                   <TrendingUp size={20} />

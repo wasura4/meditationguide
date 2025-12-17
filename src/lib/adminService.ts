@@ -336,7 +336,7 @@ export class AdminService {
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
 
-      // Calculate trends
+      // Calculate trends - Cumulative growth for users, daily counts for sessions
       const userGrowthTrend: Array<{ date: string; count: number }> = [];
       const sessionGrowthTrend: Array<{ date: string; count: number }> = [];
 
@@ -346,9 +346,10 @@ export class AdminService {
         const dayStart = new Date(date.setHours(0, 0, 0, 0));
         const dayEnd = new Date(date.setHours(23, 59, 59, 999));
 
+        // Cumulative user count up to this date
         userGrowthTrend.push({
           date: dateStr,
-          count: allUsers.filter(u => u.createdAt >= dayStart && u.createdAt <= dayEnd).length,
+          count: allUsers.filter(u => u.createdAt <= dayEnd).length,
         });
 
         sessionGrowthTrend.push({
