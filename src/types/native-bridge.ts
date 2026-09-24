@@ -16,7 +16,11 @@ export interface AndroidBridge {
    * @param typeName - Name of meditation type (e.g., "Mindfulness", "Loving-Kindness")
    * @param typeId - ID of meditation type
    */
-  onMeditationStart(durationMinutes: number, typeName: string, typeId: string): void;
+  onMeditationStart(
+    durationMinutes: number,
+    typeName: string,
+    typeId: string,
+  ): void;
 
   /**
    * Called when meditation timer completes successfully
@@ -24,7 +28,11 @@ export interface AndroidBridge {
    * @param typeName - Name of meditation type
    * @param typeId - ID of meditation type
    */
-  onMeditationComplete(durationMinutes: number, typeName: string, typeId: string): void;
+  onMeditationComplete(
+    durationMinutes: number,
+    typeName: string,
+    typeId: string,
+  ): void;
 
   /**
    * Called when meditation timer is paused
@@ -56,6 +64,7 @@ export interface IOSMessageHandler {
 
 export interface IOSBridge {
   messageHandlers: {
+    syncPractice?: { postMessage(message: unknown): void };
     onMeditationStart?: IOSMessageHandler;
     onMeditationComplete?: IOSMessageHandler;
     onMeditationPause?: IOSMessageHandler;
@@ -68,12 +77,14 @@ export interface IOSBridge {
  * iOS Bridge Message Format
  */
 export interface IOSBridgeMessage {
-  action: 'start' | 'complete' | 'pause' | 'resume' | 'stop';
+  action: "start" | "complete" | "pause" | "resume" | "stop";
   durationMinutes?: number;
   typeName?: string;
   typeId?: string;
   elapsedSeconds?: number;
   remainingSeconds?: number;
+  sessionId?: string;
+  bell?: boolean;
 }
 
 /**
@@ -81,6 +92,7 @@ export interface IOSBridgeMessage {
  */
 declare global {
   interface Window {
+    AndroidInterface?: { syncPractice?: (payload: string) => void };
     Android?: AndroidBridge;
     webkit?: IOSBridge;
   }

@@ -1,12 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { createContext, useContext, useState } from "react";
 import { BottomNav } from "./BottomNav";
 import { GlobalMiniPlayer } from "./GlobalMiniPlayer";
 import { usePathname } from "next/navigation";
 import { usePlayer } from "@/contexts/PlayerContext";
 
+const FocusContext = createContext<(focused: boolean) => void>(() => {});
+export const usePracticeFocus = () => useContext(FocusContext);
+
 export function AppChrome({ children }: { children: React.ReactNode }) {
+  const [focused, setFocused] = useState(false);
   const pathname = usePathname();
   const { guide } = usePlayer();
   const appRoute = [
@@ -27,14 +31,26 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     "/meditation-questions",
   ].some((route) => pathname === route || pathname.startsWith(`${route}/`));
   return (
-    <div
-      className={
-        appRoute ? `app-chrome ${guide ? "app-has-player" : ""}` : undefined
-      }
-    >
-      <div className={appRoute ? "app-content" : undefined}>{children}</div>
-      <GlobalMiniPlayer />
-      {appRoute && <BottomNav />}
-    </div>
+    <FocusContext.Provider value={setFocused}>
+      <div
+        className={
+          appRoute
+            ? `app-chrome ${guide ? "app-has-player" : ""} ${focused && pathname === "/meditate" ? "practice-focused" : ""}`
+            : undefined
+        }
+      >
+        <div
+          className={
+            appRoute && !(focused && pathname === "/meditate")
+              ? "app-content"
+              : undefined
+          }
+        >
+          {children}
+        </div>
+        {!(focused && pathname === "/meditate") && <GlobalMiniPlayer />}
+        {appRoute && !(focused && pathname === "/meditate") && <BottomNav />}
+      </div>
+    </FocusContext.Provider>
   );
 }

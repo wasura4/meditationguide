@@ -1,0 +1,197 @@
+diff --git a/app/src/main/java/com/nirvanaya/meditation/WebViewActivity.kt b/app/src/main/java/com/nirvanaya/meditation/WebViewActivity.kt
+index 1408557..6def90d 100644
+--- a/app/src/main/java/com/nirvanaya/meditation/WebViewActivity.kt
++++ b/app/src/main/java/com/nirvanaya/meditation/WebViewActivity.kt
+@@ -748,6 +748,24 @@ class WebViewActivity : ComponentActivity() {
+ 
+     // JavaScript Interface for web app to communicate with native Android
+     private inner class WebAppInterface {
++        @JavascriptInterface
++        fun syncPractice(payload: String) {
++            if (payload.length > 8192) return
++            runOnUiThread {
++                val origin = android.net.Uri.parse(webView.url ?: "")
++                if (origin.scheme != "https" || origin.host != "meditationguide.vercel.app") return@runOnUiThread
++                try {
++                    val snapshot = org.json.JSONObject(payload)
++                    if (snapshot.optInt("protocolVersion") != 2) return@runOnUiThread
++                    val intent = Intent(this@WebViewActivity, MeditationTimerService::class.java).apply {
++                        action = MeditationTimerService.ACTION_SYNC
++                        putExtra("snapshot", payload)
++                    }
++                    ContextCompat.startForegroundService(this@WebViewActivity, intent)
++                } catch (error: Exception) { Log.e("PracticeBridge", "Cannot sync practice", error) }
++            }
++        }
++
+ 
+         @JavascriptInterface
+         fun startMeditationTimer(durationMinutes: Int) {
+diff --git a/app/src/main/java/com/nirvanaya/meditation/service/MeditationTimerService.kt b/app/src/main/java/com/nirvanaya/meditation/service/MeditationTimerService.kt
+index 1521f53..913b260 100644
+--- a/app/src/main/java/com/nirvanaya/meditation/service/MeditationTimerService.kt
++++ b/app/src/main/java/com/nirvanaya/meditation/service/MeditationTimerService.kt
+@@ -24,6 +24,12 @@ class MeditationTimerService : Service() {
+     private var totalDurationMillis: Long = 0
+     private var isPaused = false
+ 
++    private var practiceId: String? = null
++    private var practiceDeadline = 0L
++    private var practiceBell = true
++    private var practiceTitle = "Meditation"
++    private var practiceWakeLock: PowerManager.WakeLock? = null
++
+     companion object {
+         private const val TAG = "MeditationTimerService"
+         private const val NOTIFICATION_ID = 1001
+@@ -31,6 +37,7 @@ class MeditationTimerService : Service() {
+         private const val CHANNEL_NAME = "Meditation Timer"
+ 
+         // Actions
++        const val ACTION_SYNC = "SYNC_PRACTICE_V2"
+         const val ACTION_START = "START"
+         const val ACTION_PAUSE = "PAUSE"
+         const val ACTION_RESUME = "RESUME"
+@@ -57,7 +64,11 @@ class MeditationTimerService : Service() {
+     }
+ 
+     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
++        if (intent == null) {
++            getSharedPreferences("practice_v2", MODE_PRIVATE).getString("snapshot", null)?.let { syncPractice(it) }
++        }
+         when (intent?.action) {
++            ACTION_SYNC -> syncPractice(intent.getStringExtra("snapshot") ?: "{}")
+             ACTION_START -> {
+                 val duration = intent.getLongExtra(EXTRA_DURATION, 0L)
+                 if (duration > 0) {
+@@ -76,6 +87,71 @@ class MeditationTimerService : Service() {
+         return START_STICKY
+     }
+ 
++
++    private fun syncPractice(payload: String) {
++        // A foreground start must display a notification even for a cancel/update.
++        startForeground(NOTIFICATION_ID, NotificationCompat.Builder(this, CHANNEL_ID)
++            .setSmallIcon(R.mipmap.ic_launcher).setContentTitle("Meditation").setSilent(true).build())
++        try {
++            val state = org.json.JSONObject(payload)
++            val id = state.getString("id")
++            val phase = state.getString("phase")
++            val target = state.getLong("targetMs")
++            val elapsed = state.getLong("elapsedMs")
++            val deadline = state.getLong("deadlineMs")
++            require(state.getInt("protocolVersion") == 2 && id.matches(Regex("practice_[a-zA-Z0-9-]+")))
++            require(target in 60000L..7200000L && elapsed in 0L..target)
++            require(phase in listOf("settling", "running", "paused", "finished"))
++            practiceId = id
++            practiceTitle = state.optString("typeName", "Meditation").take(160)
++            practiceBell = state.optBoolean("bell", true)
++            practiceDeadline = deadline
++            totalDurationMillis = target
++            countdownTimer?.cancel()
++            if (practiceWakeLock?.isHeld == true) practiceWakeLock?.release()
++            val preferences = getSharedPreferences("practice_v2", MODE_PRIVATE)
++            if (phase == "finished") {
++                if (state.optString("outcome") == "completed") completePractice()
++                else { preferences.edit().remove("snapshot").apply(); stopMeditation() }
++                return
++            }
++            preferences.edit().putString("snapshot", payload).apply()
++            isPaused = phase == "paused"
++            remainingTimeMillis = if (isPaused) target - elapsed else (deadline - System.currentTimeMillis()).coerceAtLeast(0L)
++            if (isPaused) { updateNotification(); return }
++            if (remainingTimeMillis == 0L) { completePractice(); return }
++            require(remainingTimeMillis <= 7215000L)
++            practiceWakeLock = (getSystemService(POWER_SERVICE) as PowerManager)
++                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "nirvanaya:practice").apply { acquire(remainingTimeMillis + 10000L) }
++            startCountdownTimer()
++            updateNotification()
++        } catch (error: Exception) {
++            Log.e(TAG, "Invalid practice snapshot", error)
++            stopMeditation()
++        }
++    }
++
++    private fun completePractice() {
++        val id = practiceId ?: return
++        val preferences = getSharedPreferences("practice_v2", MODE_PRIVATE)
++        val completed = preferences.getStringSet("completed", emptySet())!!.toMutableSet()
++        if (!completed.contains(id)) {
++            completed.add(id)
++            preferences.edit().putStringSet("completed", completed.toList().takeLast(128).toSet()).apply()
++            val channelId = if (practiceBell) "practice_complete_bell" else "practice_complete_silent"
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++                val channel = NotificationChannel(channelId, if (practiceBell) "Practice bell" else "Silent practice completion", NotificationManager.IMPORTANCE_DEFAULT)
++                if (!practiceBell) { channel.setSound(null, null); channel.enableVibration(false) }
++                notificationManager.createNotificationChannel(channel)
++            }
++            notificationManager.notify(1002, NotificationCompat.Builder(this, channelId)
++                .setSmallIcon(R.mipmap.ic_launcher).setContentTitle("Practice complete")
++                .setContentText(practiceTitle).setAutoCancel(true).setSilent(!practiceBell).build())
++        }
++        preferences.edit().remove("snapshot").apply()
++        stopMeditation()
++    }
++
+     private fun startMeditation(durationMillis: Long) {
+         totalDurationMillis = durationMillis
+         remainingTimeMillis = durationMillis
+@@ -101,6 +177,7 @@ class MeditationTimerService : Service() {
+     private fun stopMeditation() {
+         countdownTimer?.cancel()
+         countdownTimer = null
++        if (practiceWakeLock?.isHeld == true) practiceWakeLock?.release()
+         stopForeground(STOP_FOREGROUND_REMOVE)
+         stopSelf()
+     }
+@@ -110,7 +187,7 @@ class MeditationTimerService : Service() {
+ 
+         countdownTimer = object : CountDownTimer(remainingTimeMillis, 1000) {
+             override fun onTick(millisUntilFinished: Long) {
+-                remainingTimeMillis = millisUntilFinished
++                remainingTimeMillis = if (practiceId != null) (practiceDeadline - System.currentTimeMillis()).coerceAtLeast(0L) else millisUntilFinished
+                 updateNotification()
+ 
+                 // Send progress update to web app via broadcast
+@@ -118,7 +195,7 @@ class MeditationTimerService : Service() {
+             }
+ 
+             override fun onFinish() {
+-                onMeditationComplete()
++                if (practiceId != null) completePractice() else onMeditationComplete()
+             }
+         }.start()
+     }
+@@ -216,7 +293,7 @@ class MeditationTimerService : Service() {
+         )
+ 
+         val timeRemaining = formatTime(remainingTimeMillis)
+-        val progress = ((totalDurationMillis - remainingTimeMillis).toFloat() / totalDurationMillis * 100).toInt()
++        val progress = ((totalDurationMillis - remainingTimeMillis).toFloat() / totalDurationMillis.coerceAtLeast(1L) * 100).toInt().coerceIn(0, 100)
+ 
+         return NotificationCompat.Builder(this, CHANNEL_ID)
+             .setSmallIcon(R.mipmap.ic_launcher)
+@@ -228,12 +305,13 @@ class MeditationTimerService : Service() {
+             .setShowWhen(false)
+             .setSound(null)
+             .setVibrate(null)
+-            .addAction(
++            .apply { if (practiceId == null) addAction(
+                 R.mipmap.ic_launcher,
+                 if (isPaused) "Resume" else "Pause",
+                 if (isPaused) resumeIntent else pauseIntent
+             )
+-            .addAction(R.mipmap.ic_launcher, "Stop", stopIntent)
++            }
++            .apply { if (practiceId == null) addAction(R.mipmap.ic_launcher, "Stop", stopIntent) }
+             .build()
+     }
+ 
+@@ -288,6 +366,7 @@ class MeditationTimerService : Service() {
+ 
+     override fun onDestroy() {
+         countdownTimer?.cancel()
++        if (practiceWakeLock?.isHeld == true) practiceWakeLock?.release()
+         mediaPlayer?.release()
+         mediaPlayer = null
+         super.onDestroy()

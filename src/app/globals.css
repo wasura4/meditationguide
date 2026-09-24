@@ -563,6 +563,12 @@ html {
 .app-content {
   padding-bottom: var(--app-bottom-space);
 }
+.practice-focused { --app-bottom-space: 0px; }
+.practice-focus {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--background);
+}
 .app-screen {
   min-height: calc(100dvh - var(--app-bottom-space));
   background: color-mix(in srgb, var(--muted) 55%, var(--background));
