@@ -1,0 +1,2 @@
+# Git binary patches require LF even on Windows checkouts.
+docs/native/*.patch text eol=lf whitespace=-blank-at-eof

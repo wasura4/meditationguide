@@ -64,6 +64,9 @@ service cloud.firestore {
 
     // Meditation sessions — owner full control; admin can read for analytics
     match /meditation_sessions/{sessionId} {
+      // Idempotent session creation checks a stable ID before writing. Existing
+      // documents still require ownership/admin access; list permissions are unchanged.
+      allow get: if isSignedIn() && !exists(/databases/$(database)/documents/meditation_sessions/$(sessionId));
       allow read: if isSignedIn() && (
         request.auth.uid == resource.data.userId || permitted('analytics', 'read') || permitted('users', 'read')
       );

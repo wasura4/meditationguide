@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 export type AdminTheme = {
   // core tokens
@@ -39,6 +39,12 @@ export const DEFAULT_ADMIN_THEME: AdminTheme = {
 
 const THEME_DOC = doc(db, 'app_settings', 'theme');
 
+export function subscribeAdminTheme(onTheme: (theme: AdminTheme) => void) {
+  return onSnapshot(THEME_DOC,
+    snapshot => onTheme({ ...DEFAULT_ADMIN_THEME, ...(snapshot.data() || {}) } as AdminTheme),
+    () => onTheme({ ...DEFAULT_ADMIN_THEME }));
+}
+
 export async function getAdminTheme(): Promise<AdminTheme> {
   try {
     const snap = await getDoc(THEME_DOC);
@@ -46,7 +52,7 @@ export async function getAdminTheme(): Promise<AdminTheme> {
       const data = snap.data() as Partial<AdminTheme>;
       return { ...DEFAULT_ADMIN_THEME, ...data } as AdminTheme;
     }
-  } catch (e) {
+  } catch {
     // fall back to defaults
   }
   return { ...DEFAULT_ADMIN_THEME };
