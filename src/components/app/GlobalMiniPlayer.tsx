@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePlayer } from "@/contexts/PlayerContext";
+import { usePlayer, PLAYBACK_SPEEDS } from "@/contexts/PlayerContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Play,
@@ -10,86 +10,92 @@ import {
   RotateCw,
   X,
   ChevronDown,
-  Headphones,
+  SkipBack,
+  SkipForward,
+  ListMusic,
+  Repeat,
+  LoaderCircle,
 } from "lucide-react";
-
-const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
-const formatTime = (seconds: number) => {
-  const safe = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
-  return `${Math.floor(safe / 60)}:${Math.floor(safe % 60)
-    .toString()
-    .padStart(2, "0")}`;
-};
+import { AudioArtwork } from "@/components/audio/AudioArtwork";
+import { audioTime } from "@/lib/audioPresentation";
 
 export function GlobalMiniPlayer() {
   const p = usePlayer();
   const { t } = useLanguage();
-  const [expanded, setExpanded] = useState(false);
+  const [showQueue, setShowQueue] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
-
+  const hasGuide = !!p.guide;
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (expanded && p.guide) {
-      dialog.showModal();
-      const previousOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = previousOverflow;
-        dialog.close();
-      };
-    }
-  }, [expanded, p.guide]);
-
-  useEffect(() => {
-    if (!p.guide) setExpanded(false);
-  }, [p.guide]);
-
+    if (!dialog || !p.expanded || !hasGuide) return;
+    dialog.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      dialog.close();
+    };
+  }, [p.expanded, hasGuide]);
   if (!p.guide) return null;
   const track = p.guide.audioFiles[p.index];
-  const duration = Number.isFinite(p.duration) ? Math.max(0, p.duration) : 0;
-  const currentTime = Number.isFinite(p.currentTime)
-    ? Math.max(0, Math.min(p.currentTime, duration))
-    : 0;
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-
+  const duration = Math.max(0, p.duration);
+  const currentTime = Math.min(p.currentTime, duration);
+  const progress = duration ? (currentTime / duration) * 100 : 0;
+  const subtitle =
+    p.guide.authorName ||
+    (p.guide.name !== track?.title
+      ? p.guide.name
+      : t(`listen.category.${track?.category}`));
+  const playLabel = p.error
+    ? t("listen.retry")
+    : p.isPlaying
+      ? t("interface.pause")
+      : t("interface.play");
+  const playIcon = p.isPlaying ? (
+    <Pause size={28} fill="currentColor" aria-hidden="true" />
+  ) : (
+    <Play size={28} fill="currentColor" aria-hidden="true" />
+  );
   return (
     <>
       <section
         aria-label={t("interface.now_playing")}
         className="app-mini-player"
       >
-        <div className="relative flex items-center gap-1 overflow-hidden rounded-2xl border border-border bg-background/95 p-2 shadow-lg backdrop-blur-xl">
+        <div className="listen-mini relative flex items-center gap-1 overflow-hidden rounded-2xl border border-border p-2 shadow-lg backdrop-blur-xl">
           <button
             type="button"
-            aria-label={`${t("interface.expand_player")}: ${track?.title || p.guide.name}`}
-            onClick={() => setExpanded(true)}
-            className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl px-2 text-left"
+            aria-label={`${t("interface.expand_player")}: ${track?.title}`}
+            onClick={() => p.setExpanded(true)}
+            className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl text-left"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15">
-              <Headphones size={21} aria-hidden="true" />
-            </span>
+            <AudioArtwork
+              src={p.guide.thumbnailUrl}
+              className="h-12 w-12 rounded-xl"
+            />
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold">
-                {track?.title || p.guide.name}
+                {track?.title}
               </span>
               <span className="block truncate text-xs text-muted-foreground">
-                {p.guide.name}
+                {p.error
+                  ? t("listen.play_error_short")
+                  : p.isLoading
+                    ? t("listen.buffering")
+                    : subtitle}
               </span>
             </span>
           </button>
           <button
             type="button"
             onClick={p.toggle}
-            aria-label={
-              p.isPlaying ? t("interface.pause") : t("interface.play")
-            }
+            aria-label={playLabel}
             className="app-icon-button shrink-0"
           >
             {p.isPlaying ? (
-              <Pause size={19} fill="currentColor" aria-hidden="true" />
+              <Pause size={21} fill="currentColor" />
             ) : (
-              <Play size={19} fill="currentColor" aria-hidden="true" />
+              <Play size={21} fill="currentColor" />
             )}
           </button>
           <button
@@ -98,7 +104,7 @@ export function GlobalMiniPlayer() {
             aria-label={t("interface.stop")}
             className="app-icon-button shrink-0"
           >
-            <X size={18} aria-hidden="true" />
+            <X size={18} />
           </button>
           <div
             className="pointer-events-none absolute inset-x-3 bottom-0 h-0.5 bg-muted"
@@ -113,118 +119,249 @@ export function GlobalMiniPlayer() {
       </section>
       <dialog
         ref={dialogRef}
-        onClose={() => setExpanded(false)}
+        onClose={() => p.setExpanded(false)}
         aria-labelledby="player-title"
-        className="app-player-dialog"
+        className="app-player-dialog listen-player"
       >
         <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5 pb-6 sm:px-8">
           <header className="flex shrink-0 items-center justify-between gap-3 py-4">
             <button
               type="button"
-              onClick={() => setExpanded(false)}
+              onClick={() => p.setExpanded(false)}
               aria-label={t("interface.collapse_player")}
               className="app-icon-button"
             >
-              <ChevronDown size={24} aria-hidden="true" />
+              <ChevronDown size={24} />
             </button>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("interface.now_playing")}
-            </p>
+            <div className="min-w-0 text-center">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                {t(showQueue ? "listen.queue" : "interface.now_playing")}
+              </p>
+              <p className="mt-1 truncate text-xs text-muted-foreground">
+                {t("listen.track_position", {
+                  current: p.index + 1,
+                  total: p.guide.audioFiles.length,
+                })}
+              </p>
+            </div>
             <button
               type="button"
               onClick={p.stop}
               aria-label={t("interface.stop")}
               className="app-icon-button"
             >
-              <X size={20} aria-hidden="true" />
+              <X size={20} />
             </button>
           </header>
-          <div className="flex flex-1 flex-col items-center justify-center py-6">
-            <div className="mb-7 flex aspect-square w-[min(52vw,240px)] items-center justify-center rounded-[28px] border border-primary/20 bg-primary/10">
-              <Headphones
-                size={72}
-                strokeWidth={1}
-                className="text-muted-foreground"
-                aria-hidden="true"
-              />
+          {showQueue ? (
+            <div className="flex-1 py-4">
+              <h2
+                id="player-title"
+                className="mb-2 break-words text-xl font-bold leading-relaxed"
+              >
+                {p.guide.name}
+              </h2>
+              <p className="mb-5 text-sm text-muted-foreground">
+                {t("listen.queue_hint")}
+              </p>
+              <ol className="space-y-2">
+                {p.guide.audioFiles.map((item, index) => (
+                  <li key={`${item.id}-${index}`}>
+                    <button
+                      type="button"
+                      onClick={() => p.playAt(index)}
+                      aria-current={index === p.index ? "true" : undefined}
+                      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border p-3 text-left ${index === p.index ? "border-primary/30 bg-primary/10" : "border-transparent hover:bg-muted"}`}
+                    >
+                      <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground">
+                        {index === p.index && p.isPlaying ? (
+                          <Pause size={16} />
+                        ) : (
+                          index + 1
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block break-words text-sm font-medium leading-relaxed">
+                          {item.title}
+                        </span>
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          {audioTime(item.duration)}
+                        </span>
+                      </span>
+                      {index === p.index && (
+                        <span className="text-xs text-muted-foreground">
+                          {t("listen.current")}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ol>
             </div>
-            <h2
-              id="player-title"
-              className="w-full text-center text-xl font-semibold leading-relaxed"
-            >
-              {track?.title || p.guide.name}
-            </h2>
-            <p className="mt-2 text-center text-sm text-muted-foreground">
-              {p.guide.name}
-            </p>
-            <div className="mt-6 w-full">
-              <label htmlFor="player-position" className="sr-only">
-                {t("interface.seek")}
-              </label>
-              <input
-                id="player-position"
-                type="range"
-                min="0"
-                max={duration || 1}
-                step="1"
-                value={currentTime}
-                disabled={!duration}
-                onChange={(event) => p.seek(Number(event.target.value))}
-                aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
-                className="min-h-11 w-full accent-primary"
+          ) : (
+            <div className="flex flex-1 flex-col justify-center py-3">
+              <AudioArtwork
+                src={p.guide.thumbnailUrl}
+                className="listen-player-cover mx-auto aspect-square w-full rounded-[28px] border border-border shadow-sm"
               />
-              <div className="flex justify-between text-xs tabular-nums text-muted-foreground">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
+              <div className="mt-6">
+                <h2
+                  id="player-title"
+                  className="break-words text-xl font-bold leading-relaxed sm:text-2xl"
+                >
+                  {track?.title}
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {subtitle}
+                </p>
+                {track?.description && (
+                  <details className="mt-3 text-sm text-muted-foreground">
+                    <summary className="cursor-pointer py-2">
+                      {t("listen.about_recording")}
+                    </summary>
+                    <p className="whitespace-pre-line pb-2 leading-loose">
+                      {track.description}
+                    </p>
+                  </details>
+                )}
+              </div>
+              <div className="mt-3">
+                <label htmlFor="player-position" className="sr-only">
+                  {t("interface.seek")}
+                </label>
+                <input
+                  id="player-position"
+                  type="range"
+                  min="0"
+                  max={duration || 1}
+                  step="1"
+                  value={currentTime}
+                  disabled={!duration}
+                  onChange={(event) => p.seek(Number(event.target.value))}
+                  aria-valuetext={`${audioTime(currentTime)} / ${audioTime(duration)}`}
+                  className="min-h-11 w-full accent-primary"
+                />
+                <div className="flex justify-between text-xs tabular-nums text-muted-foreground">
+                  <span>{audioTime(currentTime)}</span>
+                  <span>−{audioTime(duration - currentTime)}</span>
+                </div>
+              </div>
+              <div className="my-6 flex items-center justify-between gap-1">
+                <button
+                  type="button"
+                  onClick={p.prev}
+                  aria-label={t("listen.previous")}
+                  className="app-icon-button"
+                >
+                  <SkipBack size={22} fill="currentColor" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => p.skip(-10)}
+                  disabled={!duration}
+                  aria-label={t("interface.skip_back")}
+                  className="app-icon-button relative disabled:opacity-40"
+                >
+                  <RotateCcw size={29} />
+                  <span
+                    className="absolute text-[9px] font-bold"
+                    aria-hidden="true"
+                  >
+                    10
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={p.toggle}
+                  aria-label={playLabel}
+                  className="relative flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm"
+                >
+                  {playIcon}
+                  {p.isLoading && (
+                    <LoaderCircle
+                      size={88}
+                      className="pointer-events-none absolute animate-spin text-primary"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => p.skip(10)}
+                  disabled={!duration}
+                  aria-label={t("interface.skip_forward")}
+                  className="app-icon-button relative disabled:opacity-40"
+                >
+                  <RotateCw size={29} />
+                  <span
+                    className="absolute text-[9px] font-bold"
+                    aria-hidden="true"
+                  >
+                    10
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={p.next}
+                  disabled={p.index >= p.guide.audioFiles.length - 1}
+                  aria-label={t("listen.next")}
+                  className="app-icon-button disabled:opacity-30"
+                >
+                  <SkipForward size={22} fill="currentColor" />
+                </button>
               </div>
             </div>
-            <div className="my-7 flex items-center justify-center gap-8">
-              <button
-                type="button"
-                onClick={() => p.skip(-10)}
-                aria-label={t("interface.skip_back")}
-                className="app-icon-button"
-              >
-                <RotateCcw size={24} aria-hidden="true" />
-              </button>
+          )}
+          {p.error && (
+            <p
+              role="alert"
+              className="mb-4 rounded-2xl bg-muted p-4 text-sm leading-relaxed"
+            >
+              {t("listen.play_error")}{" "}
               <button
                 type="button"
                 onClick={p.toggle}
-                aria-label={
-                  p.isPlaying ? t("interface.pause") : t("interface.play")
-                }
-                className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/20 text-foreground"
+                className="min-h-11 font-semibold underline"
               >
-                {p.isPlaying ? (
-                  <Pause size={30} fill="currentColor" aria-hidden="true" />
-                ) : (
-                  <Play size={30} fill="currentColor" aria-hidden="true" />
-                )}
+                {t("listen.retry")}
               </button>
-              <button
-                type="button"
-                onClick={() => p.skip(10)}
-                aria-label={t("interface.skip_forward")}
-                className="app-icon-button"
-              >
-                <RotateCw size={24} aria-hidden="true" />
-              </button>
-            </div>
-            <label className="flex items-center gap-3 text-sm text-muted-foreground">
+            </p>
+          )}
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+            <label className="sr-only" htmlFor="player-speed">
               {t("interface.playback_speed")}
-              <select
-                value={p.playbackSpeed}
-                onChange={(event) => p.setSpeed(Number(event.target.value))}
-                className="min-h-11 rounded-xl border border-border bg-background px-3 text-foreground"
-              >
-                {PLAYBACK_SPEEDS.map((speed) => (
-                  <option key={speed} value={speed}>
-                    {speed}×
-                  </option>
-                ))}
-              </select>
             </label>
-          </div>
+            <select
+              id="player-speed"
+              value={p.playbackSpeed}
+              onChange={(event) => p.setSpeed(Number(event.target.value))}
+              className="min-h-11 rounded-xl border border-border bg-background px-3 text-sm font-semibold"
+            >
+              {PLAYBACK_SPEEDS.map((speed) => (
+                <option key={speed} value={speed}>
+                  {speed}×
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => p.setRepeat(!p.repeat)}
+              aria-pressed={p.repeat}
+              aria-label={t("listen.repeat")}
+              className={`app-icon-button ${p.repeat ? "bg-primary/15 ring-1 ring-primary/30" : ""}`}
+            >
+              <Repeat size={21} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowQueue((value) => !value)}
+              aria-pressed={showQueue}
+              className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-medium"
+            >
+              <ListMusic size={21} />
+              {t(showQueue ? "interface.now_playing" : "listen.queue")}
+            </button>
+          </footer>
         </div>
       </dialog>
     </>

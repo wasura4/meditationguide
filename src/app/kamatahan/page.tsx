@@ -51,7 +51,12 @@ export default function KamatahanPage() {
             activeTab === "library" ? t("audio.title") : t("interface.guides")
           }
         >
-          {activeTab === "library" ? <AudioLibrary /> : <PlaylistManager />}
+          <div hidden={activeTab !== "playlists"}>
+            <PlaylistManager />
+          </div>
+          <div hidden={activeTab !== "library"}>
+            <AudioLibrary />
+          </div>
         </section>
       </AppPage>
     </ProtectedRoute>
