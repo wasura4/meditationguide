@@ -4,44 +4,57 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EventService } from '@/lib/eventService';
 import { MeditationEvent } from '@/types';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
-import { format, differenceInDays } from 'date-fns';
+import { ArrowRight } from 'lucide-react';
+import { format } from 'date-fns';
+import { eventTiming } from '@/lib/eventTiming';
 import { Button } from '@/components/ui/button';
 
 export const EventBanner: React.FC = () => {
   const router = useRouter();
   const [activeEvents, setActiveEvents] = useState<MeditationEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
+    let disposed = false;
+    let request = 0;
     const loadActiveEvents = async () => {
+      const current = ++request;
+      setNow(new Date());
       try {
-        console.log('[EventBanner] Loading active events...');
         const events = await EventService.getActiveEvents();
-        console.log('[EventBanner] Active events loaded:', events);
-        console.log('[EventBanner] Number of active events:', events.length);
-        setActiveEvents(events);
-      } catch (error) {
-        console.error('[EventBanner] Error loading active events:', error);
+        if (!disposed && current === request) { setActiveEvents(events); setError(false); }
+      } catch {
+        if (!disposed && current === request) setError(true);
       } finally {
-        setLoading(false);
+        if (!disposed && current === request) setLoading(false);
       }
     };
 
-    loadActiveEvents();
-  }, []);
+    const onVisible = () => { if (!document.hidden) void loadActiveEvents(); };
+    void loadActiveEvents();
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('online', onVisible);
+    const timer = window.setInterval(onVisible, 60000);
+    return () => {
+      disposed = true;
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('online', onVisible);
+    };
+  }, [attempt]);
 
-  if (loading || activeEvents.length === 0) {
+  if (loading || (!error && activeEvents.length === 0)) {
     return null;
   }
 
   return (
     <div className="space-y-6">
-      {activeEvents.map((event) => {
-        const daysRemaining = differenceInDays(event.endDate, new Date());
-        const daysTotal = differenceInDays(event.endDate, event.startDate);
-        const daysPassed = daysTotal - daysRemaining;
-        const progressPercentage = Math.min(Math.max((daysPassed / daysTotal) * 100, 0), 100);
+      {error && <div role="alert" className="home-glass p-4 text-sm">Events could not be refreshed. <button className="min-h-11 underline" onClick={() => setAttempt(value => value + 1)}>Retry</button></div>}
+      {activeEvents.filter(event => eventTiming(event, now).active).map((event) => {
+        const { daysRemaining, elapsedPercent: progressPercentage } = eventTiming(event, now);
 
         return (
           <div
@@ -82,14 +95,14 @@ export const EventBanner: React.FC = () => {
               {/* Progress Section */}
               <div className="mb-8 bg-background/40 rounded-2xl p-4 border border-white/5 backdrop-blur-sm">
                 <div className="mb-2 flex items-center justify-between text-sm font-medium">
-                  <span className="text-muted-foreground">Event Progress</span>
+                  <span className="text-muted-foreground">Event timeline</span>
                   <span className="text-primary">
-                    {Math.round(progressPercentage)}% Complete
+                    {Math.floor(progressPercentage)}% elapsed
                   </span>
                 </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-muted/50">
+                <div role="progressbar" aria-label="Event time elapsed" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.floor(progressPercentage)} className="h-3 w-full overflow-hidden rounded-full bg-muted/50">
                   <div
-                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-1000 ease-out rounded-full shadow-[0_0_10px_rgba(var(--primary),0.5)]"
+                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-1000 ease-out rounded-full"
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
@@ -110,6 +123,7 @@ export const EventBanner: React.FC = () => {
                 </Button>
                 <Button
                   variant="outline"
+                  disabled={error}
                   onClick={() => router.push(`/meditate?eventId=${event.id}`)}
                   className="flex-1 border-primary/20 hover:bg-primary/5 hover:border-primary/40 h-12 rounded-xl text-base font-medium backdrop-blur-sm transition-all"
                 >

@@ -1,6 +1,7 @@
 import { doc, runTransaction, type Firestore } from "firebase/firestore";
 import type { MeditationSession } from "@/types";
 import type { PracticeClock } from "./meditationClock";
+import { qualifiesForEvent } from './eventTiming';
 
 export function practiceSession(clock: PracticeClock): MeditationSession {
   if (
@@ -50,12 +51,22 @@ export async function savePractice(
         updatedAt: saved.updatedAt.toDate(),
       } as MeditationSession;
     }
+    const eventSnapshot = clock.eventId && !clock.eventId.includes('/')
+      ? await tx.get(doc(store, 'meditation_events', clock.eventId)) : null;
+    const event = eventSnapshot?.data();
+    const eligible = event && qualifiesForEvent({
+      isActive: event.isActive === true,
+      startDate: event.startDate?.toDate() ?? new Date(NaN),
+      endDate: event.endDate?.toDate() ?? new Date(NaN),
+    }, clock.startedAt, clock.endsAt!);
     const participation =
-      clock.eventId && clock.outcome === "completed"
+      eligible && clock.outcome === "completed"
         ? doc(store, "event_participation", `${clock.eventId}_${clock.userId}`)
         : null;
     const previous = participation ? await tx.get(participation) : null;
     const data = { ...session } as Partial<MeditationSession>;
+    // Preserve the meditation even when its event was removed or disabled.
+    if (!eligible) delete data.eventId;
     delete data.id;
     tx.set(reference, data);
     if (participation) {
@@ -76,6 +87,6 @@ export async function savePractice(
         updatedAt: session.endTime,
       });
     }
-    return session;
+    return { ...data, id: session.id } as MeditationSession;
   });
 }

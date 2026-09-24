@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { dailyPracticeGoal, summarizeDashboardPractice } from "@/lib/dashboardPractice";
 import type { MeditationSession } from "@/types";
+import { PracticeSkeleton } from "./DashboardSkeleton";
 
 export function DashboardPractice({ sessions, loading, error, retry, now }: {
   sessions: MeditationSession[]; loading: boolean; error: boolean; retry: () => void; now: Date;
@@ -33,6 +34,8 @@ export function DashboardPractice({ sessions, loading, error, retry, now }: {
     catch { setSaveError(true); }
     finally { setSaving(false); }
   }
+  if (loading) return <PracticeSkeleton />;
+
   return <div className="space-y-3 sm:space-y-4">
     <section className="home-glass p-5 sm:p-7" aria-labelledby="today-practice-title">
       <div className="flex items-center justify-between gap-3">
@@ -63,7 +66,6 @@ export function DashboardPractice({ sessions, loading, error, retry, now }: {
         <p id="goal-help" className="mt-2 text-xs text-muted-foreground">{t("home.goal_help")}</p>
         {saveError && <p role="alert" className="mt-2 text-sm text-destructive">{t("home.goal_error")}</p>}
       </form>}
-      {loading && <p role="status" className="mb-3 text-sm text-muted-foreground">{t("common.loading")}</p>}
       {error && <div role="alert" className="mb-4 text-sm"><p>{t("activity.error")}</p><button onClick={retry} className="min-h-11 font-semibold underline">{t("common.retry")}</button></div>}
       <Link href="/meditate" className="home-primary flex min-h-13 items-center justify-center gap-2 rounded-full px-4 py-3 text-base font-semibold"><Play size={19} fill="currentColor" aria-hidden="true" />{t("practice.begin")}</Link>
     </section>

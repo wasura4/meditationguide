@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { BottomNav } from '@/components/app/BottomNav';
+import { eventTiming } from '@/lib/eventTiming';
 import { EventService } from '@/lib/eventService';
 import { MeditationEvent, EventStats, EventParticipation } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { format, differenceInDays } from 'date-fns';
+import { format } from 'date-fns';
 import { Calendar, Users, Clock, Target, TrendingUp, Award, ArrowLeft, Sparkles, Trophy, Medal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
@@ -22,31 +22,48 @@ export default function EventDetailsPage() {
   const [stats, setStats] = useState<EventStats | null>(null);
   const [userParticipation, setUserParticipation] = useState<EventParticipation | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [statsError, setStatsError] = useState(false);
+  const [participationError, setParticipationError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [now, setNow] = useState(() => new Date());
+  const userId = user?.id;
 
   useEffect(() => {
-    const loadEventData = async () => {
-      if (!eventId || !user) return;
-
-      try {
-        setLoading(true);
-        const [eventData, statsData, participationData] = await Promise.all([
-          EventService.getEvent(eventId),
-          EventService.getEventStats(eventId),
-          EventService.getUserParticipation(eventId, user.id),
-        ]);
-
-        setEvent(eventData);
-        setStats(statsData);
-        setUserParticipation(participationData);
-      } catch (error) {
-        console.error('Error loading event data:', error);
-      } finally {
-        setLoading(false);
-      }
+    if (!eventId || !userId) return;
+    let disposed = false;
+    let request = 0;
+    setLoading(true);
+    setEvent(null);
+    setStats(null);
+    setUserParticipation(null);
+    const loadEventData = () => {
+      const current = ++request;
+      const valid = () => !disposed && current === request;
+      setNow(new Date());
+      void EventService.getEvent(eventId).then(value => {
+        if (valid()) { setEvent(value); setError(false); }
+      }).catch(() => { if (valid()) setError(true); })
+        .finally(() => { if (valid()) setLoading(false); });
+      void EventService.getEventStats(eventId).then(value => {
+        if (valid()) { setStats(value); setStatsError(false); }
+      }).catch(() => { if (valid()) setStatsError(true); });
+      void EventService.getUserParticipation(eventId, userId).then(value => {
+        if (valid()) { setUserParticipation(value); setParticipationError(false); }
+      }).catch(() => { if (valid()) setParticipationError(true); });
     };
-
+    const onVisible = () => { if (!document.hidden) loadEventData(); };
     loadEventData();
-  }, [eventId, user]);
+    window.addEventListener('online', onVisible);
+    document.addEventListener('visibilitychange', onVisible);
+    const timer = window.setInterval(onVisible, 60000);
+    return () => {
+      disposed = true;
+      clearInterval(timer);
+      window.removeEventListener('online', onVisible);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [eventId, userId, attempt]);
 
   if (loading) {
     return (
@@ -65,7 +82,8 @@ export default function EventDetailsPage() {
     return (
       <ProtectedRoute>
         <div className="flex min-h-screen flex-col items-center justify-center bg-background">
-          <h1 className="text-2xl font-bold text-foreground">Event not found</h1>
+          <h1 className="text-2xl font-bold text-foreground">{error ? 'Unable to load this event' : 'Event not found'}</h1>
+          {error && <Button className="mt-4" onClick={() => setAttempt(value => value + 1)}>Retry</Button>}
           <Button onClick={() => router.push('/dashboard')} className="mt-4">
             Back to Dashboard
           </Button>
@@ -74,10 +92,7 @@ export default function EventDetailsPage() {
     );
   }
 
-  const now = new Date();
-  const daysRemaining = differenceInDays(event.endDate, now);
-  const isActive = event.startDate <= now && event.endDate >= now;
-  const hasEnded = event.endDate < now;
+  const { daysRemaining, active: isActive, ended: hasEnded } = eventTiming(event, now);
   const progressPercentage = event.goalMinutes
     ? Math.min(((stats?.totalMinutes || 0) / event.goalMinutes) * 100, 100)
     : 0;
@@ -97,7 +112,7 @@ export default function EventDetailsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background relative overflow-hidden pb-24">
+      <div className="min-h-screen bg-background relative overflow-hidden pb-28">
         {/* Background Gradients */}
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
@@ -109,6 +124,7 @@ export default function EventDetailsPage() {
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-white/10 shadow-sm supports-[backdrop-filter]:bg-background/60">
           <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
             <button
+              aria-label="Back to dashboard"
               onClick={() => router.push('/dashboard')}
               className="p-2 rounded-full hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
             >
@@ -119,6 +135,10 @@ export default function EventDetailsPage() {
         </header>
 
         <main className="max-w-4xl mx-auto px-4 py-6 relative z-10">
+          {(error || statsError || participationError) && <div role="alert" className="mb-4 rounded-2xl border border-border bg-card p-4 text-sm">
+            {error ? 'Event details could not be refreshed. Previously loaded details are shown.' : 'Some event statistics could not be loaded.'}
+            <button className="ml-3 min-h-11 underline" onClick={() => setAttempt(value => value + 1)}>Retry</button>
+          </div>}
           <motion.div
             variants={container}
             initial="hidden"
@@ -144,7 +164,7 @@ export default function EventDetailsPage() {
                 )}
                 {!isActive && !hasEnded && (
                   <div className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-sm font-medium">
-                    Starts {format(event.startDate, 'MMM dd')}
+                    {event.isActive ? `Starts ${format(event.startDate, 'MMM dd')}` : 'Event unavailable'}
                   </div>
                 )}
               </div>
@@ -170,9 +190,9 @@ export default function EventDetailsPage() {
                 <Sparkles className="w-5 h-5" />
                 <h2 className="font-semibold">About This Event</h2>
               </div>
-              <p className="text-foreground/90 leading-relaxed text-lg">{event.description}</p>
+              <p className="whitespace-pre-wrap break-words text-foreground/90 leading-relaxed text-base sm:text-lg">{event.description}</p>
               {event.descriptionEn && (
-                <p className="mt-3 text-muted-foreground leading-relaxed">{event.descriptionEn}</p>
+                <p className="mt-3 whitespace-pre-wrap break-words text-muted-foreground leading-relaxed">{event.descriptionEn}</p>
               )}
               {event.meditationType && (
                 <div className="mt-6 p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
@@ -188,7 +208,7 @@ export default function EventDetailsPage() {
             </motion.div>
 
             {/* Stats Grid */}
-            <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats && <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Participants', value: stats?.totalParticipants || 0, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                 { label: 'Total Minutes', value: (stats?.totalMinutes || 0).toLocaleString(), icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10' },
@@ -203,15 +223,15 @@ export default function EventDetailsPage() {
                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</p>
                 </div>
               ))}
-            </motion.div>
+            </motion.div>}
 
             {/* Goal Progress */}
-            {event.goalMinutes && (
+            {stats && !!event.goalMinutes && (
               <motion.div variants={item} className="rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-6 sm:p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
                     <div>
                       <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
                         <Trophy className="w-5 h-5 text-amber-500" />
@@ -311,22 +331,19 @@ export default function EventDetailsPage() {
               </motion.div>
             )}
 
-            {/* CTA Button */}
-            {isActive && (
-              <motion.div variants={item} className="fixed bottom-24 left-0 right-0 px-4 flex justify-center z-50 pointer-events-none">
+          </motion.div>
+        </main>
+            {isActive && !error && (
+              <div className="fixed left-0 right-0 px-4 flex justify-center z-40 pointer-events-none" style={{ bottom: 'var(--app-bottom-space)' }}>
                 <Button
                   size="lg"
                   onClick={() => router.push(`/meditate?eventId=${eventId}`)}
-                  className="pointer-events-auto px-8 py-6 rounded-full text-lg font-semibold shadow-2xl shadow-primary/25 hover:scale-105 transition-transform"
+                  className="pointer-events-auto max-w-full h-auto min-h-12 whitespace-normal px-6 py-3 rounded-full text-base font-semibold shadow-xl"
                 >
                   Meditate for This Event
                 </Button>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
-        </main>
-
-        <BottomNav />
       </div>
     </ProtectedRoute>
   );

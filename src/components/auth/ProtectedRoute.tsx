@@ -9,18 +9,21 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAuth?: boolean;
   fallback?: React.ReactNode;
+  loadingFallback?: React.ReactNode;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   requireAuth = true,
-  fallback 
+  fallback,
+  loadingFallback
 }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   // Show loading state
   if (loading) {
+    if (loadingFallback !== undefined) return <>{loadingFallback}</>;
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="text-center">

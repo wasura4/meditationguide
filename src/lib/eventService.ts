@@ -1,3 +1,4 @@
+import { eventTiming } from './eventTiming';
 import {
   collection,
   doc,
@@ -153,53 +154,22 @@ export class EventService {
   // Get active events (current date is between startDate and endDate)
   static async getActiveEvents(): Promise<MeditationEvent[]> {
     try {
-      const now = Timestamp.now();
       const eventsRef = collection(db, EVENTS_COLLECTION);
-
-      console.log('[EventService] Fetching active events...');
-      console.log('[EventService] Current date:', now.toDate());
-
-      // Get all events and filter client-side for date range
-      const q = query(
-        eventsRef,
-        where('isActive', '==', true),
-        orderBy('startDate', 'desc')
-      );
-
-      const querySnapshot = await getDocs(q);
-      console.log('[EventService] Found events with isActive=true:', querySnapshot.size);
-
-      const allEvents = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
+      // A single-field query needs no manually provisioned composite index.
+      const snapshot = await getDocs(query(eventsRef, where('isActive', '==', true)));
+      const now = new Date();
+      return snapshot.docs.map(snapshot => {
+        const data = snapshot.data();
         return {
-          id: doc.id,
           ...data,
+          id: snapshot.id,
           startDate: data.startDate.toDate(),
           endDate: data.endDate.toDate(),
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
         } as MeditationEvent;
-      });
-
-      console.log('[EventService] All isActive events:', allEvents);
-
-      // Filter for active date range
-      const currentDate = now.toDate();
-      const activeEvents = allEvents.filter(
-        (event) => {
-          const isActive = event.startDate <= currentDate && event.endDate >= currentDate;
-          console.log(`[EventService] Event "${event.title}":`, {
-            startDate: event.startDate,
-            endDate: event.endDate,
-            currentDate,
-            isActive
-          });
-          return isActive;
-        }
-      );
-
-      console.log('[EventService] Filtered active events:', activeEvents.length);
-      return activeEvents;
+      }).filter(event => eventTiming(event, now).active)
+        .sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
     } catch (error) {
       console.error('Error getting active events:', error);
       throw error;

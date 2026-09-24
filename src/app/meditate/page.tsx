@@ -1,5 +1,7 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { EventService } from '@/lib/eventService';
+import { eventTiming } from '@/lib/eventTiming';
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Check, CloudOff, RotateCcw } from "lucide-react";
@@ -20,6 +22,16 @@ export default function MeditatePage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const search = useSearchParams();
+  const [eventError, setEventError] = useState('');
+  const [checkingEvent, setCheckingEvent] = useState(false);
+  const starting = useRef(false);
+  const startGeneration = useRef(0);
+  const requestedEvent = search.get('eventId') || undefined;
+  useEffect(() => {
+    const generation = startGeneration.current;
+    setEventError('');
+    return () => { startGeneration.current = generation + 1; };
+  }, [requestedEvent, user?.id]);
   const practice = usePracticeClock(user?.id);
   const { clock } = practice;
   const setFocus = usePracticeFocus();
@@ -141,18 +153,35 @@ export default function MeditatePage() {
       >
         <div className="mx-auto max-w-xl space-y-4">
           {storageNotice}
+          {checkingEvent && <p role="status">Checking event availability…</p>}
+          {eventError && <div role="alert" className="app-card p-4 text-sm"><p>{eventError}</p><Link href="/meditate" className="inline-flex min-h-11 items-center underline">Continue without an event</Link></div>}
           <MeditationSetup
             onCancel={() => {}}
-            onStart={(type, duration, name, bell, settling) => {
-              if (player.isPlaying) player.toggle();
-              practice.begin(
-                type,
-                name,
-                duration,
-                bell,
-                settling,
-                search.get("eventId") || undefined,
-              );
+            onStart={async (type, duration, name, bell, settling) => {
+              if (starting.current) return;
+              starting.current = true;
+              const generation = startGeneration.current;
+              setEventError('');
+              try {
+                if (requestedEvent) {
+                  setCheckingEvent(true);
+                  if (requestedEvent.includes('/')) throw new Error('invalid event');
+                  const event = await EventService.getEvent(requestedEvent);
+                  if (generation !== startGeneration.current) return;
+                  if (!event || !eventTiming(event).active) {
+                    setEventError('This event is no longer available. You can still meditate without an event.');
+                    return;
+                  }
+                }
+                if (generation !== startGeneration.current) return;
+                if (player.isPlaying) player.toggle();
+                practice.begin(type, name, duration, bell, settling, requestedEvent);
+              } catch {
+                if (generation === startGeneration.current) setEventError('Unable to verify this event. Check your connection and try starting again.');
+              } finally {
+                starting.current = false;
+                setCheckingEvent(false);
+              }
             }}
           />
         </div>

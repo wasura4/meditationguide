@@ -1,11 +1,16 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('fs'),ts=require('typescript');
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText,f);
 const {initializeTestEnvironment,assertFails,assertSucceeds}=require('@firebase/rules-unit-testing');
-const {doc,getDoc,getDocs,collection,updateDoc,query,where}=require('firebase/firestore');
+const {doc,getDoc,getDocs,collection,updateDoc,query,where,setDoc}=require('firebase/firestore');
 const {savePractice}=require('../../src/lib/practiceTransactions.ts');
 const {createPractice,finishPractice}=require('../../src/lib/meditationClock.ts');
 let env;const db=uid=>env.authenticatedContext(uid).firestore();
-before(async()=>{env=await initializeTestEnvironment({projectId:'demo-practice',firestore:{host:'127.0.0.1',port:8185,rules:fs.readFileSync('firestore.rules','utf8')}});await env.clearFirestore();});
+before(async()=>{
+ env=await initializeTestEnvironment({projectId:'demo-practice',firestore:{host:'127.0.0.1',port:8185,rules:fs.readFileSync('firestore.rules','utf8')}});await env.clearFirestore();
+ await env.withSecurityRulesDisabled(async context => {
+  for (const id of ['retreat','late','short']) await setDoc(doc(context.firestore(),'meditation_events',id),{isActive:true,startDate:new Date(0),endDate:new Date(1000000)});
+ });
+});
 after(async()=>await env?.cleanup());
 function result(id,eventId){return finishPractice(createPractice({id,userId:'owner',typeId:'breath',typeName:'Breathing',bell:false,...(eventId?{eventId}:{})},1,0,100000),160000);}
 test('concurrent completion retries write one session and one event contribution; retry preserves reflection',async()=>{
