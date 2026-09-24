@@ -13,6 +13,7 @@ import { DhammaService } from "@/lib/dhammaService";
 import type { MeditationSession } from "@/types";
 import type { DhammaPost } from "@/types/admin";
 import { EventBanner } from "@/components/events/EventBanner";
+import { DailyCheckinCard } from "@/components/checkins/CheckinCards";
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -84,6 +85,7 @@ function DashboardContent() {
         </section>
         <div className="home-content space-y-6 pb-8">
           <DashboardPractice sessions={sessions} loading={loading} error={sessionsError} retry={() => setAttempt(value => value + 1)} now={now} />
+          <DailyCheckinCard />
           <section aria-labelledby="home-listen-title">
             <h2 id="home-listen-title" className="mb-3 text-lg font-semibold tracking-tight">{t("home.practice_for_you")}</h2>
             <Link href="/kamatahan" className="home-glass flex items-center gap-3 p-4 sm:gap-4 sm:p-5">

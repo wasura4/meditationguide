@@ -1,4 +1,8 @@
 rules_version = '2';
+// Daily check-ins: admin-managed bilingual questions; owner-private answers at
+// users/{uid}/daily_checkins/{local-YYYY-MM-DD_questionId}. Date boundaries and
+// question snapshots are immutable. Client-reported timezone offsets describe
+// the user's local day; these self-reports are not an anti-cheating mechanism.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -55,6 +59,64 @@ service cloud.firestore {
       match /logs/{logId} {
         allow read, write: if request.auth.uid == userId;
       }
+    }
+
+    function validCheckinQuestion(d) {
+      return d.keys().hasAll(['titleEn', 'titleSi', 'order', 'status', 'version', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'])
+        && d.keys().hasOnly(['titleEn', 'titleSi', 'order', 'status', 'version', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'])
+        && d.titleEn is string && d.titleEn.size() > 0 && d.titleEn.size() <= 240
+        && d.titleSi is string && d.titleSi.size() > 0 && d.titleSi.size() <= 240
+        && d.order is int && d.order >= 0 && d.order <= 999
+        && d.status in ['draft', 'active', 'archived'] && d.version is int
+        && d.createdAt is timestamp && d.createdBy is string
+        && d.updatedAt == request.time && d.updatedBy == request.auth.uid;
+    }
+    match /daily_checkin_questions/{questionId} {
+      allow read: if (isSignedIn() && resource.data.status == 'active') || permitted('content', 'read');
+      allow create: if permitted('content', 'create') && validCheckinQuestion(request.resource.data)
+        && request.resource.data.version == 1 && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update: if permitted('content', 'update') && validCheckinQuestion(request.resource.data)
+        && request.resource.data.version == resource.data.version + 1
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy;
+      allow delete: if false;
+    }
+    function twoDigits(n) { return (n < 10 ? '0' : '') + string(n); }
+    function validCheckinDay(d) {
+      let localStart = d.dayStart - duration.value(d.startOffset, 'm');
+      let localEnd = d.dayEnd - duration.value(d.endOffset, 'm');
+      return d.startOffset is int && d.startOffset >= -840 && d.startOffset <= 720
+        && d.endOffset is int && d.endOffset >= -840 && d.endOffset <= 720
+        && localStart == localStart.date() && localEnd == localStart + duration.value(1, 'd')
+        && d.dayEnd - d.dayStart >= duration.value(22, 'h')
+        && d.dayEnd - d.dayStart <= duration.value(26, 'h')
+        && d.day == string(localStart.year()) + '-' + twoDigits(localStart.month()) + '-' + twoDigits(localStart.day())
+        && request.time >= d.dayStart && request.time < d.dayEnd;
+    }
+    function validCheckin(d, answerId) {
+      let question = get(/databases/$(database)/documents/daily_checkin_questions/$(d.questionId)).data;
+      return d.keys().hasAll(['day', 'questionId', 'questionVersion', 'titleEn', 'titleSi', 'answer', 'dayStart', 'dayEnd', 'startOffset', 'endOffset', 'timeZone', 'createdAt', 'updatedAt'])
+        && d.keys().hasOnly(['day', 'questionId', 'questionVersion', 'titleEn', 'titleSi', 'answer', 'dayStart', 'dayEnd', 'startOffset', 'endOffset', 'timeZone', 'createdAt', 'updatedAt'])
+        && d.day is string && d.questionId is string && d.answer is bool
+        && answerId == d.day + '_' + d.questionId
+        && d.timeZone is string && d.timeZone.size() > 0 && d.timeZone.size() <= 100
+        && d.dayStart is timestamp && d.dayEnd is timestamp && validCheckinDay(d)
+        && question.status == 'active' && d.questionVersion == question.version
+        && d.titleEn == question.titleEn && d.titleSi == question.titleSi
+        && d.createdAt == request.time && d.updatedAt == request.time;
+    }
+    function validCheckinUpdate(d, previous) {
+      return d.diff(previous).affectedKeys().hasOnly(['answer', 'updatedAt'])
+        && d.answer is bool && d.updatedAt == request.time
+        && request.time >= previous.dayStart && request.time < previous.dayEnd;
+    }
+    // Religious reflections are private, including from administrators.
+    match /users/{userId}/daily_checkins/{answerId} {
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId && validCheckin(request.resource.data, answerId);
+      allow update: if isSignedIn() && request.auth.uid == userId
+        && validCheckinUpdate(request.resource.data, resource.data);
     }
 
     // Favorites (subcollection under users) — owner only
