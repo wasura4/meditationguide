@@ -25,7 +25,7 @@ APK: `temp/android-clock-qa/app/build/outputs/apk/debug/app-debug.apk`; SHA-256 
 
 QA-only differences: distinct application ID, demo Firebase identifiers, local loopback URL/origin allowlist and cleartext loopback network configuration, onboarding skipped, cloud messaging registration disabled. None of these testing changes are applied to the production Android source. The QA binary is not suitable for store publication.
 
-Pending device acceptance: locked-screen completion, bell versus silent ending, notification permission denied, app switch/reopen, pause/resume, interruption/process termination and the resulting logbook entry. A successful build alone does not pass these checks.
+Device checks completed below: denied notification permission, enabling permission, locked-screen bell completion, silent completion, pause/resume, reopening after completion and one logbook record. App interruption/process termination and iPhone checks remain pending. A successful build alone does not pass these checks.
 
 ### First device test and notification fix
 
@@ -33,7 +33,9 @@ The tester reported no bell and a completed session after unlocking. Native pref
 
 Added a permission/silent-channel warning to setup and the active clock, with an explicit action that requests Android notification permission or opens this app's notification settings. The app does not prompt automatically. Replaced the default phone notification sound with a bundled bell matching the web preview. Rebuilt and installed the QA update without clearing the tester's session or account. The updated APK SHA-256 is `5A2922AAF9F2D852BF73E7F056033307B793BC13519C99C63E9CFF712313C46C`.
 
-After the tester used the action, Android reported `POST_NOTIFICATIONS: granted=true`. A new one-minute snapshot with `bell:true` was received by the native service, and the phone was observed in `mWakefulness=Asleep` during that session. The tester confirmed **the bell sounded while locked**. Android retained completed ID `practice_b129fd0f-5090-41f5-81cf-763d563ffff4` and posted notification 1002 on `practice_complete_bell_v2` using the bundled sound. This passes the bell-enabled lock-screen check on this Android 15 device. Silent completion combined with pause/resume is the next manual check.
+After the tester used the action, Android reported `POST_NOTIFICATIONS: granted=true`. A new one-minute snapshot with `bell:true` was received by the native service, and the phone was observed in `mWakefulness=Asleep` during that session. The tester confirmed **the bell sounded while locked**. Android retained completed ID `practice_b129fd0f-5090-41f5-81cf-763d563ffff4` and posted notification 1002 on `practice_complete_bell_v2` using the bundled sound. This passes the bell-enabled lock-screen check on this Android 15 device.
+
+The next session, `practice_501744d4-0dab-4edb-804c-d7b7939133b2`, used `bell:false`. Native state showed a pause after 12,746 ms and a later resumed deadline, excluding 38,373 ms of paused time. Android completed on the silent channel with `mSound=null` and vibration disabled. The emulator contained exactly one record for that attempt with duration `1`, status `completed`, and wall times 06:38:22.339–06:40:00.712 UTC. The tester confirmed **silent, pause respected, one entry** after reopening. This passes the silent-mode, pause/resume and single-save check on the same phone.
 
 43 application tests, TypeScript, targeted ESLint, the production web build and 823 matching English/Sinhala translation keys pass for this fix. Native QA APK build passes; the binary patch reverse-check passes against the Android source and bundled sound asset.
 
