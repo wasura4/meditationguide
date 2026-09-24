@@ -7,6 +7,7 @@ export interface ArticleSection {
 }
 export interface PreparedArticle {
   html: string;
+  text: string;
   sections: ArticleSection[];
   videoOnly: boolean;
 }
@@ -161,6 +162,7 @@ export function prepareArticle(
   // Re-sanitize after DOM normalization, with the same restrictive allowlist.
   return {
     html: purifier.sanitize(container.innerHTML, config),
+    text: container.textContent?.replace(/\u00a0/g, ' ').trim() || '',
     sections: sections.filter((section) => section.title),
     videoOnly:
       Boolean(container.querySelector("iframe")) &&

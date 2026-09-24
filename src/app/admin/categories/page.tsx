@@ -74,6 +74,7 @@ export default function AdminMeditationCategoriesPage() {
   }, [editingCategory]);
 
   const handleCreateCategory = async (formData: FormData) => {
+    if (!hasPermission('content','create')) return;
     if (!adminUser) return;
 
     try {
@@ -107,6 +108,7 @@ export default function AdminMeditationCategoriesPage() {
   };
 
   const handleUpdateCategory = async (categoryId: string, formData: FormData) => {
+    if (!hasPermission('content','update')) return;
     try {
       const updates: Partial<MeditationCategoryFormData> = {
         name: formData.get('name') as string,
@@ -138,6 +140,7 @@ export default function AdminMeditationCategoriesPage() {
   };
 
   const handleDeleteCategory = async (categoryId: string) => {
+    if (!hasPermission('content','delete')) return;
     // Check if category is in use
     const isInUse = await MeditationCategoryService.isCategoryInUse(categoryId);
     if (isInUse) {
@@ -173,6 +176,7 @@ export default function AdminMeditationCategoriesPage() {
   };
 
   const handleToggleStatus = async (categoryId: string, currentStatus: boolean) => {
+    if (!hasPermission('content','update')) return;
     try {
       await MeditationCategoryService.toggleActiveStatus(categoryId, !currentStatus);
       showToast({
@@ -421,6 +425,7 @@ export default function AdminMeditationCategoriesPage() {
                           <Button
                             size="sm"
                             variant={category.isActive ? "outline" : "default"}
+                            disabled={!hasPermission('content','update')}
                             onClick={() => handleToggleStatus(category.id, category.isActive)}
                             className={category.isActive ? "" : "bg-gray-600 hover:bg-gray-700"}
                           >

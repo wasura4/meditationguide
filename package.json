@@ -11,6 +11,7 @@
     "i18n:collect": "node scripts/i18n/collect-keys.mjs",
     "i18n:check": "node scripts/i18n/validate.cjs",
     "test": "node --test --experimental-test-isolation=none tests/*.test.cjs",
+    "test:rules": "node --test tests/firestore/*.test.cjs",
     "i18n:write": "node scripts/i18n/collect-keys.mjs --write"
   },
   "dependencies": {
@@ -59,6 +60,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19.1.10",

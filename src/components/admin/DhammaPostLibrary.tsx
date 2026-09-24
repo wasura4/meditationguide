@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { DhammaPost } from '@/types/admin';
 import { DhammaService } from '@/lib/dhammaService';
-import { ContentRenderer } from '@/utils/contentRenderer';
+import { ArticleSummary } from './ArticlePreview';
 import { useToast } from '@/components/ui/toast';
 
 interface DhammaPostLibraryProps {
@@ -15,7 +15,7 @@ interface DhammaPostLibraryProps {
 }
 
 export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh }: DhammaPostLibraryProps) {
-  const { adminUser } = useAdminAuth();
+  const { adminUser, hasPermission } = useAdminAuth();
   const { showToast } = useToast();
   const [posts, setPosts] = useState<DhammaPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +45,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
   }, [adminUser]);
 
   const handleDelete = async (postId: string) => {
+    if (!hasPermission('dhamma','delete')) return;
     if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
       setIsDeleting(true);
       try {
@@ -72,21 +73,21 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'published': return 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'draft': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
-      case 'archived': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'published': return 'bg-muted text-green-800';
+      case 'draft': return 'bg-yellow-100 text-yellow-800';
+      case 'archived': return 'bg-muted text-foreground';
+      default: return 'bg-muted text-foreground';
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'meditation': return 'bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'buddhism': return 'bg-muted text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
-      case 'philosophy': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-300';
-      case 'practice': return 'bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'teachings': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'meditation': return 'bg-muted text-blue-800';
+      case 'buddhism': return 'bg-muted text-purple-800';
+      case 'philosophy': return 'bg-indigo-100 text-indigo-800';
+      case 'practice': return 'bg-muted text-green-800';
+      case 'teachings': return 'bg-orange-100 text-orange-800';
+      default: return 'bg-muted text-foreground';
     }
   };
 
@@ -113,7 +114,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
     return (
       <div className="text-center py-8">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600 dark:text-gray-300">Loading Dhamma posts...</p>
+        <p className="mt-4 text-muted-foreground">Loading Dhamma posts...</p>
       </div>
     );
   }
@@ -121,12 +122,12 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filters</h3>
+      <div className="bg-card rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Filters</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Search
             </label>
             <input
@@ -134,18 +135,18 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
               placeholder="Search posts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Category
             </label>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Categories</option>
               <option value="meditation">Meditation</option>
@@ -157,13 +158,13 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Status
             </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Statuses</option>
               <option value="published">Published</option>
@@ -191,12 +192,12 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
       <div className="space-y-4">
 
         {filteredPosts.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-            <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">📝</div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <div className="bg-card rounded-lg shadow p-8 text-center">
+            <div className="text-muted-foreground text-6xl mb-4">📝</div>
+            <h3 className="text-lg font-medium text-foreground mb-2">
               {posts.length === 0 ? 'No Dhamma posts yet' : 'No posts match your filters'}
             </h3>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-muted-foreground">
               {posts.length === 0 
                 ? 'Create your first Dhamma post to share wisdom with your users!'
                 : 'Try adjusting your filters to see more posts.'
@@ -207,7 +208,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                      filteredPosts.map((post) => (
              <div
                key={post.id}
-               className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden"
+               className="bg-card rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden"
              >
                <div className="flex flex-col lg:flex-row">
                  {/* Featured Image */}
@@ -225,20 +226,20 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                  <div className={`flex-1 p-6 ${post.featuredImage ? 'lg:w-2/3' : ''}`}>
                    <div className="flex items-start justify-between mb-3">
                      <div className="flex-1">
-                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                       <h3 className="text-lg font-semibold text-foreground mb-2">
                          {post.title}
                          {post.featured && (
-                           <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+                           <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">
                              ⭐ Featured
                            </span>
                          )}
                        </h3>
-                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                       <p className="text-sm text-muted-foreground mb-3">
                          {post.excerpt}
                        </p>
                        {/* Content Preview with Video Support */}
-                       <div className="text-sm text-gray-700 dark:text-gray-300 mb-3 max-h-32 overflow-hidden">
-                         <ContentRenderer content={post.content} />
+                       <div className="text-sm text-foreground mb-3 max-h-32 overflow-hidden">
+                         <ArticleSummary content={post.content} />
                        </div>
                      </div>
                    </div>
@@ -250,13 +251,13 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(post.status)}`}>
                       {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
                     </span>
-                    <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-foreground">
                       {post.language.toUpperCase()}
                     </span>
-                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-blue-800">
                       {post.readTime} min read
                     </span>
-                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-green-800">
                       {post.viewCount} views
                     </span>
                   </div>
@@ -267,7 +268,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                       {post.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                          className="px-2 py-1 rounded-full text-xs bg-muted text-foreground"
                         >
                           #{tag}
                         </span>
@@ -275,7 +276,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                     </div>
                   )}
 
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-muted-foreground">
                     Created: {post.createdAt.toLocaleDateString()}
                     {post.publishedAt && ` • Published: ${post.publishedAt.toLocaleDateString()}`}
                     • Author: {post.authorName}
@@ -285,6 +286,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-2 mt-4 lg:mt-0 lg:ml-4">
                   <Button
+                    disabled={!hasPermission('dhamma', 'update')}
                     onClick={() => onEditPost(post)}
                     variant="outline"
                     size="sm"
@@ -298,8 +300,8 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
                     onClick={() => handleDelete(post.id)}
                     variant="outline"
                     size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-[var(--color-status-error)]/10 dark:hover:bg-red-900/20"
-                    disabled={isDeleting}
+                    className="text-red-600 hover:text-red-700 hover:bg-[var(--color-status-error)]/10"
+                    disabled={isDeleting || !hasPermission('dhamma', 'delete')}
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -314,7 +316,7 @@ export default function DhammaPostLibrary({ onEditPost, onDeletePost, onRefresh 
       </div>
 
       {/* Results Count */}
-      <div className="text-sm text-gray-600 dark:text-gray-400 text-center">
+      <div className="text-sm text-muted-foreground text-center">
         Showing {filteredPosts.length} of {posts.length} posts
       </div>
     </div>

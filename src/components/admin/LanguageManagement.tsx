@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 import { LanguageService, Translation } from '@/lib/languageService';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
@@ -12,7 +10,7 @@ import siTranslations from '@/i18n/locales/si/common.json';
 
 
 export const LanguageManagement: React.FC = () => {
-  const { adminUser } = useAdminAuth();
+  const { adminUser, hasPermission } = useAdminAuth();
   const { showToast } = useToast();
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,8 +21,6 @@ export const LanguageManagement: React.FC = () => {
   const [editValue, setEditValue] = useState<string>('');
   const [showMissingOnly, setShowMissingOnly] = useState(false);
   const [showChangedEnglishOnly, setShowChangedEnglishOnly] = useState(false);
-  const [debugOpen, setDebugOpen] = useState(false);
-  const [isAdminDoc, setIsAdminDoc] = useState<boolean | null>(null);
   const [syncing, setSyncing] = useState(false);
 
   const loadTranslations = useCallback(async () => {
@@ -81,26 +77,8 @@ export const LanguageManagement: React.FC = () => {
     loadTranslations();
   }, [loadTranslations]);
 
-  // Check admin doc exists for current user (debug aid)
-  useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const uid = auth.currentUser?.uid;
-        if (!uid) {
-          setIsAdminDoc(false);
-          return;
-        }
-        const snap = await getDoc(doc(db, 'admin_users', uid));
-        setIsAdminDoc(snap.exists());
-      } catch (e) {
-        console.warn('Admin check failed', e);
-        setIsAdminDoc(null);
-      }
-    };
-    checkAdmin();
-  }, []);
-
   const handleSaveTranslation = async (key: string, sinhala: string) => {
+    if (!hasPermission('settings','update') || !hasPermission('settings','create')) return;
     try {
       setSaving(true);
       const translation = translations.find(t => t.key === key);
@@ -138,6 +116,7 @@ export const LanguageManagement: React.FC = () => {
   };
 
   const handleEdit = (key: string, currentValue: string) => {
+    if (!hasPermission('settings','update') || !hasPermission('settings','create')) return;
     setEditingKey(key);
     setEditValue(currentValue);
   };
@@ -148,7 +127,7 @@ export const LanguageManagement: React.FC = () => {
   };
 
   const handleSyncAllKeys = async () => {
-    if (!adminUser?.id) {
+    if (!adminUser?.id || !hasPermission('settings','update') || !hasPermission('settings','create')) {
       showToast({
         type: 'error',
         title: 'Error',
@@ -223,25 +202,26 @@ export const LanguageManagement: React.FC = () => {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b9e7a] mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading translations...</p>
+        <p className="mt-4 text-muted-foreground">Loading translations...</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {(!hasPermission('settings','update') || !hasPermission('settings','create')) && <p className="text-sm text-muted-foreground">Read-only access. Translation editing requires create and update permissions.</p>}
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap gap-3 justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Language Management</h2>
-          <p className="text-gray-600 mt-1">Manage Sinhala translations for all application text</p>
+          <h2 className="text-2xl font-bold text-foreground">Language Management</h2>
+          <p className="text-muted-foreground mt-1">Manage Sinhala translations for all application text</p>
         </div>
         <div className="flex gap-2">
           <Button
             onClick={handleSyncAllKeys}
             variant="default"
             size="sm"
-            disabled={syncing}
+            disabled={syncing || !hasPermission('settings','update') || !hasPermission('settings','create')}
           >
             {syncing ? 'Syncing...' : 'Sync All Keys'}
           </Button>
@@ -256,63 +236,26 @@ export const LanguageManagement: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-white border border-gray-200 rounded-xl p-3">
-        <div className="flex gap-2 items-center">
-          <input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search keys or text..."
-            className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
-          />
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
-          >
-            <option value="all">All categories</option>
-            {Array.from(new Set(translations.map(t => t.category))).sort().map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex gap-4 items-center">
-          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-card border border-border rounded-xl p-3">
+        <div className="flex flex-wrap gap-4 items-center">
+          <label className="inline-flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={showMissingOnly} onChange={(e) => setShowMissingOnly(e.target.checked)} />
             Missing Sinhala ({stats.missing})
           </label>
-          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <label className="inline-flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={showChangedEnglishOnly} onChange={(e) => setShowChangedEnglishOnly(e.target.checked)} />
             English updated ({stats.changed})
           </label>
-          <div className="text-xs text-gray-500">Total keys: {stats.total}</div>
-          <button
-            type="button"
-            onClick={() => setDebugOpen(d => !d)}
-            className="ml-2 text-xs px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
-            title="Show debug info"
-          >
-            {debugOpen ? 'Hide Debug' : 'Show Debug'}
-          </button>
+          <div className="text-xs text-muted-foreground">Total keys: {stats.total}</div>
+
         </div>
       </div>
 
-      {debugOpen && (
-        <div className="text-xs text-gray-600 bg-white border border-gray-200 rounded-lg p-3">
-          <div>UID: {auth.currentUser?.uid || 'not signed in'}</div>
-          <div>Email: {auth.currentUser?.email || 'n/a'}</div>
-          <div>Admin doc exists: {isAdminDoc === null ? 'unknown' : isAdminDoc ? 'yes' : 'no'}</div>
-          <div>Project: nirvanaya-web</div>
-          {!isAdminDoc && (
-            <div className="mt-1 text-red-600">Missing admin_users/&#123;UID&#125; document will prevent writes to translations.</div>
-          )}
-        </div>
-      )}
-
       {/* Filters */}
-      <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
+      <div className="bg-card rounded-xl p-4 shadow-lg border border-border">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Search
             </label>
             <input
@@ -320,17 +263,17 @@ export const LanguageManagement: React.FC = () => {
               placeholder="Search by key, English, or Sinhala..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Category
             </label>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
             >
               <option value="all">All Categories</option>
               {categories.map(cat => (
@@ -342,45 +285,45 @@ export const LanguageManagement: React.FC = () => {
       </div>
 
       {/* Translations Table */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div className="bg-card rounded-xl shadow-lg border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-muted">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Key
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   English
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Sinhala (සිංහල)
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-card divide-y divide-gray-200">
               {filteredTranslations.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                     No translations found
                   </td>
                 </tr>
               ) : (
                 filteredTranslations.map((translation) => (
-                  <tr key={translation.key} className="hover:bg-gray-50">
+                  <tr key={translation.key} className="hover:bg-muted">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-mono text-gray-900">
+                      <div className="text-sm font-mono text-foreground">
                         {translation.key}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-foreground">
                         {translation.english}
                       </div>
                     </td>
@@ -391,7 +334,7 @@ export const LanguageManagement: React.FC = () => {
                             type="text"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
+                            className="flex-1 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-[#6b9e7a] focus:border-transparent"
                             placeholder="Enter Sinhala translation..."
                             autoFocus
                           />
@@ -415,7 +358,7 @@ export const LanguageManagement: React.FC = () => {
                       ) : (
                         <div className="flex items-center gap-2">
                           {translation.sinhala ? (
-                            <span className="text-sm text-gray-900">{translation.sinhala}</span>
+                            <span className="text-sm text-foreground">{translation.sinhala}</span>
                           ) : (
                             <>
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-800 text-xs font-medium">
@@ -424,7 +367,7 @@ export const LanguageManagement: React.FC = () => {
                                 </svg>
                                 Missing
                               </span>
-                              <span className="text-gray-400 italic text-sm">Not translated</span>
+                              <span className="text-muted-foreground italic text-sm">Not translated</span>
                             </>
                           )}
                         </div>
@@ -438,7 +381,8 @@ export const LanguageManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       {editingKey === translation.key ? null : (
                         <Button
-                          onClick={() => handleEdit(translation.key, translation.sinhala)}
+                          disabled={!hasPermission('settings','update') || !hasPermission('settings','create')}
+                              onClick={() => handleEdit(translation.key, translation.sinhala)}
                           size="sm"
                           variant="outline"
                         >
@@ -454,8 +398,8 @@ export const LanguageManagement: React.FC = () => {
         </div>
 
         {/* Pagination Info */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          <div className="text-sm text-gray-600">
+        <div className="px-6 py-4 border-t border-border bg-muted">
+          <div className="text-sm text-muted-foreground">
             Showing {filteredTranslations.length} of {translations.length} translations
           </div>
         </div>

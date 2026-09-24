@@ -23,7 +23,7 @@ function ArticleLoader({ id }: { id: string }) {
   useEffect(() => {
     let cancelled = false;
     setState("loading");
-    DhammaService.getPostById(id)
+    DhammaService.getPublishedPostById(id)
       .then((value) => {
         if (cancelled) return;
         if (!value || value.status !== "published") {

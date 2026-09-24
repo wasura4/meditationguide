@@ -7,6 +7,8 @@ import { DhammaPost, DhammaPostFormData } from '@/types/admin';
 import ImageUploadField from './ImageUploadField';
 import { useToast } from '@/components/ui/toast';
 import TiptapEditor from './TiptapEditor';
+import { ArticlePreview } from './ArticlePreview';
+import { prepareArticle } from '@/lib/articleContent';
 
 interface DhammaPostFormProps {
   post?: DhammaPost;
@@ -16,7 +18,7 @@ interface DhammaPostFormProps {
 }
 
 export default function DhammaPostForm({ post, onSave, onCancel, isEditing = false }: DhammaPostFormProps) {
-  const { adminUser } = useAdminAuth();
+  const { adminUser, hasPermission } = useAdminAuth();
   const { showToast } = useToast();
   const [formData, setFormData] = useState<DhammaPostFormData>({
     title: '',
@@ -102,11 +104,12 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (savingRef.current) return;
+    if (!hasPermission('dhamma', isEditing ? 'update' : 'create')) { setError('Your account does not have permission to save this article.'); return; }
     const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const status = (submitter?.value || formData.status) as DhammaPostFormData['status'];
-    const text = new DOMParser().parseFromString(formData.content, 'text/html').body.textContent?.replace(/\u00a0/g, ' ').trim();
-    if (!formData.title.trim() || (status === 'published' && !text)) {
-      setError('Add a title and article text before publishing. Drafts only need a title.');
+    const prepared = prepareArticle(formData.content, window);
+    if (!formData.title.trim() || (status === 'published' && !prepared.text && !prepared.videoOnly)) {
+      setError('Add a title and article text or a supported YouTube video before publishing. Drafts only need a title.');
       return;
     }
     savingRef.current = true;
@@ -114,7 +117,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
     setError(null);
 
     try {
-      await onSave({ ...formData, title: formData.title.trim(), status });
+      await onSave({ ...formData, title: formData.title.trim(), content: prepared.html, status });
       setDirty(false);
       try { localStorage.removeItem(draftKey); } catch { /* Save already succeeded. */ }
       showToast({
@@ -175,9 +178,9 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <fieldset disabled={loading} className="space-y-6 min-w-0">
-      <div className="rounded-xl border bg-white dark:bg-gray-800 p-5 space-y-3">
+      <div className="rounded-xl border bg-card p-5 space-y-3">
         <h2 className="text-xl font-semibold">{isEditing ? 'Edit Dhamma article' : 'Write a Dhamma article'}</h2>
-        <p className="text-sm text-gray-500">Write, review the phone preview, then publish when your article is ready.</p>
+        <p className="text-sm text-muted-foreground">Write, review the phone preview, then publish when your article is ready.</p>
         <p role="status" className="text-sm">{loading ? 'Saving to your account…' : draftStatus}</p>
         {recovery && <div className="flex flex-wrap gap-3 items-center">
           <span>An unfinished draft is available on this device.</span>
@@ -185,7 +188,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
           <Button type="button" variant="outline" onClick={() => { try { localStorage.removeItem(draftKey); } catch {} setRecovery(null); }}>Discard recovery copy</Button>
         </div>}
         <Button type="button" variant="outline" onClick={() => setPreview(value => !value)}>{preview ? 'Hide preview' : 'Preview on phone'}</Button>
-        {preview && <iframe title="Article phone preview" sandbox="" className="mx-auto w-full max-w-[390px] h-[600px] border rounded-2xl bg-white" srcDoc={`<!doctype html><html lang="${formData.language}"><head><meta name="viewport" content="width=device-width"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src https: data:;"><style>body{font-family:Arial,sans-serif;line-height:1.9;padding:20px;color:#24332b;overflow-wrap:anywhere}img,iframe,table{max-width:100%}h1{font-size:24px;line-height:1.5}blockquote{border-left:3px solid #789b82;margin:16px 0;padding-left:16px}</style></head><body><h1>${formData.title.replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!))}</h1>${formData.content}</body></html>`} />}
+        {preview && <ArticlePreview title={formData.title} content={formData.content} />}
       </div>
       {error && (
         <div role="alert" className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
@@ -194,12 +197,12 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
       )}
 
       {/* Basic Information */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h3>
+      <div className="bg-card rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Basic Information</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Title *
             </label>
             <input
@@ -207,20 +210,20 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
               required
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter post title"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Category *
             </label>
             <select
               required
               value={formData.category}
               onChange={(e) => handleInputChange('category', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -230,21 +233,21 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Excerpt
           </label>
           <textarea
             value={formData.excerpt}
             onChange={(e) => handleInputChange('excerpt', e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Brief summary of the post (optional)"
           />
         </div>
       </div>
 
       {/* Featured Image */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <ImageUploadField
           value={formData.featuredImage}
           onChange={(imageUrl) => handleInputChange('featuredImage', imageUrl)}
@@ -255,12 +258,12 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
       </div>
 
       {/* Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Content</h3>
+      <div className="bg-card rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Content</h3>
         
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Content *
             </label>
             <TiptapEditor
@@ -268,26 +271,26 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
               onChange={(content) => handleInputChange('content', content)}
               placeholder="Write your Dhamma post content here... You can format text, add images, and embed YouTube videos directly!"
             />
-            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="mt-2 text-sm text-muted-foreground">
               Estimated reading time: {calculateReadTime(formData.content.replace(/<[^>]*>/g, ''))} minutes
             </div>
           </div>
 
           {/* YouTube Video Embed Helper */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-blue-800 mb-2">
               🎥 YouTube Video Embed Guide
             </h4>
             <div className="space-y-2">
-              <p className="text-xs text-blue-700 dark:text-blue-300">
+              <p className="text-xs text-blue-700">
                 To embed a YouTube video:
               </p>
-              <ol className="text-xs text-blue-700 dark:text-blue-300 list-decimal list-inside space-y-1">
+              <ol className="text-xs text-blue-700 list-decimal list-inside space-y-1">
                 <li>Click the &quot;Video&quot; button in the toolbar</li>
                 <li>Paste your YouTube video URL</li>
                 <li>Or use the video embed code directly</li>
               </ol>
-              <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+              <p className="text-xs text-blue-700 mt-2">
                 The video will automatically appear in your post when published.
               </p>
             </div>
@@ -296,19 +299,19 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
       </div>
 
       {/* Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Settings</h3>
+      <div className="bg-card rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Settings</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Language *
             </label>
             <select
               required
               value={formData.language}
               onChange={(e) => handleInputChange('language', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value}>{lang.label}</option>
@@ -317,14 +320,14 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Status *
             </label>
             <select
               required
               value={formData.status}
               onChange={(e) => handleInputChange('status', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {statuses.map((status) => (
                 <option key={status.value} value={status.value}>{status.label}</option>
@@ -339,9 +342,9 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
               type="checkbox"
               checked={formData.featured}
               onChange={(e) => handleInputChange('featured', e.target.checked)}
-              className="mr-2 rounded border-gray-300 text-[var(--primary)] focus:ring-blue-500"
+              className="mr-2 rounded border-input text-[var(--primary)] focus:ring-blue-500"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-foreground">
               Feature this post
             </span>
           </label>
@@ -349,8 +352,8 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
       </div>
 
       {/* Tags */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tags</h3>
+      <div className="bg-card rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Tags</h3>
         
         <div className="flex items-center space-x-2 mb-4">
           <input
@@ -358,7 +361,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Add a tag"
           />
           <Button
@@ -375,13 +378,13 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
           {formData.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted dark:bg-blue-900/20 text-blue-800 dark:text-blue-200"
+              className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted text-blue-800"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="ml-2 text-[var(--primary)] dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                className="ml-2 text-[var(--primary)] hover:text-blue-800"
               >
                 ×
               </button>
@@ -391,32 +394,32 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
       </div>
 
       {/* SEO */}
-      <details className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <summary className="text-lg font-semibold text-gray-900 dark:text-white mb-4 cursor-pointer">Advanced: search engine metadata</summary>
+      <details className="bg-card rounded-lg shadow p-6">
+        <summary className="text-lg font-semibold text-foreground mb-4 cursor-pointer">Advanced: search engine metadata</summary>
         
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               SEO Title
             </label>
             <input
               type="text"
               value={formData.seoTitle}
               onChange={(e) => handleInputChange('seoTitle', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="SEO-optimized title (optional)"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               SEO Description
             </label>
             <textarea
               value={formData.seoDescription}
               onChange={(e) => handleInputChange('seoDescription', e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="SEO description for search engines (optional)"
             />
           </div>
@@ -424,7 +427,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
       </details>
 
       {/* Actions */}
-      <div className="sticky bottom-0 flex flex-wrap justify-end gap-3 bg-white dark:bg-gray-800 border-t p-4">
+      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] lg:bottom-0 flex flex-wrap justify-end gap-3 bg-card border-t p-4">
         <Button
           type="button"
           onClick={() => { if (!dirty || window.confirm('Leave this article? Your recovery copy will remain on this device.')) onCancel(); }}

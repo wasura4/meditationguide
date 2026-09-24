@@ -30,7 +30,9 @@ const AdminPlaylistsPage: React.FC = () => {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [authorName, setAuthorName] = useState('');
-  const canWrite = hasPermission('audio', 'create') || hasPermission('audio', 'update');
+  const canCreate = hasPermission('audio', 'create');
+  const canUpdate = hasPermission('audio', 'update');
+  const canDelete = hasPermission('audio', 'delete');
 
   // Edit existing playlist
   const [editOpen, setEditOpen] = useState(false);
@@ -85,6 +87,7 @@ const AdminPlaylistsPage: React.FC = () => {
   };
 
   const openEdit = (p: PlaylistDoc) => {
+    if (!canUpdate) return;
     setEditing(p);
     setEditSelectedIds((p.audioFiles || []).map((a) => a.id));
     setEditOpen(true);
@@ -97,7 +100,7 @@ const AdminPlaylistsPage: React.FC = () => {
   };
 
   const saveEdit = async () => {
-    if (!editing) return;
+    if (!editing || !canUpdate) return;
     try {
       setSaving(true);
       const selection = audioFiles.filter((a) => editSelectedIds.includes(a.id));
@@ -144,7 +147,7 @@ const AdminPlaylistsPage: React.FC = () => {
   };
 
   const createPlaylist = async () => {
-    if (!adminUser?.id) return;
+    if (!adminUser?.id || !canCreate) return;
     if (!name.trim()) {
       showToast({ type: 'warning', title: 'Name required', message: 'Please provide a playlist name.' });
       return;
@@ -160,7 +163,7 @@ const AdminPlaylistsPage: React.FC = () => {
         await uploadBytes(r, coverFile);
         thumbnailUrl = await getDownloadURL(r);
       }
-      const id = await PlaylistService.create({
+      await PlaylistService.create({
         name,
         description,
         audioFiles: selection,
@@ -195,6 +198,7 @@ const AdminPlaylistsPage: React.FC = () => {
   };
 
   const togglePublic = async (p: PlaylistDoc) => {
+    if (!canUpdate) return;
     try {
       await PlaylistService.update(p.id, { isPublic: !p.isPublic });
       setPlaylists((prev) => prev.map((x) => (x.id === p.id ? { ...x, isPublic: !x.isPublic } : x)));
@@ -205,6 +209,7 @@ const AdminPlaylistsPage: React.FC = () => {
   };
 
   const remove = async (p: PlaylistDoc) => {
+    if (!canDelete) return;
     if (!confirm(`Delete playlist "${p.name}"?`)) return;
     try {
       await PlaylistService.remove(p.id);
@@ -227,7 +232,7 @@ const AdminPlaylistsPage: React.FC = () => {
               <h1 className="text-2xl font-bold">Playlists</h1>
               <p className="text-muted-foreground">Create and manage public playlists available to all users.</p>
             </div>
-            {canWrite && (
+            {canCreate && (
               <Button onClick={() => setFormOpen(true)}>
                 Create Playlist
               </Button>
@@ -296,7 +301,7 @@ const AdminPlaylistsPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-end gap-2">
                 <Button variant="ghost" onClick={() => { setFormOpen(false); resetForm(); }}>Cancel</Button>
-                <Button onClick={createPlaylist} loading={saving} disabled={!canWrite}>Save Playlist</Button>
+                <Button onClick={createPlaylist} loading={saving} disabled={!canCreate}>Save Playlist</Button>
               </div>
             </div>
           )}
@@ -331,16 +336,16 @@ const AdminPlaylistsPage: React.FC = () => {
                       <td className="px-3 py-2 text-muted-foreground">{p.updatedAt?.toLocaleDateString?.() || ''}</td>
                       <td className="px-3 py-2">
                         <div className="flex items-center justify-end gap-2">
-                          {canWrite && (
-                            <Button size="sm" variant="outline" onClick={() => togglePublic(p)}>
+                          {canUpdate && (
+                            <Button size="sm" variant="outline" disabled={!canUpdate} onClick={() => togglePublic(p)}>
                               {p.isPublic ? 'Unpublish' : 'Publish'}
                             </Button>
                           )}
-                          {canWrite && (
-                            <Button size="sm" variant="outline" onClick={() => openEdit(p)}>Edit</Button>
+                          {canUpdate && (
+                            <Button size="sm" variant="outline" disabled={!canUpdate} onClick={() => openEdit(p)}>Edit</Button>
                           )}
-                          {canWrite && (
-                            <Button size="sm" variant="destructive" onClick={() => remove(p)}>Delete</Button>
+                          {canDelete && (
+                            <Button size="sm" variant="destructive" disabled={!canDelete} onClick={() => remove(p)}>Delete</Button>
                           )}
                         </div>
                       </td>
@@ -359,7 +364,7 @@ const AdminPlaylistsPage: React.FC = () => {
               <h2 className="text-lg font-semibold">Edit Playlist</h2>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" onClick={() => { setEditOpen(false); setEditing(null); }}>Close</Button>
-                <Button onClick={saveEdit} loading={saving} disabled={!canWrite}>Save Changes</Button>
+                <Button onClick={saveEdit} loading={saving} disabled={!canUpdate}>Save Changes</Button>
               </div>
             </div>
             {/* Meta */}

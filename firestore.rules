@@ -5,14 +5,41 @@ service cloud.firestore {
 
     function isSignedIn() { return request.auth != null }
 
-    function isAdmin() {
-      return isSignedIn() &&
-        exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    function activeAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/admin_users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admin_users/$(request.auth.uid)).data.isActive == true
+        && get(/databases/$(database)/documents/admin_users/$(request.auth.uid)).data.role in ['admin', 'super_admin', 'content_admin', 'moderator'];
+    }
+
+    // The six supported resources mirror adminAccess.ts. Provision roles with the Admin SDK.
+    function permissionAt(permissions, index, resourceName, action) {
+      return permissions.size() > index && permissions[index].resource == resourceName
+        && permissions[index].actions is list && action in permissions[index].actions;
+    }
+    function permitted(resourceName, action) {
+      return activeAdmin() && adminPermission(resourceName, action);
+    }
+    function adminPermission(resourceName, action) {
+      let admin = get(/databases/$(database)/documents/admin_users/$(request.auth.uid)).data;
+      return (admin.role == 'super_admin' || (admin.permissions is list && (
+        permissionAt(admin.permissions, 0, resourceName, action)
+        || permissionAt(admin.permissions, 1, resourceName, action)
+        || permissionAt(admin.permissions, 2, resourceName, action)
+        || permissionAt(admin.permissions, 3, resourceName, action)
+        || permissionAt(admin.permissions, 4, resourceName, action)
+        || permissionAt(admin.permissions, 5, resourceName, action))));
     }
 
     // Users — user can manage own; admin can read/write all
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId || isAdmin();
+      allow read: if request.auth.uid == userId || permitted('users', 'read') || permitted('analytics', 'read');
+      allow create: if request.auth.uid == userId && request.resource.data.get('role', 'user') == 'user'
+        && request.resource.data.get('isActive', true) == true;
+      allow update: if (request.auth.uid == userId
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isActive', 'deletedAt']))
+        || permitted('users', 'update');
+      allow delete: if request.auth.uid == userId || permitted('users', 'delete');
 
       // Devices sub-collection — for FCM tokens (owner only)
       match /devices/{deviceToken} {
@@ -38,91 +65,126 @@ service cloud.firestore {
     // Meditation sessions — owner full control; admin can read for analytics
     match /meditation_sessions/{sessionId} {
       allow read: if isSignedIn() && (
-        request.auth.uid == resource.data.userId || isAdmin()
+        request.auth.uid == resource.data.userId || permitted('analytics', 'read') || permitted('users', 'read')
       );
       allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
-      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow update: if isSignedIn() && request.auth.uid == resource.data.userId
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.userId;
     }
 
     // Admin users — secure access per-admin
     match /admin_users/{adminId} {
       allow read: if isSignedIn() && request.auth.uid == adminId;
-      allow write: if isSignedIn() && request.auth.uid == adminId;
+      allow create, delete: if false;
+      allow update: if activeAdmin() && request.auth.uid == adminId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLogin'])
+        && request.resource.data.lastLogin == request.time;
     }
 
     // Kamatahan audio — public read, admin write
     match /kamatahan_audio/{audioId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if permitted('audio', 'create');
+      allow update: if permitted('audio', 'update');
+      allow delete: if permitted('audio', 'delete');
     }
 
     // Dhamma posts — public read, admin write
     match /dhamma_posts/{postId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read: if resource.data.status == 'published' || permitted('dhamma', 'read') || permitted('analytics', 'read');
+      allow create: if permitted('dhamma', 'create') && validPost();
+      allow update: if permitted('dhamma', 'update') && validPost();
+      allow delete: if permitted('dhamma', 'delete');
+      function validPost() {
+        return request.resource.data.title is string && request.resource.data.title.size() > 0
+          && request.resource.data.content is string
+          && request.resource.data.status in ['draft', 'published', 'archived'];
+      }
     }
 
     // Playlists — public read for isPublic; owner/admin manage
     match /playlists/{playlistId} {
       allow read: if resource.data.isPublic == true
-        || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()));
+        || (isSignedIn() && (resource.data.userId == request.auth.uid || permitted('audio', 'read')));
       allow create: if isSignedIn() && (
-        request.resource.data.userId == request.auth.uid || isAdmin()
+        request.resource.data.userId == request.auth.uid || permitted('audio', 'create')
       );
-      allow update, delete: if isSignedIn() && (
-        resource.data.userId == request.auth.uid || isAdmin()
+      allow update: if isSignedIn() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) || permitted('audio', 'update')
       );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || permitted('audio', 'delete'));
     }
 
     // Audio listens (for counts)
     match /audio_listens/{listenId} {
       allow read: if true;
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid
+        && request.resource.data.audioId is string && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
     }
 
     // Dhamma reads (per-user tracking)
     match /dhamma_reads/{readId} {
       allow read: if true;
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid
+        && request.resource.data.postId is string && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
     }
 
     // Translations — public read, admin write
     match /translations/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if permitted('settings', 'create');
+      allow update: if permitted('settings', 'update');
+      allow delete: if permitted('settings', 'delete');
     }
 
     // Meditation types — public read, admin write
     match /meditation_types/{typeId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if permitted('content', 'create');
+      allow update: if permitted('content', 'update');
+      allow delete: if permitted('content', 'delete');
     }
 
     // Meditation categories — public read, admin write (NEW)
     match /meditationCategories/{categoryId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if permitted('content', 'create');
+      allow update: if permitted('content', 'update');
+      allow delete: if permitted('content', 'delete');
     }
 
     // App settings (theme, etc.) — public read, admin write
     match /app_settings/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if permitted('settings', 'create');
+      allow update: if permitted('settings', 'update');
+      allow delete: if permitted('settings', 'delete');
     }
 
     // Meditation Events — public read, admin write
     match /meditation_events/{eventId} {
       allow read: if true;
-      allow write: if isSignedIn(); // Temporary debug: Relaxed from isAdmin() to check if that's the blocker
+      allow create: if permitted('content', 'create') && validEvent();
+      allow update: if permitted('content', 'update') && validEvent();
+      allow delete: if permitted('content', 'delete');
+      function validEvent() {
+        return request.resource.data.title is string && request.resource.data.title.size() > 0
+          && request.resource.data.startDate is timestamp && request.resource.data.endDate is timestamp
+          && request.resource.data.endDate >= request.resource.data.startDate
+          && request.resource.data.isActive is bool;
+      }
     }
 
     // Event Participation — user manage own, public read (for leaderboards)
     match /event_participation/{participationId} {
       allow read: if true;
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.eventId == resource.data.eventId;
       allow delete: if false; // Prevent accidental deletion of history
     }
   }

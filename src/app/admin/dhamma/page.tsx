@@ -12,7 +12,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 
 export default function DhammaContentPage() {
-  const { adminUser } = useAdminAuth();
+  const { adminUser, hasPermission } = useAdminAuth();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'library' | 'create' | 'edit'>('library');
   const [editingPost, setEditingPost] = useState<DhammaPost | null>(null);
@@ -20,7 +20,7 @@ export default function DhammaContentPage() {
 
   const handleCreatePost = async (postData: DhammaPostFormData) => {
     try {
-      if (!adminUser) {
+      if (!adminUser || !hasPermission('dhamma','create')) {
         throw new Error('Admin user not found');
       }
       
@@ -47,7 +47,7 @@ export default function DhammaContentPage() {
 
   const handleUpdatePost = async (postData: DhammaPostFormData) => {
     try {
-      if (!editingPost) {
+      if (!editingPost || !hasPermission('dhamma','update')) {
         throw new Error('No post selected for editing');
       }
       
@@ -75,6 +75,7 @@ export default function DhammaContentPage() {
 
   const handleDeletePost = async (postId: string) => {
     try {
+      if (!hasPermission('dhamma','delete')) throw new Error('Delete permission required');
       await DhammaService.deletePost(postId);
       showToast({
         type: 'success',
@@ -96,6 +97,7 @@ export default function DhammaContentPage() {
   };
 
   const handleEditPost = (post: DhammaPost) => {
+    if (!hasPermission('dhamma','update')) return;
     setEditingPost(post);
     setActiveTab('edit');
   };
@@ -149,14 +151,14 @@ export default function DhammaContentPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-foreground">
                 Dhamma Content Management
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-muted-foreground">
                 Create and manage Dhamma posts for your users
               </p>
             </div>
-            {activeTab === 'library' && (
+            {activeTab === 'library' && hasPermission('dhamma','create') && (
               <Button
                 onClick={() => setActiveTab('create')}
                 variant="meditation"
@@ -170,14 +172,14 @@ export default function DhammaContentPage() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="border-b border-gray-200 dark:border-gray-700">
+          <div className="border-b border-border">
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setActiveTab('library')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'library'
-                    ? 'border-[var(--primary)] text-[var(--primary)] dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-input'
                 }`}
               >
                 <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +189,7 @@ export default function DhammaContentPage() {
               </button>
               {activeTab === 'create' && (
                 <button
-                  className="border-[var(--primary)] text-[var(--primary)] dark:text-blue-400 py-2 px-1 border-b-2 font-medium text-sm"
+                  className="border-[var(--primary)] text-[var(--primary)] py-2 px-1 border-b-2 font-medium text-sm"
                 >
                   <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -197,7 +199,7 @@ export default function DhammaContentPage() {
               )}
               {activeTab === 'edit' && (
                 <button
-                  className="border-[var(--primary)] text-[var(--primary)] dark:text-blue-400 py-2 px-1 border-b-2 font-medium text-sm"
+                  className="border-[var(--primary)] text-[var(--primary)] py-2 px-1 border-b-2 font-medium text-sm"
                 >
                   <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

@@ -2,7 +2,7 @@ export interface AdminUser {
   id: string;
   email: string;
   displayName: string;
-  role: 'super_admin' | 'content_admin' | 'moderator';
+  role: 'admin' | 'super_admin' | 'content_admin' | 'moderator';
   permissions: AdminPermission[];
   isActive: boolean;
   lastLogin?: Date;

@@ -260,18 +260,6 @@ const AudioLibrary: React.FC<AudioLibraryProps> = ({ onRefresh }) => {
                   controls
                   className="w-full"
                   src={audio.fileUrl}
-                  onLoadedMetadata={(e) => {
-                    const target = e.target as HTMLAudioElement;
-                    if (hasPermission('audio', 'update') && Number.isFinite(target.duration) && target.duration > 0 && !audio.duration) {
-                      // Update duration if not set
-                      const durationInSeconds = Math.floor(target.duration);
-                      updateDoc(doc(db, 'kamatahan_audio', audio.id), {
-                        duration: durationInSeconds,
-                        durationFormatted: formatDuration(durationInSeconds),
-                        updatedAt: serverTimestamp()
-                      }).catch(() => setError('Audio duration could not be updated. Please retry later.'));
-                    }
-                  }}
                 >
                   Your browser does not support the audio element.
                 </audio>

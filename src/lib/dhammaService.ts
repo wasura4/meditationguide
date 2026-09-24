@@ -9,7 +9,8 @@ import {
   where, 
   orderBy, 
   serverTimestamp,
-  getDoc 
+  getDoc,
+  runTransaction
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { DhammaPost, DhammaPostFormData } from '@/types/admin';
@@ -42,13 +43,15 @@ export class DhammaService {
   static async updatePost(postId: string, postData: DhammaPostFormData): Promise<void> {
     try {
       const postRef = doc(db, this.COLLECTION, postId);
-      const updateData = {
-        ...postData,
-        updatedAt: serverTimestamp(),
-        publishedAt: postData.status === 'published' ? serverTimestamp() : null,
-      };
-
-      await updateDoc(postRef, updateData);
+      await runTransaction(db, async transaction => {
+        const existing = await transaction.get(postRef);
+        if (!existing.exists()) throw new Error('Post no longer exists');
+        transaction.update(postRef, {
+          ...postData,
+          updatedAt: serverTimestamp(),
+          publishedAt: existing.data().publishedAt ?? (postData.status === 'published' ? serverTimestamp() : null),
+        });
+      });
     } catch (error) {
       console.error('Error updating Dhamma post:', error);
       throw new Error('Failed to update Dhamma post');
@@ -96,6 +99,19 @@ export class DhammaService {
   }
 
   // Get a single Dhamma post by ID
+  static async getPublishedPostById(postId: string): Promise<DhammaPost | null> {
+    try {
+      const post = await getDoc(doc(db, this.COLLECTION, postId));
+      if (!post.exists() || post.data().status !== 'published') return null;
+      const data = post.data();
+      return { ...data, id: post.id, createdAt: data.createdAt?.toDate(), updatedAt: data.updatedAt?.toDate(), publishedAt: data.publishedAt?.toDate() } as DhammaPost;
+    } catch (error) {
+      // Archived/deleted bookmarks remain harmless; connection errors still reach the retry UI.
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'permission-denied') return null;
+      throw error;
+    }
+  }
+
   static async getPostById(postId: string): Promise<DhammaPost | null> {
     try {
       const postRef = doc(db, this.COLLECTION, postId);
