@@ -12,7 +12,7 @@ import { Calendar, Plus, Edit2, Trash2, Eye, Users } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function AdminEventsPage() {
-  const { adminUser } = useAdminAuth();
+  const { adminUser, hasPermission } = useAdminAuth();
   const [events, setEvents] = useState<MeditationEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -43,6 +43,7 @@ export default function AdminEventsPage() {
 
   const handleCreateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!hasPermission('content','create')) return;
     if (!adminUser) {
       console.error('No admin user found');
       showToast({
@@ -71,10 +72,8 @@ export default function AdminEventsPage() {
           : undefined,
         createdBy: adminUser.id,
       };
-
-      console.log('Creating event with data:', eventData);
+      if (eventData.endDate < eventData.startDate) throw new Error('End date must follow the start date.');
       await EventService.createEvent(eventData);
-      console.log('Event created successfully');
 
       showToast({
         type: 'success',
@@ -99,6 +98,7 @@ export default function AdminEventsPage() {
 
   const handleUpdateEvent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!hasPermission('content','update')) return;
     if (!editingEvent) return;
 
     const formData = new FormData(e.currentTarget);
@@ -139,6 +139,7 @@ export default function AdminEventsPage() {
   };
 
   const handleDeleteEvent = async (eventId: string) => {
+    if (!hasPermission('content','delete')) return;
     if (!confirm('Are you sure you want to delete this event?')) return;
 
     try {
@@ -193,6 +194,7 @@ export default function AdminEventsPage() {
               </p>
             </div>
             <Button
+              disabled={!hasPermission('content','create')}
               onClick={() => {
                 setShowCreateForm(!showCreateForm);
                 setEditingEvent(null);
@@ -428,6 +430,7 @@ export default function AdminEventsPage() {
                         <Button
                           variant="outline"
                           size="sm"
+                          disabled={!hasPermission('content','update')} aria-label="Edit event"
                           onClick={() => {
                             setEditingEvent(event);
                             setShowCreateForm(false);
@@ -438,6 +441,7 @@ export default function AdminEventsPage() {
                         <Button
                           variant="outline"
                           size="sm"
+                          disabled={!hasPermission('content','delete')} aria-label="Delete event"
                           onClick={() => handleDeleteEvent(event.id)}
                         >
                           <Trash2 className="h-4 w-4" />

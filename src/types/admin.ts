@@ -2,7 +2,7 @@ export interface AdminUser {
   id: string;
   email: string;
   displayName: string;
-  role: 'super_admin' | 'content_admin' | 'moderator';
+  role: 'admin' | 'super_admin' | 'content_admin' | 'moderator';
   permissions: AdminPermission[];
   isActive: boolean;
   lastLogin?: Date;
@@ -28,7 +28,8 @@ export interface KamatahanAudio {
   fileType: string;
   language: 'en' | 'si' | 'pa';
   isPublic: boolean;
-  status: 'active' | 'inactive' | 'draft';
+  status: 'active' | 'inactive' | 'draft' | 'archived';
+  version?: number;
   uploadedBy: string; // admin ID
   createdAt: Date;
   updatedAt: Date;
@@ -37,6 +38,7 @@ export interface KamatahanAudio {
 }
 
 export interface DhammaPost {
+  version?: number;
   id: string;
   title: string;
   content: string;

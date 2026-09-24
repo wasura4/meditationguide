@@ -50,7 +50,7 @@ export async function getFavoritePosts(userId: string): Promise<DhammaPost[]> {
     )
     .map((d) => d.id);
   const posts = await Promise.all(
-    ids.map((id) => DhammaService.getPostById(id)),
+    ids.map((id) => DhammaService.getPublishedPostById(id)),
   );
   return posts.filter(
     (post): post is DhammaPost => post?.status === "published",

@@ -1,57 +1,54 @@
-'use client';
-
-import React, { ReactNode } from 'react';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-
-interface AdminProtectedRouteProps {
+"use client";
+import { useEffect, type ReactNode } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+export function AdminProtectedRoute({
+  children,
+  requiredPermission,
+}: {
   children: ReactNode;
-  requiredPermission?: {
-    resource: string;
-    action: string;
-  };
-}
-
-export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ 
-  children, 
-  requiredPermission 
-}) => {
-  const { adminUser, loading, hasPermission } = useAdminAuth();
+  requiredPermission?: { resource: string; action: string };
+}) {
+  const { adminUser, firebaseUser, loading, error, hasPermission } =
+    useAdminAuth();
   const router = useRouter();
-
   useEffect(() => {
-    if (!loading && !adminUser) {
-      router.push('/admin/login');
-    }
-  }, [adminUser, loading, router]);
-
-  useEffect(() => {
-    if (adminUser && requiredPermission) {
-      if (!hasPermission(requiredPermission.resource, requiredPermission.action)) {
-        router.push('/admin/unauthorized');
-      }
-    }
-  }, [adminUser, requiredPermission, hasPermission, router]);
-
-  if (loading) {
+    if (!loading && !firebaseUser) router.replace("/admin/login");
+  }, [loading, firebaseUser, router]);
+  if (loading)
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-300">Verifying admin access...</p>
-        </div>
+      <div
+        role="status"
+        className="flex min-h-screen items-center justify-center bg-background text-muted-foreground"
+      >
+        Verifying administrator access…
       </div>
     );
-  }
-
-  if (!adminUser) {
-    return null; // Will redirect to login
-  }
-
-  if (requiredPermission && !hasPermission(requiredPermission.resource, requiredPermission.action)) {
-    return null; // Will redirect to unauthorized
-  }
-
+  if (
+    !adminUser ||
+    (requiredPermission &&
+      !hasPermission(requiredPermission.resource, requiredPermission.action))
+  )
+    return (
+      <main className="mx-auto max-w-lg space-y-4 px-6 py-20">
+        <h1 className="text-2xl font-semibold">Access unavailable</h1>
+        <p className="text-muted-foreground">
+          {error ||
+            "Your account does not have permission to open this section."}
+        </p>
+        {adminUser && <nav aria-label="Available admin sections" className="flex flex-wrap gap-3">
+          {[
+            ['analytics','dashboard','Dashboard'],['dhamma','dhamma','Dhamma'],['audio','audio','Audio'],['content','events','Events'],['users','users','Users'],['settings','settings','Settings']
+          ].filter(([resource])=>hasPermission(resource,'read')).map(([,page,label])=><Link key={page} href={`/admin/${page}`} className="rounded-xl border border-border px-4 py-3 text-sm">{label}</Link>)}
+        </nav>}
+        <Link
+          href="/dashboard"
+          className="inline-flex min-h-11 items-center underline"
+        >
+          Return to the app
+        </Link>
+      </main>
+    );
   return <>{children}</>;
-};
+}

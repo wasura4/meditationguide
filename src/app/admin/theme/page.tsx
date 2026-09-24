@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { AdminTheme, DEFAULT_ADMIN_THEME, getAdminTheme, setAdminTheme } from '@/lib/appSettingsService';
 
@@ -18,6 +19,7 @@ const ColorField: React.FC<{
 );
 
 export default function AdminThemePage() {
+  const { hasPermission } = useAdminAuth();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,11 +35,12 @@ export default function AdminThemePage() {
   }, []);
 
   const onSave = async () => {
+    if (!hasPermission('settings','update') || !hasPermission('settings','create')) return;
     try {
       setSaving(true);
       await setAdminTheme(theme);
       showToast({ type: 'success', title: 'Saved', message: 'Theme updated successfully.' });
-    } catch (e) {
+    } catch {
       showToast({ type: 'error', title: 'Failed', message: 'Could not save theme.' });
     } finally {
       setSaving(false);
@@ -85,7 +88,7 @@ export default function AdminThemePage() {
 
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={onReset}>Reset</Button>
-            <Button onClick={onSave} loading={saving}>Save Theme</Button>
+            <Button disabled={loading || !hasPermission('settings','update') || !hasPermission('settings','create')} onClick={onSave} loading={saving}>Save Theme</Button>
           </div>
 
           <div className="rounded-lg border border-border p-4 bg-background">

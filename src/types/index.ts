@@ -119,12 +119,6 @@ export interface EventStats {
     minutes: number;
     sessions: number;
   }>;
-  dailyProgress: Array<{
-    date: string; // YYYY-MM-DD
-    minutes: number;
-    participants: number;
-    sessions: number;
-  }>;
   updatedAt: Date;
 }
 

@@ -61,6 +61,7 @@ export default function AdminMeditationTypesPage() {
   }, [loadTypes, loadCategories]);
 
   const handleCreateType = async (formData: FormData) => {
+    if (!hasPermission('content','create')) return;
     try {
       const categoryValue = formData.get('category') as string;
       const isActiveValue = formData.get('isActive');
@@ -99,6 +100,7 @@ export default function AdminMeditationTypesPage() {
   };
 
   const handleUpdateType = async (typeId: string, formData: FormData) => {
+    if (!hasPermission('content','update')) return;
     try {
       const categoryValue = formData.get('category') as string;
       const updates = {
@@ -131,6 +133,7 @@ export default function AdminMeditationTypesPage() {
   };
 
   const handleDeleteType = async (typeId: string) => {
+    if (!hasPermission('content','delete')) return;
     if (!confirm('Are you sure you want to delete this meditation type?')) return;
 
     try {
@@ -154,6 +157,7 @@ export default function AdminMeditationTypesPage() {
   };
 
   const handleToggleStatus = async (typeId: string, currentStatus: boolean) => {
+    if (!hasPermission('content','update')) return;
     try {
       await MeditationTypeService.toggleTypeStatus(typeId, !currentStatus);
       showToast({
@@ -425,7 +429,8 @@ export default function AdminMeditationTypesPage() {
                         <Button
                           size="sm"
                           variant={type.isActive ? "outline" : "default"}
-                          onClick={() => handleToggleStatus(type.id, type.isActive)}
+                          disabled={!hasPermission('content','update')}
+                            onClick={() => handleToggleStatus(type.id, type.isActive)}
                           className={type.isActive ? "" : "bg-gray-600 hover:bg-gray-700"}
                         >
                           {type.isActive ? 'Deactivate' : 'Activate'}

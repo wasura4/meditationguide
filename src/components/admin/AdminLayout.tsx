@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, ReactNode } from 'react';
+import { LayoutDashboard, CalendarDays, FolderOpen, Flower2, Headphones, BookOpen, Users, ChartNoAxesCombined, Settings, Palette, ListMusic } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
@@ -13,7 +15,7 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage }) => {
-  const { adminUser, logout } = useAdminAuth();
+  const { adminUser, logout, hasPermission } = useAdminAuth();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { showToast } = useToast();
@@ -22,16 +24,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
   const currentPagePath = currentPage || '/admin/dashboard';
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: '🏠', permission: 'analytics:read' },
-    { name: 'Events', href: '/admin/events', icon: '📅', permission: 'content:read' },
-    { name: 'Categories', href: '/admin/categories', icon: '📂', permission: 'content:read' },
-    { name: 'Types', href: '/admin/types', icon: '🧘', permission: 'content:read' },
-    { name: 'Audio', href: '/admin/audio', icon: '🎧', permission: 'audio:read' },
-    { name: 'Dhamma', href: '/admin/dhamma', icon: '📚', permission: 'dhamma:read' },
-    { name: 'Users', href: '/admin/users', icon: '👤', permission: 'users:read' },
-    { name: 'Analytics', href: '/admin/analytics', icon: '📈', permission: 'analytics:read' },
-    { name: 'Settings', href: '/admin/settings', icon: '⚙', permission: 'settings:read' },
-    { name: 'Theme', href: '/admin/theme', icon: '🎨', permission: 'settings:read' },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, permission: 'analytics:read' },
+    { name: 'Events', href: '/admin/events', icon: CalendarDays, permission: 'content:read' },
+    { name: 'Categories', href: '/admin/categories', icon: FolderOpen, permission: 'content:read' },
+    { name: 'Types', href: '/admin/types', icon: Flower2, permission: 'content:read' },
+    { name: 'Audio', href: '/admin/audio', icon: Headphones, permission: 'audio:read' },
+    { name: 'Dhamma', href: '/admin/dhamma', icon: BookOpen, permission: 'dhamma:read' },
+    { name: 'Users', href: '/admin/users', icon: Users, permission: 'users:read' },
+    { name: 'Analytics', href: '/admin/analytics', icon: ChartNoAxesCombined, permission: 'analytics:read' },
+    { name: 'Settings', href: '/admin/settings', icon: Settings, permission: 'settings:read' },
+    { name: 'Theme', href: '/admin/theme', icon: Palette, permission: 'settings:read' },
   ];
 
   const handleLogout = async () => {
@@ -57,9 +59,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
 
   const canAccess = (permission: string) => {
     const [resource, action] = permission.split(':');
-    return adminUser ? adminUser.permissions.some(p => 
-      p.resource === resource && p.actions.includes(action as 'create' | 'read' | 'update' | 'delete')
-    ) : false;
+    return hasPermission(resource, action);
   };
 
   return (
@@ -88,6 +88,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
             </h1>
           </div>
           <button
+            aria-label="Close navigation"
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden p-2 hover:text-foreground"
           >
@@ -98,7 +99,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
         </div>
 
         {/* Navigation */}
-        <nav className="mt-6 px-3">
+        <nav className="mt-4 px-3 overflow-y-auto max-h-[calc(100dvh-14rem)]">
           <div className="space-y-1">
             {navigation.map((item) => {
               if (!canAccess(item.permission)) return null;
@@ -106,23 +107,26 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
               const isActive = currentPagePath === item.href;
               
               return (
-                <a
+                <Link
                   key={item.name}
+                  aria-current={isActive ? "page" : undefined}
+                  onClick={() => setSidebarOpen(false)}
                   href={item.href}
-                  className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
                     isActive
                       ? 'bg-accent text-accent-foreground'
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   }`}
                 >
-                  <span className="mr-3 text-lg">{item.icon}</span>
+                  <item.icon className="mr-3 h-5 w-5" aria-hidden="true" />
                   {item.name}
-                </a>
+                </Link>
               );
             })}
             {canAccess('audio:read') && (
-              <a
+              <Link
                 key="nav-playlists"
+                onClick={() => setSidebarOpen(false)}
                 href="/admin/playlists"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                   currentPagePath === '/admin/playlists'
@@ -130,9 +134,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                 }`}
               >
-                <span className="mr-3 text-lg">🎼</span>
+                <ListMusic className="mr-3 h-5 w-5" aria-hidden="true" />
                 Playlists
-              </a>
+              </Link>
             )}
           </div>
         </nav>
@@ -154,7 +158,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
               </p>
             </div>
             <Button
-              onClick={handleLogout}
+              aria-label="Sign out" onClick={handleLogout}
               variant="ghost"
               size="sm"
               className="hover:text-destructive"
@@ -174,6 +178,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
               <button
+                aria-label="Open navigation" aria-expanded={sidebarOpen}
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden p-2 hover:text-foreground"
               >
@@ -182,13 +187,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
                 </svg>
               </button>
               <h2 className="ml-2 lg:ml-0 text-lg font-semibold">
-                {navigation.find(item => item.href === currentPage)?.name || 'Admin Panel'}
+                {navigation.find(item => item.href === currentPagePath)?.name || (currentPagePath === '/admin/playlists' ? 'Playlists' : 'Admin Panel')}
               </h2>
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
               <ThemeToggle />
-              <span className="text-sm text-muted-foreground">
+              <span className="hidden md:inline text-sm text-muted-foreground">
                 Welcome back, {adminUser?.displayName}
               </span>
               <Button
@@ -203,7 +208,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
         </div>
 
         {/* Page content */}
-        <main className="py-6">
+        <main className="pt-6 pb-28 lg:pb-6">
           <div className="px-4 sm:px-6 lg:px-8">
             {children}
           </div>
@@ -212,21 +217,21 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
 
       {/* Bottom tab bar (mobile) */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md">
-        <nav className="grid grid-cols-5">
+        <nav className="grid grid-cols-5 pb-[env(safe-area-inset-bottom)]">
           {navigation
-            .filter((item) => canAccess(item.permission))
+            .filter((item) => ['/admin/dashboard','/admin/dhamma','/admin/audio','/admin/users','/admin/settings'].includes(item.href) && canAccess(item.permission))
             .slice(0, 5)
             .map((item) => {
               const isActive = currentPagePath === item.href;
               return (
-                <a
+                <Link
                   key={item.href}
                   href={item.href}
                   className={`flex flex-col items-center justify-center py-2 text-xs ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                 >
-                  <span className="text-lg">{item.icon}</span>
+                  <item.icon className="h-5 w-5" aria-hidden="true" />
                   <span className="mt-0.5">{item.name}</span>
-                </a>
+                </Link>
               );
             })}
         </nav>
