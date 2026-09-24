@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { DhammaService } from "@/lib/dhammaService";
 import { DhammaPostReader } from "@/components/dhamma/DhammaPostReader";
 import { AppPage } from "@/components/app/AppPage";
@@ -14,6 +14,11 @@ export default function DhammaPostPage() {
 }
 function ArticleLoader({ id }: { id: string }) {
   const router = useRouter();
+  const learningPath = useSearchParams().get("learningPath");
+  const backHref =
+    learningPath && /^[A-Za-z0-9_-]{1,128}$/.test(learningPath)
+      ? "/learn/" + learningPath
+      : "/dhamma";
   const { t } = useLanguage();
   const [state, setState] = useState<"loading" | "missing" | "error" | "ready">(
     "loading",
@@ -42,12 +47,16 @@ function ArticleLoader({ id }: { id: string }) {
   }, [id, attempt]);
   if (state === "ready" && post)
     return (
-      <DhammaPostReader post={post} onClose={() => router.push("/dhamma")} />
+      <DhammaPostReader
+        post={post}
+        returnToPath={backHref.startsWith("/learn/")}
+        onClose={() => router.push(backHref)}
+      />
     );
   return (
     <AppPage
       title={t("reader.article")}
-      backHref="/dhamma"
+      backHref={backHref}
       showSettings={false}
     >
       <div

@@ -132,6 +132,86 @@ service cloud.firestore {
       }
     }
 
+
+    // Learning schemas: bilingual display text only (no private teacher contacts).
+    // Teachers: name/nameEn <=160, bio/bioEn <=5000, status + editorial metadata.
+    // Paths: title/titleEn <=180, description/descriptionEn <=3000, topic/level/language,
+    // optional teacherId, <=12 unique ordered lessonIds (article_ID or audio_ID).
+    // Metadata: immutable createdAt/createdBy; server updatedAt/current actor; integer version.
+    function learningString(value, minimum, maximum) {
+      return value is string && value.size() >= minimum && value.size() <= maximum;
+    }
+    function learningMetadata(data) {
+      return data.status in ['draft', 'published', 'archived']
+        && data.version is int && data.version >= 0 && data.version <= 2147483647
+        && data.createdAt is timestamp && learningString(data.createdBy, 1, 128)
+        && data.updatedAt == request.time && data.updatedBy == request.auth.uid;
+    }
+    function learningCreate(data) {
+      return data.version == 0 && data.createdAt == request.time && data.createdBy == request.auth.uid;
+    }
+    function learningUpdate(data) {
+      return data.version == resource.data.version + 1
+        && data.createdAt == resource.data.createdAt && data.createdBy == resource.data.createdBy;
+    }
+    function validTeacher(data) {
+      return data.keys().hasOnly(['name','nameEn','bio','bioEn','status','version','createdAt','createdBy','updatedAt','updatedBy'])
+        && learningString(data.name, 1, 160) && learningString(data.nameEn, 0, 160)
+        && learningString(data.bio, data.status == 'published' ? 1 : 0, 5000)
+        && learningString(data.bioEn, 0, 5000) && learningMetadata(data);
+    }
+    function lessonAt(ids, index) {
+      return ids.size() <= index || (ids[index] is string && ids[index].matches('^(article|audio)_[A-Za-z0-9_-]{1,128}$'));
+    }
+    function validLearningPath(data) {
+      return data.keys().hasOnly(['title','titleEn','description','descriptionEn','teacherId','topic','level','language','status','lessonIds','version','createdAt','createdBy','updatedAt','updatedBy'])
+        && learningString(data.title, 1, 180) && learningString(data.titleEn, 0, 180)
+        && learningString(data.description, data.status == 'published' ? 1 : 0, 3000)
+        && learningString(data.descriptionEn, 0, 3000)
+        && data.teacherId is string && (data.teacherId == '' || data.teacherId.matches('^[A-Za-z0-9_-]{1,128}$'))
+        && data.topic in ['meditation','dhamma','daily_practice','sutta','ethics']
+        && data.level in ['beginner','intermediate','advanced'] && data.language in ['si','en','mixed']
+        && learningMetadata(data)
+        && data.lessonIds is list && data.lessonIds.size() <= 12
+        && (data.status != 'published' || data.lessonIds.size() > 0)
+        && data.lessonIds.toSet().size() == data.lessonIds.size()
+        && lessonAt(data.lessonIds, 0)
+        && lessonAt(data.lessonIds, 1)
+        && lessonAt(data.lessonIds, 2)
+        && lessonAt(data.lessonIds, 3)
+        && lessonAt(data.lessonIds, 4)
+        && lessonAt(data.lessonIds, 5)
+        && lessonAt(data.lessonIds, 6)
+        && lessonAt(data.lessonIds, 7)
+        && lessonAt(data.lessonIds, 8)
+        && lessonAt(data.lessonIds, 9)
+        && lessonAt(data.lessonIds, 10)
+        && lessonAt(data.lessonIds, 11);
+    }
+    match /teachers/{teacherId} {
+      allow read: if (isSignedIn() && resource.data.status == 'published') || permitted('content', 'read');
+      allow create: if permitted('content', 'create') && validTeacher(request.resource.data) && learningCreate(request.resource.data);
+      allow update: if permitted('content', 'update') && validTeacher(request.resource.data) && learningUpdate(request.resource.data);
+      allow delete: if false;
+    }
+    match /learning_paths/{pathId} {
+      allow read: if (isSignedIn() && resource.data.status == 'published') || permitted('content', 'read');
+      allow create: if permitted('content', 'create') && validLearningPath(request.resource.data) && learningCreate(request.resource.data);
+      allow update: if permitted('content', 'update') && validLearningPath(request.resource.data) && learningUpdate(request.resource.data);
+      allow delete: if false;
+    }
+    // Private personal checklist. It does not measure spiritual attainment or verified listening.
+    match /users/{userId}/learning_progress/{pathId} {
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+      allow create, update: if isSignedIn() && request.auth.uid == userId && validLearningProgress(request.resource.data);
+      function validLearningProgress(data) {
+        let path = get(/databases/$(database)/documents/learning_paths/$(pathId)).data;
+        return path.status == 'published' && data.keys().hasOnly(['completedIds','updatedAt'])
+          && data.updatedAt == request.time && data.completedIds is list && data.completedIds.size() <= 12
+          && data.completedIds.toSet().size() == data.completedIds.size() && data.completedIds.hasOnly(path.lessonIds);
+      }
+    }
+
     // Playlists — public read for isPublic; owner/admin manage
     match /playlists/{playlistId} {
       allow read: if resource.data.isPublic == true

@@ -41,9 +41,11 @@ const MONTHS = [
 export function DhammaPostReader({
   post,
   onClose,
+  returnToPath = false,
 }: {
   post: DhammaPost;
   onClose: () => void;
+  returnToPath?: boolean;
 }) {
   const { user } = useAuth();
   return (
@@ -51,6 +53,7 @@ export function DhammaPostReader({
       key={post.id + ":" + (user?.id || "guest")}
       post={post}
       onClose={onClose}
+      returnToPath={returnToPath}
       userId={user?.id}
     />
   );
@@ -59,10 +62,12 @@ export function DhammaPostReader({
 function Reader({
   post,
   onClose,
+  returnToPath = false,
   userId,
 }: {
   post: DhammaPost;
   onClose: () => void;
+  returnToPath?: boolean;
   userId?: string;
 }) {
   const { t, language } = useLanguage();
@@ -225,7 +230,7 @@ function Reader({
             className="inline-flex min-h-11 items-center gap-1 text-sm font-medium"
           >
             <ChevronLeft size={21} aria-hidden="true" />
-            {t("navigation.dhamma")}
+            {t(returnToPath ? "learning.return_path" : "navigation.dhamma")}
           </button>
           <div className="flex shrink-0 gap-2">
             <button
@@ -437,7 +442,9 @@ function Reader({
               onClick={onClose}
               className="app-card flex min-h-14 items-center justify-between gap-2 px-4 py-3 text-sm font-medium"
             >
-              {t("reader.more_articles")}
+              {t(
+                returnToPath ? "learning.return_path" : "reader.more_articles",
+              )}
               <ChevronRight size={18} aria-hidden="true" />
             </button>
             <Link

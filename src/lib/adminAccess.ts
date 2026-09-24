@@ -106,6 +106,7 @@ export function adminResourceForPath(path: string): string | null {
         events: "content",
         types: "content",
         categories: "content",
+        learning: "content",
       } as Record<string, string>
     )[page] || null
   );
