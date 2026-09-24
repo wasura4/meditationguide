@@ -16,6 +16,7 @@ export interface User {
 export type UserRole = 'owner' | 'admin' | 'editor' | 'user';
 
 export interface UserPreferences {
+  dailyGoalMinutes?: number;
   theme: 'light' | 'dark' | 'system';
   timeFormat: '12h' | '24h';
   defaultMeditationType: string;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { AdminTheme, DEFAULT_ADMIN_THEME, getAdminTheme } from '@/lib/appSettingsService';
+import { AdminTheme, DEFAULT_ADMIN_THEME, subscribeAdminTheme } from '@/lib/appSettingsService';
 
 type GlobalThemeContextValue = {
   theme: AdminTheme;
@@ -17,8 +17,7 @@ export function useGlobalTheme() {
 function applyThemeToCSS(theme: AdminTheme) {
   if (typeof document === 'undefined') return;
   const r = document.documentElement;
-  // Only apply accent/brand colors from admin theme
-  // Base theme colors (background, foreground, muted, border, input) are controlled by next-themes + globals.css
+  // Admin base colors apply to light mode; dark mode retains its readable palette.
   const map: Record<string, string> = {
     '--primary': theme.primary,
     '--secondary': theme.secondary,
@@ -28,8 +27,12 @@ function applyThemeToCSS(theme: AdminTheme) {
     '--header-bg': theme.headerBg || DEFAULT_ADMIN_THEME.headerBg!,
     '--brand-grad-from': theme.brandGradFrom || DEFAULT_ADMIN_THEME.brandGradFrom!,
     '--brand-grad-to': theme.brandGradTo || DEFAULT_ADMIN_THEME.brandGradTo!,
-    // DO NOT override: --background, --foreground, --muted, --muted-foreground, --border, --input
-    // These are managed by next-themes + .dark class in globals.css
+    '--admin-background': theme.background,
+    '--admin-foreground': theme.foreground,
+    '--admin-muted': theme.muted,
+    '--admin-muted-foreground': theme.mutedForeground,
+    '--admin-border': theme.border,
+    '--admin-input': theme.input,
   };
   Object.entries(map).forEach(([k, v]) => r.style.setProperty(k, v));
 }
@@ -39,15 +42,11 @@ export const GlobalThemeProvider: React.FC<{ children: React.ReactNode } > = ({ 
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      const t = await getAdminTheme();
-      if (!alive) return;
+    return subscribeAdminTheme(t => {
       setTheme(t);
       applyThemeToCSS(t);
       setLoaded(true);
-    })();
-    return () => { alive = false; };
+    });
   }, []);
 
   const value = useMemo(() => ({ theme, loaded }), [theme, loaded]);
