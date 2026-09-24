@@ -61,6 +61,31 @@ service cloud.firestore {
       }
     }
 
+    // Public editorial quotes; drafts and archives are restricted to content admins.
+    function validMotivationQuote(d) {
+      return d.keys().hasOnly(['textEn', 'textSi', 'author', 'order', 'status', 'version', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'])
+        && d.textEn is string && d.textEn.size() <= 1200
+        && d.textSi is string && d.textSi.size() <= 1200
+        && (d.textEn.matches('(?s).*[^\\s].*') || d.textSi.matches('(?s).*[^\\s].*'))
+        && d.author is string && d.author.size() <= 160
+        && d.order is int && d.order >= 0 && d.order <= 999
+        && d.status in ['draft', 'published', 'archived']
+        && d.version is int && d.version >= 1
+        && d.createdAt is timestamp && d.createdBy is string
+        && d.updatedAt == request.time && d.updatedBy == request.auth.uid;
+    }
+    match /motivation_quotes/{quoteId} {
+      allow read: if resource.data.status == 'published' || permitted('content', 'read');
+      allow create: if permitted('content', 'create') && validMotivationQuote(request.resource.data)
+        && request.resource.data.version == 1 && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update: if permitted('content', 'update') && validMotivationQuote(request.resource.data)
+        && request.resource.data.version == resource.data.version + 1
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy;
+      allow delete: if false;
+    }
+
     function validCheckinQuestion(d) {
       return d.keys().hasAll(['titleEn', 'titleSi', 'order', 'status', 'version', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'])
         && d.keys().hasOnly(['titleEn', 'titleSi', 'order', 'status', 'version', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'])

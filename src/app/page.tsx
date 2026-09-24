@@ -10,6 +10,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, Variants } from "framer-motion";
 import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { MotivationQuoteCard } from "@/components/quotes/MotivationQuoteCard";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -202,6 +203,7 @@ export default function Home() {
         </motion.div>
 
         {/* Explore topics */}
+        <div className="mb-10"><MotivationQuoteCard /></div>
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}

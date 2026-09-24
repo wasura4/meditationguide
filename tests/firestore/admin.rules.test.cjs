@@ -33,6 +33,30 @@ before(async () => {
   });
 });
 after(async () => { await env?.cleanup(); });
+test('motivation quotes restrict editing and private drafts, validate data and reject stale edits', async () => {
+  const { saveMotivationQuote } = require('../../src/lib/quoteTransactions.ts');
+  const visitor = env.unauthenticatedContext().firestore();
+  const ref = doc(db('editor'), 'motivation_quotes', 'test-quote');
+  const input = { textEn: 'Pause.\nBreathe.', textSi: '', author: '', order: 1, status: 'draft' };
+  const data = { ...input, version: 1, createdBy: 'editor', updatedBy: 'editor', createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+  await assertSucceeds(setDoc(ref, data));
+  await assertFails(getDoc(doc(visitor, 'motivation_quotes', 'test-quote')));
+  for (const uid of ['member', 'reader', 'inactive']) {
+    await assertFails(setDoc(doc(db(uid), 'motivation_quotes', uid), { ...data, createdBy: uid, updatedBy: uid }));
+  }
+  const original = { ...input, id: 'test-quote', version: 1 };
+  await assertSucceeds(saveMotivationQuote(db('editor'), 'editor', { ...input, status: 'published' }, original));
+  await require('node:assert/strict').rejects(saveMotivationQuote(db('editor'), 'editor', input, original), /conflict/);
+  await assertSucceeds(getDoc(doc(visitor, 'motivation_quotes', 'test-quote')));
+  await assertSucceeds(getDocs(query(collection(visitor, 'motivation_quotes'), where('status', '==', 'published'))));
+  await assertFails(getDocs(collection(visitor, 'motivation_quotes')));
+  for (const patch of [{ textEn: '', textSi: '' }, { textEn: ' \n\t' }, { textEn: 'x'.repeat(1201) }, { order: -1 }, { order: 1.5 }, { status: 'bad' }, { createdBy: 'spoof' }, { unexpected: true }]) {
+    await assertFails(updateDoc(ref, { ...patch, version: 3, updatedAt: serverTimestamp(), updatedBy: 'editor' }));
+  }
+  await assertSucceeds(saveMotivationQuote(db('editor'), 'editor', { ...input, status: 'archived' }, { ...original, version: 2 }));
+  await assertFails(getDoc(doc(visitor, 'motivation_quotes', 'test-quote')));
+  await assertFails(deleteDoc(ref));
+});
 test('members cannot self-enrol as admin or grant themselves privileges', async () => {
   await assertFails(setDoc(doc(db('member'),'admin_users','member'),{role:'super_admin',isActive:true}));
   await assertFails(updateDoc(doc(db('editor'),'admin_users','editor'),{role:'super_admin'}));

@@ -31,6 +31,7 @@ test('dashboard sections settle independently and background refresh keeps conte
     if (name === '@/components/dashboard/DashboardSkeleton') return { DashboardSkeleton: () => null, ReadingSkeleton: () => React.createElement('span', null, 'reading-loading') };
     if (name === '@/components/events/EventBanner') return { EventBanner: () => null };
     if (name === '@/components/checkins/CheckinCards') return { DailyCheckinCard: () => null };
+    if (name === '@/components/quotes/MotivationQuoteCard') return { MotivationQuoteCard: () => null };
     if (name === '@/lib/meditationService') return { MeditationService: { getAllUserSessions: () => deferred(sessions) } };
     if (name === '@/lib/dhammaService') return { DhammaService: { getPublishedPosts: () => deferred(posts) } };
     return require(name);

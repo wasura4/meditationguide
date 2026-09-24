@@ -1164,5 +1164,9 @@
       "si": "Sinhala",
       "pa": "Pali"
     }
+  },
+  "quotes": {
+    "title": "Motivation Quotes",
+    "rotation": "A new reflection every four hours"
   }
 }
