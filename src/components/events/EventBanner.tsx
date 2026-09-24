@@ -74,7 +74,7 @@ export const EventBanner: React.FC = () => {
             <h2 id={'event-invite-' + event.id} className="mt-3 line-clamp-2 break-words text-lg font-semibold leading-relaxed tracking-tight sm:text-xl">{title}</h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t('eventInvite.invitation')}</p>
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <Button disabled={error} onClick={() => router.push('/meditate?eventId=' + encodeURIComponent(event.id))} className="h-auto min-h-11 max-w-full whitespace-normal rounded-full px-5 py-2 text-sm font-semibold">
+              <Button disabled={error} onClick={() => router.push('/events/' + encodeURIComponent(event.id))} className="h-auto min-h-11 max-w-full whitespace-normal rounded-full px-5 py-2 text-sm font-semibold">
                 {t('eventInvite.join')}
                 <ArrowRight size={16} className="ml-2 shrink-0" aria-hidden="true" />
               </Button>
