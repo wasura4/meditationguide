@@ -1,5 +1,8 @@
 const { test, before, after } = require('node:test');
 const { readFileSync } = require('node:fs');
+const ts = require('typescript');
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(readFileSync(filename, 'utf8'), {compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText,filename);
+const {saveArticleVersion} = require('../../src/lib/editorialTransactions.ts');
 const { initializeTestEnvironment, assertFails, assertSucceeds } = require('@firebase/rules-unit-testing');
 const { doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, collection, query, where, serverTimestamp, Timestamp } = require('firebase/firestore');
 let env;
@@ -39,7 +42,7 @@ test('members cannot self-enrol as admin or grant themselves privileges', async 
 });
 test('explicit actions, inactive accounts and empty roles are enforced by Firebase', async () => {
   await assertSucceeds(setDoc(doc(db('editor'),'dhamma_posts','new'),post));
-  await assertSucceeds(updateDoc(doc(db('editor'),'dhamma_posts','new'),{title:'Updated'}));
+  await assertSucceeds(saveArticleVersion(db('editor'),'new',{...post,title:'Updated'},'editor',0));
   await assertFails(deleteDoc(doc(db('editor'),'dhamma_posts','new')));
   for (const uid of ['member','reader','inactive','empty']) await assertFails(setDoc(doc(db(uid),'dhamma_posts',uid),post));
   await assertFails(setDoc(doc(db('editor'),'kamatahan_audio','cross-resource'),{title:'Denied'}));

@@ -1,45 +1,51 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
-import { AdminLayout } from '@/components/admin/AdminLayout';
-import DhammaPostForm from '@/components/admin/DhammaPostForm';
-import DhammaPostLibrary from '@/components/admin/DhammaPostLibrary';
-import { Button } from '@/components/ui/button';
-import { DhammaPost, DhammaPostFormData } from '@/types/admin';
-import { DhammaService } from '@/lib/dhammaService';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { useToast } from '@/components/ui/toast';
+import React, { useState } from "react";
+import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import DhammaPostForm from "@/components/admin/DhammaPostForm";
+import DhammaPostLibrary from "@/components/admin/DhammaPostLibrary";
+import { Button } from "@/components/ui/button";
+import { DhammaPost, DhammaPostFormData } from "@/types/admin";
+import { DhammaService } from "@/lib/dhammaService";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { useToast } from "@/components/ui/toast";
 
 export default function DhammaContentPage() {
   const { adminUser, hasPermission } = useAdminAuth();
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'library' | 'create' | 'edit'>('library');
+  const [activeTab, setActiveTab] = useState<"library" | "create" | "edit">(
+    "library",
+  );
   const [editingPost, setEditingPost] = useState<DhammaPost | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleCreatePost = async (postData: DhammaPostFormData) => {
     try {
-      if (!adminUser || !hasPermission('dhamma','create')) {
-        throw new Error('Admin user not found');
+      if (!adminUser || !hasPermission("dhamma", "create")) {
+        throw new Error("Admin user not found");
       }
-      
-      await DhammaService.createPost(postData, adminUser.id, adminUser.displayName || 'Admin');
+
+      await DhammaService.createPost(
+        postData,
+        adminUser.id,
+        adminUser.displayName || "Admin",
+      );
       showToast({
-        type: 'success',
-        title: 'Post Created!',
-        message: 'Your new Dhamma post has been created successfully.',
-        duration: 4000
+        type: "success",
+        title: "Post Created!",
+        message: "Your new Dhamma post has been created successfully.",
+        duration: 4000,
       });
-      setActiveTab('library');
-      setRefreshKey(prev => prev + 1);
+      setActiveTab("library");
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
-      console.error('Error creating post:', error);
+      console.error("Error creating post:", error);
       showToast({
-        type: 'error',
-        title: 'Error Creating Post',
-        message: 'Failed to create post. Please try again.',
-        duration: 6000
+        type: "error",
+        title: "Error Creating Post",
+        message: "Failed to create post. Please try again.",
+        duration: 6000,
       });
       throw error;
     }
@@ -47,81 +53,63 @@ export default function DhammaContentPage() {
 
   const handleUpdatePost = async (postData: DhammaPostFormData) => {
     try {
-      if (!editingPost || !hasPermission('dhamma','update')) {
-        throw new Error('No post selected for editing');
+      if (!editingPost || !hasPermission("dhamma", "update")) {
+        throw new Error("No post selected for editing");
       }
-      
-      await DhammaService.updatePost(editingPost.id, postData);
-      showToast({
-        type: 'success',
-        title: 'Post Updated!',
-        message: 'Your Dhamma post has been updated successfully.',
-        duration: 4000
-      });
-      setActiveTab('library');
-      setEditingPost(null);
-      setRefreshKey(prev => prev + 1);
-    } catch (error) {
-      console.error('Error updating post:', error);
-      showToast({
-        type: 'error',
-        title: 'Error Updating Post',
-        message: 'Failed to update post. Please try again.',
-        duration: 6000
-      });
-      throw error;
-    }
-  };
 
-  const handleDeletePost = async (postId: string) => {
-    try {
-      if (!hasPermission('dhamma','delete')) throw new Error('Delete permission required');
-      await DhammaService.deletePost(postId);
+      await DhammaService.updatePost(
+        editingPost.id,
+        postData,
+        adminUser!.id,
+        editingPost.version || 0,
+      );
       showToast({
-        type: 'success',
-        title: 'Post Deleted!',
-        message: 'The Dhamma post has been deleted successfully.',
-        duration: 4000
+        type: "success",
+        title: "Post Updated!",
+        message: "Your Dhamma post has been updated successfully.",
+        duration: 4000,
       });
-      setRefreshKey(prev => prev + 1);
+      setActiveTab("library");
+      setEditingPost(null);
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
-      console.error('Error deleting post:', error);
+      console.error("Error updating post:", error);
       showToast({
-        type: 'error',
-        title: 'Error Deleting Post',
-        message: 'Failed to delete post. Please try again.',
-        duration: 6000
+        type: "error",
+        title: "Error Updating Post",
+        message: "Failed to update post. Please try again.",
+        duration: 6000,
       });
       throw error;
     }
   };
 
   const handleEditPost = (post: DhammaPost) => {
-    if (!hasPermission('dhamma','update')) return;
+    if (!hasPermission("dhamma", "update")) return;
     setEditingPost(post);
-    setActiveTab('edit');
+    setActiveTab("edit");
   };
 
   const handleCancelEdit = () => {
     setEditingPost(null);
-    setActiveTab('library');
+    setActiveTab("library");
   };
 
   const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'create':
+      case "create":
         return (
           <DhammaPostForm
             onSave={handleCreatePost}
-            onCancel={() => setActiveTab('library')}
+            onCancel={() => setActiveTab("library")}
             isEditing={false}
           />
         );
-      case 'edit':
+      case "edit":
         return editingPost ? (
           <DhammaPostForm
             post={editingPost}
@@ -132,12 +120,11 @@ export default function DhammaContentPage() {
         ) : (
           <div>Post not found</div>
         );
-      case 'library':
+      case "library":
       default:
         return (
           <DhammaPostLibrary
             onEditPost={handleEditPost}
-            onDeletePost={handleDeletePost}
             onRefresh={handleRefresh}
           />
         );
@@ -149,22 +136,32 @@ export default function DhammaContentPage() {
       <AdminLayout currentPage="/admin/dhamma">
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                Dhamma Content Management
+                Dhamma library
               </h1>
               <p className="text-muted-foreground">
-                Create and manage Dhamma posts for your users
+                Write, review, and care for your collection of teachings.
               </p>
             </div>
-            {activeTab === 'library' && hasPermission('dhamma','create') && (
+            {activeTab === "library" && hasPermission("dhamma", "create") && (
               <Button
-                onClick={() => setActiveTab('create')}
+                onClick={() => setActiveTab("create")}
                 variant="meditation"
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 Create New Post
               </Button>
@@ -175,34 +172,61 @@ export default function DhammaContentPage() {
           <div className="border-b border-border">
             <nav className="-mb-px flex space-x-8">
               <button
-                onClick={() => setActiveTab('library')}
+                disabled={activeTab !== "library"}
+                onClick={() => setActiveTab("library")}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'library'
-                    ? 'border-[var(--primary)] text-[var(--primary)]'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-input'
+                  activeTab === "library"
+                    ? "border-[var(--primary)] text-[var(--primary)]"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-input"
                 }`}
               >
-                <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                <svg
+                  className="w-4 h-4 inline mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
                 </svg>
                 Content Library
               </button>
-              {activeTab === 'create' && (
-                <button
-                  className="border-[var(--primary)] text-[var(--primary)] py-2 px-1 border-b-2 font-medium text-sm"
-                >
-                  <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              {activeTab === "create" && (
+                <button className="border-[var(--primary)] text-[var(--primary)] py-2 px-1 border-b-2 font-medium text-sm">
+                  <svg
+                    className="w-4 h-4 inline mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
                   </svg>
                   Create New Post
                 </button>
               )}
-              {activeTab === 'edit' && (
-                <button
-                  className="border-[var(--primary)] text-[var(--primary)] py-2 px-1 border-b-2 font-medium text-sm"
-                >
-                  <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              {activeTab === "edit" && (
+                <button className="border-[var(--primary)] text-[var(--primary)] py-2 px-1 border-b-2 font-medium text-sm">
+                  <svg
+                    className="w-4 h-4 inline mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
                   </svg>
                   Edit Post
                 </button>
@@ -211,13 +235,9 @@ export default function DhammaContentPage() {
           </div>
 
           {/* Content */}
-          <div key={refreshKey}>
-            {renderContent()}
-          </div>
+          <div key={refreshKey}>{renderContent()}</div>
         </div>
       </AdminLayout>
     </AdminProtectedRoute>
   );
 }
-
-

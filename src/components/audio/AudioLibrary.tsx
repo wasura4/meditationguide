@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/toast';
 import { KamatahanAudio } from '@/types/admin';
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { isPublishedAudio } from '@/lib/editorial';
 
 export function AudioLibrary() {
   const [audioFiles, setAudioFiles] = useState<KamatahanAudio[]>([]);
@@ -41,7 +42,7 @@ export function AudioLibrary() {
       });
       
       console.log('🎵 Total audio files found:', files.length);
-      setAudioFiles(files);
+      setAudioFiles(files.filter(isPublishedAudio));
     } catch (error) {
       console.error('❌ Error fetching audio files:', error);
       showToast({

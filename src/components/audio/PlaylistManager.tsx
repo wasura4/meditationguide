@@ -9,6 +9,7 @@ import { KamatahanAudio } from '@/types/admin';
 import { PlaylistService, PlaylistDoc } from '@/lib/playlistService';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { isPublishedAudio } from '@/lib/editorial';
 import { useAuth } from '@/contexts/AuthContext';
 import { recordAudioListen } from '@/lib/metricsService';
 import { usePlayer } from '@/contexts/PlayerContext';
@@ -196,7 +197,7 @@ export function PlaylistManager() {
       });
       
       console.log('🎵 Total available audio files:', audio.length);
-      setAvailableAudio(audio);
+      setAvailableAudio(audio.filter(isPublishedAudio));
     } catch (error) {
       console.error('❌ Error fetching available audio:', error);
     }

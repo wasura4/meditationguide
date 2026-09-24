@@ -1,100 +1,58 @@
-'use client';
-
-import React, { useState } from 'react';
-import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
-import { AdminLayout } from '@/components/admin/AdminLayout';
-import AudioUploadForm from '@/components/admin/AudioUploadForm';
-import AudioLibrary from '@/components/admin/AudioLibrary';
-import { useToast } from '@/components/ui/toast';
-
-const AudioManagementPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'upload' | 'library'>('upload');
-  const [refreshKey, setRefreshKey] = useState(0);
-  const { showToast } = useToast();
-
-  const handleUploadSuccess = () => {
-    setActiveTab('library');
-    setRefreshKey(prev => prev + 1);
-    showToast({
-      type: 'success',
-      title: 'Audio Uploaded!',
-      message: 'Switched to library view to see your new audio file.',
-      duration: 3000
-    });
-  };
-
-  const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
-    showToast({
-      type: 'info',
-      title: 'Library Refreshed',
-      message: 'Audio library has been updated.',
-      duration: 2000
-    });
-  };
-
-  const handleTabChange = (tab: 'upload' | 'library') => {
-    setActiveTab(tab);
-    showToast({
-      type: 'info',
-      title: 'View Changed',
-      message: `Switched to ${tab === 'upload' ? 'upload' : 'library'} view.`,
-      duration: 1500
-    });
-  };
-
+"use client";
+import { useState } from "react";
+import { Plus, Headphones, ArrowLeft } from "lucide-react";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { Button } from "@/components/ui/button";
+import AudioUploadForm from "@/components/admin/AudioUploadForm";
+import AudioLibrary from "@/components/admin/AudioLibrary";
+export default function AudioManagementPage() {
+  const { hasPermission } = useAdminAuth();
+  const [upload, setUpload] = useState(false),
+    [revision, setRevision] = useState(0);
   return (
-    <AdminProtectedRoute>
-      <AdminLayout currentPage="/admin/audio">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="border-b border-gray-200 pb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Audio Management</h1>
-            <p className="text-gray-600 mt-1">
-              Upload and manage Kamatahan audio files for meditation sessions
+    <AdminLayout currentPage="/admin/audio">
+      <div className="space-y-6">
+        <header className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Content studio
+            </p>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Audio library
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Care for your collection of meditations, chanting, and Dhamma
+              talks.
             </p>
           </div>
-
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => handleTabChange('upload')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'upload'
-                    ? 'border-[var(--primary)] text-[var(--primary)]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Upload Audio
-              </button>
-              <button
-                onClick={() => handleTabChange('library')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'library'
-                    ? 'border-[var(--primary)] text-[var(--primary)]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Audio Library
-              </button>
-            </nav>
-          </div>
-
-          {/* Tab Content */}
-          <div className="min-h-[600px]">
-            <div hidden={activeTab !== 'upload'}>
-              <AudioUploadForm onUploadSuccess={handleUploadSuccess} />
-            </div>
-            {activeTab === 'library' && (
-              <AudioLibrary key={refreshKey} onRefresh={handleRefresh} />
+          <Button
+            variant={upload ? "outline" : "meditation"}
+            disabled={!upload && !hasPermission("audio", "create")}
+            onClick={() => setUpload((value) => !value)}
+          >
+            {upload ? (
+              <ArrowLeft size={18} className="mr-2" />
+            ) : (
+              <Plus size={18} className="mr-2" />
             )}
-          </div>
+            {upload ? "Back to library" : "Upload recording"}
+          </Button>
+        </header>
+        <div hidden={!upload} className="app-card p-5 sm:p-6">
+          <h2 className="mb-5 flex items-center gap-2 font-semibold">
+            <Headphones size={20} />
+            Add a recording
+          </h2>
+          <AudioUploadForm
+            onUploadSuccess={() => {
+              setUpload(false);
+              setRevision((value) => value + 1);
+            }}
+          />
         </div>
-      </AdminLayout>
-    </AdminProtectedRoute>
+        {!upload && <AudioLibrary key={revision} />}
+      </div>
+    </AdminLayout>
   );
-};
-
-export default AudioManagementPage;
-
+}

@@ -187,7 +187,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
                 </svg>
               </button>
               <h2 className="ml-2 lg:ml-0 text-lg font-semibold">
-                {navigation.find(item => item.href === currentPage)?.name || 'Admin Panel'}
+                {navigation.find(item => item.href === currentPagePath)?.name || (currentPagePath === '/admin/playlists' ? 'Playlists' : 'Admin Panel')}
               </h2>
             </div>
 

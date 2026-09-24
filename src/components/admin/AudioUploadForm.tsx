@@ -174,15 +174,15 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload New Audio</h3>
-      
+    <div className="app-card p-6">
+      <h3 className="text-lg font-semibold text-foreground mb-4">Upload New Audio</h3>
+
       {error && (
         <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-3 mb-4">
           <p className="text-[var(--color-status-error)] text-sm">{error}</p>
         </div>
       )}
-      
+
       {success && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
           <p className="text-green-800 text-sm">{success}</p>
@@ -192,14 +192,14 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
       <fieldset disabled={isUploading} className="space-y-4 min-w-0">
         {/* File Upload */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Audio File *
           </label>
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-              selectedFile 
-                ? 'border-green-300 bg-green-50' 
-                : 'border-gray-300 hover:border-gray-400'
+              selectedFile
+                ? 'border-primary bg-muted'
+                : 'border-input hover:border-primary'
             }`}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -229,7 +229,7 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
               </div>
             ) : (
               <div>
-                <p className="text-gray-600">Drag and drop audio file here, or</p>
+                <p className="text-muted-foreground">Drag and drop audio file here, or</p>
                 <Button
                   variant="outline"
                   onClick={() => document.getElementById('audio-file')?.click()}
@@ -246,26 +246,26 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Title *
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input min-h-11 rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               placeholder="Enter audio title"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Category
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as 'meditation' | 'dhamma_talk' | 'chanting' | 'guided_meditation' | 'background')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input min-h-11 rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -278,27 +278,27 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Duration (MM:SS)
             </label>
             <input
               type="text"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input min-h-11 rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               placeholder="0:00"
               pattern="[0-9]+:[0-5][0-9]"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Language
             </label>
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as 'en' | 'si' | 'pa')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input min-h-11 rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value}>
@@ -307,7 +307,7 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
               ))}
             </select>
           </div>
-          
+
           <div className="flex items-center">
             <label className="flex items-center">
               <input
@@ -316,20 +316,20 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
                 onChange={(e) => setIsPublic(e.target.checked)}
                 className="mr-2"
               />
-              <span className="text-sm text-gray-700">Public</span>
+              <span className="text-sm text-foreground">Public</span>
             </label>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Description
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-input min-h-11 rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             placeholder="Enter audio description..."
           />
         </div>
@@ -337,13 +337,13 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
         {/* Upload Progress */}
         {isUploading && (
           <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm text-muted-foreground">
               <span role="status">{phase}…</span>
               <span>{uploadProgress}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-muted rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-primary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>

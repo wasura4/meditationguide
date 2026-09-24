@@ -86,20 +86,49 @@ service cloud.firestore {
     match /kamatahan_audio/{audioId} {
       allow read: if true;
       allow create: if permitted('audio', 'create');
-      allow update: if permitted('audio', 'update');
-      allow delete: if permitted('audio', 'delete');
+      allow update: if permitted('audio', 'update')
+        && request.resource.data.version == resource.data.get('version', 0) + 1
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.status in ['active', 'draft', 'inactive', 'archived']
+        && (request.resource.data.status == 'active' || request.resource.data.isPublic == false);
+      allow delete: if false; // Archive recordings while retaining playlist references.
     }
 
     // Dhamma posts — public read, admin write
     match /dhamma_posts/{postId} {
       allow read: if resource.data.status == 'published' || permitted('dhamma', 'read') || permitted('analytics', 'read');
-      allow create: if permitted('dhamma', 'create') && validPost();
-      allow update: if permitted('dhamma', 'update') && validPost();
-      allow delete: if permitted('dhamma', 'delete');
+      allow create: if permitted('dhamma', 'create') && validPost()
+        && request.resource.data.get('version', 0) == 0;
+      allow update: if permitted('dhamma', 'update') && validPost()
+        && request.resource.data.version == resource.data.get('version', 0) + 1
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && getAfter(/databases/$(database)/documents/dhamma_posts/$(postId)/revisions/$(string(request.resource.data.version))).data.snapshot == resource.data;
+      allow delete: if false; // Keep articles and revision history recoverable.
       function validPost() {
         return request.resource.data.title is string && request.resource.data.title.size() > 0
           && request.resource.data.content is string
           && request.resource.data.status in ['draft', 'published', 'archived'];
+      }
+      match /revisions/{revisionId} {
+        allow read: if permitted('dhamma', 'read');
+        allow create: if permitted('dhamma', 'update') && validRevision();
+        allow update, delete: if false;
+        function validRevision() {
+          let before = get(/databases/$(database)/documents/dhamma_posts/$(postId)).data;
+          let after = getAfter(/databases/$(database)/documents/dhamma_posts/$(postId)).data;
+          let revision = request.resource.data;
+          return revision.keys().hasOnly(['version', 'snapshot', 'actorId', 'createdAt', 'action'])
+            && revision.version == before.get('version', 0) + 1
+            && revisionId == string(revision.version)
+            && revision.snapshot == before
+            && revision.actorId == request.auth.uid
+            && revision.createdAt == request.time
+            && revision.action in ['update', 'archive', 'restore']
+            && after.version == revision.version
+            && after.updatedBy == request.auth.uid;
+        }
       }
     }
 
@@ -107,13 +136,21 @@ service cloud.firestore {
     match /playlists/{playlistId} {
       allow read: if resource.data.isPublic == true
         || (isSignedIn() && (resource.data.userId == request.auth.uid || permitted('audio', 'read')));
-      allow create: if isSignedIn() && (
+      allow create: if validPlaylistVisibility() && isSignedIn() && (
         request.resource.data.userId == request.auth.uid || permitted('audio', 'create')
       );
-      allow update: if isSignedIn() && (
+      allow update: if validPlaylistVisibility() && validPlaylistVersion() && isSignedIn() && (
         (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) || permitted('audio', 'update')
       );
       allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || permitted('audio', 'delete'));
+      function validPlaylistVisibility() {
+        return request.resource.data.get('archived', false) != true || request.resource.data.isPublic == false;
+      }
+      function validPlaylistVersion() {
+        // Personal playlists created by older clients can continue using their existing format.
+        return (!('version' in resource.data) && !('version' in request.resource.data))
+          || request.resource.data.version == resource.data.get('version', 0) + 1;
+      }
     }
 
     // Audio listens (for counts)
