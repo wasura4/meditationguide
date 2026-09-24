@@ -48,6 +48,19 @@ export default function DhammaPage() {
           <span className="flex-1">{t("reader.saved_articles")}</span>
           <ChevronRight size={17} aria-hidden="true" />
         </Link>
+        <Link
+          href="/learn"
+          className="app-card mb-6 flex min-h-20 items-center gap-4 p-5"
+        >
+          <BookMarked size={24} className="shrink-0 text-primary" />
+          <span className="flex-1">
+            <span className="block font-semibold">{t("learning.title")}</span>
+            <span className="mt-1 block text-sm text-muted-foreground">
+              {t("learning.entry_hint")}
+            </span>
+          </span>
+          <ChevronRight size={18} />
+        </Link>
         <DhammaArticleList />
       </AppPage>
     </ProtectedRoute>

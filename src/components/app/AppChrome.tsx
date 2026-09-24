@@ -15,6 +15,8 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     "/kamatahan",
     "/guides",
     "/dhamma",
+    "/learn",
+    "/teachers",
     "/analytics",
     "/logbook",
     "/mypath",

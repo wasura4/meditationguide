@@ -18,7 +18,7 @@ const items = [
     href: "/dhamma",
     key: "dhamma",
     icon: BookOpen,
-    routes: ["/dhamma", "/pitaka", "/books"],
+    routes: ["/dhamma", "/pitaka", "/books", "/learn", "/teachers"],
   },
   {
     href: "/analytics",

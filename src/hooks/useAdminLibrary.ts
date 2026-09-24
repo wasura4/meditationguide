@@ -12,12 +12,13 @@ import {
   type DocumentData,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
+import { lessonsFromIds } from "@/lib/learning";
 import { db } from "@/lib/firebase";
 
 export type LibraryRecord = DocumentData & { id: string };
 /** Stable document-ID pagination needs no new composite indexes. Search is explicitly over loaded rows. */
 export function useAdminLibrary(
-  name: "dhamma_posts" | "kamatahan_audio",
+  name: "dhamma_posts" | "kamatahan_audio" | "teachers" | "learning_paths",
   status: string,
 ) {
   const [records, setRecords] = useState<LibraryRecord[]>([]);
@@ -48,6 +49,9 @@ export function useAdminLibrary(
         const rows = result.docs.map((snapshot) => ({
           ...snapshot.data(),
           id: snapshot.id,
+          ...(name === "learning_paths"
+            ? { lessons: lessonsFromIds(snapshot.data().lessonIds) }
+            : {}),
         }));
         setRecords((previous) => (reset ? rows : [...previous, ...rows]));
         cursor.current = result.docs.at(-1);
