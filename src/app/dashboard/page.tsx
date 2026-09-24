@@ -106,6 +106,7 @@ function DashboardContent() {
           <p className="mt-4 max-w-[28ch] text-base leading-relaxed sm:text-lg">{t("home.welcome", { name: user?.displayName || t("interface.practitioner") })}</p>
         </section>
         <div className="home-content space-y-6 pb-8">
+          <EventBanner />
           <DashboardPractice sessions={sessions} loading={sessionsLoading} error={sessionsError} retry={() => setAttempt(value => value + 1)} now={now} />
           <DailyCheckinCard />
           <section aria-labelledby="home-listen-title">
@@ -116,7 +117,6 @@ function DashboardContent() {
               <span className="home-primary flex h-11 w-11 shrink-0 items-center justify-center rounded-full"><Headphones size={20} aria-hidden="true" /></span>
             </Link>
           </section>
-          <EventBanner />
           <section aria-labelledby="home-reading-title">
             <div className="mb-2 flex items-center justify-between gap-3"><h2 id="home-reading-title" className="text-lg font-semibold">{t("interface.dhamma_reading")}</h2><Link href="/dhamma" className="flex min-h-11 items-center gap-1 text-xs font-medium">{t("common.view_all")}<ChevronRight size={15} /></Link></div>
             <div className="home-glass divide-y divide-border/60 overflow-hidden">

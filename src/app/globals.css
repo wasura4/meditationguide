@@ -634,6 +634,10 @@ html[lang="si"] .home-title { font-size: clamp(2.15rem, 8vw, 4rem); line-height:
   box-shadow: 0 6px 28px color-mix(in srgb, var(--foreground) 4%, transparent);
 }
 .home-primary { background: color-mix(in srgb, var(--primary) 32%, var(--background)); color: var(--foreground); }
+.home-event-invite {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--primary) 18%, var(--background)), color-mix(in srgb, var(--primary) 5%, var(--background)));
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--primary) 8%, transparent);
+}
 .home-primary:hover { background: color-mix(in srgb, var(--primary) 44%, var(--background)); }
 .home-listen-art { color: var(--foreground); background: radial-gradient(ellipse at top, color-mix(in srgb, var(--primary) 45%, var(--background)), color-mix(in srgb, var(--secondary) 16%, var(--background))); }
 @media (min-width: 768px) {

@@ -1,4 +1,14 @@
 {
+  "eventInvite": {
+    "section": "Happening in our community",
+    "live": "Happening now",
+    "lastDay": "Last day to join",
+    "daysLeft": "{count} days left",
+    "invitation": "A shared moment of mindfulness. Join us today.",
+    "join": "Join practice",
+    "details": "Details",
+    "error": "Events could not be refreshed."
+  },
   "interface": {
     "practice_error": "Meditation options could not be loaded. Please try again.",
     "search_practices": "Search practices…",
