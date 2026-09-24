@@ -74,4 +74,3 @@ test('a new answer cannot silently accept wording edited after the user read it'
  await assert.rejects(saveCheckin(db('fresh-owner'),'fresh-owner',q.id,true,day,q.version),/question-changed/);
  await assertSucceeds(saveCheckin(db('fresh-owner'),'fresh-owner',q.id,true,day,q.version+1));
 });
-

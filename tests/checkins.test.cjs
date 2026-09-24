@@ -25,4 +25,3 @@ test('history counts answered days, preserves question snapshots, and never inve
  assert.equal(summary.days[0][0],'2026-09-24');assert.equal(summary.days[1][1].answers[0].titleEn,'Original question');
  assert.deepEqual(checkinSummary([]),{days:[],yes:0,no:0});
 });
-
