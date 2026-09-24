@@ -765,6 +765,59 @@ html[lang="si"] .app-chrome {
 .app-player-dialog[open] {
   display: flex;
 }
+.listen-artwork {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--primary) 22%, var(--card)), var(--card));
+}
+.listen-guide-hero,
+.listen-player {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 9%, var(--background)), var(--background) 65%);
+}
+.listen-mini {
+  background: color-mix(in srgb, var(--card) 95%, transparent);
+}
+.listen-player-cover {
+  max-width: min(72vw, 290px, 34dvh);
+}
+.listen-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.listen-search input {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  background: transparent;
+  color: var(--foreground);
+  outline-offset: 2px;
+}
+.listen-filter {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.listen-filter select {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 14px;
+}
+.listen-track {
+  overflow-wrap: anywhere;
+}
 .app-player-dialog::backdrop {
   background: rgb(0 0 0 / 0.4);
 }

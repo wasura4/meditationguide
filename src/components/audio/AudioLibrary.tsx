@@ -1,214 +1,173 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { AudioPlayer } from './AudioPlayer';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/toast';
-import { KamatahanAudio } from '@/types/admin';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { isPublishedAudio } from '@/lib/editorial';
+import { useEffect, useMemo, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { Search } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { isPublishedAudio } from "@/lib/editorial";
+import { audioMatchesDuration } from "@/lib/audioPresentation";
+import type { KamatahanAudio } from "@/types/admin";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { AudioPlayer } from "./AudioPlayer";
+import { ListeningState } from "./ListeningState";
 
 export function AudioLibrary() {
-  const [audioFiles, setAudioFiles] = useState<KamatahanAudio[]>([]);
+  const { t, language } = useLanguage();
+  const [tracks, setTracks] = useState<KamatahanAudio[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const { showToast } = useToast();
-
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [audioLanguage, setAudioLanguage] = useState("all");
+  const [length, setLength] = useState("all");
   useEffect(() => {
-    fetchAudioFiles();
-  }, []);
-
-  const fetchAudioFiles = async () => {
-    try {
-      setLoading(true);
-      console.log('🔍 Fetching audio files from kamatahan_audio collection...');
-      const audioRef = collection(db, 'kamatahan_audio');
-      // Temporarily remove orderBy to test if that's causing the issue
-      // const q = query(audioRef, orderBy('uploadDate', 'desc'));
-      const q = query(audioRef);
-      const querySnapshot = await getDocs(q);
-      
-      console.log('📊 Query snapshot size:', querySnapshot.size);
-      console.log('📊 Query snapshot empty:', querySnapshot.empty);
-      
-      const files: KamatahanAudio[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        console.log('🎵 Audio file data:', { id: doc.id, ...data });
-        files.push({ id: doc.id, ...data } as KamatahanAudio);
+    let active = true;
+    setLoading(true);
+    setError(false);
+    getDocs(collection(db, "kamatahan_audio"))
+      .then((snapshot) => {
+        if (active)
+          setTracks(
+            snapshot.docs
+              .map(
+                (item) => ({ ...item.data(), id: item.id }) as KamatahanAudio,
+              )
+              .filter(isPublishedAudio),
+          );
+      })
+      .catch(() => {
+        if (active) setError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
-      
-      console.log('🎵 Total audio files found:', files.length);
-      setAudioFiles(files.filter(isPublishedAudio));
-    } catch (error) {
-      console.error('❌ Error fetching audio files:', error);
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message: 'Failed to load audio files. Please try again.',
-        duration: 3000
-      });
-    } finally {
-      setLoading(false);
-    }
+    return () => {
+      active = false;
+    };
+  }, [attempt]);
+  const results = useMemo(
+    () =>
+      tracks
+        .filter(
+          (track) =>
+            (category === "all" || track.category === category) &&
+            (audioLanguage === "all" || track.language === audioLanguage) &&
+            audioMatchesDuration(track.duration, length) &&
+            `${track.title} ${track.description}`
+              .toLocaleLowerCase()
+              .includes(search.trim().toLocaleLowerCase()),
+        )
+        .sort((a, b) => a.title.localeCompare(b.title, language)),
+    [tracks, category, audioLanguage, length, search, language],
+  );
+  const filtered =
+    !!search ||
+    category !== "all" ||
+    audioLanguage !== "all" ||
+    length !== "all";
+  const clear = () => {
+    setSearch("");
+    setCategory("all");
+    setAudioLanguage("all");
+    setLength("all");
   };
-
-  const filteredAudioFiles = audioFiles.filter((audio) => {
-    const matchesCategory = selectedCategory === 'all' || audio.category === selectedCategory;
-    const matchesLanguage = selectedLanguage === 'all' || audio.language === selectedLanguage;
-    const matchesSearch = audio.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         audio.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    return matchesCategory && matchesLanguage && matchesSearch;
-  });
-
-  const categories = ['all', ...Array.from(new Set(audioFiles.map(audio => audio.category)))];
-  const languages = ['all', ...Array.from(new Set(audioFiles.map(audio => audio.language)))];
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading audio files...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Search and Filters */}
-      <div className="bg-card rounded-xl p-4 sm:p-6 shadow-sm border">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search audio files..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-          </div>
-
-          {/* Category Filter */}
-          <div className="lg:w-48">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category === 'all' ? 'All Categories' : category}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Language Filter */}
-          <div className="lg:w-48">
-            <select
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="w-full px-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-            >
-              {languages.map((language) => (
-                <option key={language} value={language}>
-                  {language === 'all' ? 'All Languages' : language}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+    <div className="space-y-5">
+      <label className="listen-search">
+        <Search size={19} aria-hidden="true" />
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t("listen.search_recordings")}
+          aria-label={t("listen.search_recordings")}
+        />
+      </label>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <label className="listen-filter">
+          {t("listen.topic")}
+          <select
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
+            <option value="all">{t("listen.all_topics")}</option>
+            {[
+              "meditation",
+              "dhamma_talk",
+              "chanting",
+              "guided_meditation",
+              "background",
+            ].map((item) => (
+              <option key={item} value={item}>
+                {t(`listen.category.${item}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="listen-filter">
+          {t("listen.language_label")}
+          <select
+            value={audioLanguage}
+            onChange={(event) => setAudioLanguage(event.target.value)}
+          >
+            <option value="all">{t("listen.all_languages")}</option>
+            {["si", "en", "pa"].map((item) => (
+              <option key={item} value={item}>
+                {t(`listen.language.${item}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="listen-filter col-span-2 sm:col-span-1">
+          {t("listen.length")}
+          <select
+            value={length}
+            onChange={(event) => setLength(event.target.value)}
+          >
+            {["all", "short", "medium", "long"].map((item) => (
+              <option key={item} value={item}>
+                {t(`listen.length_${item}`)}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
-
-      {/* Results Count */}
-      <div className="flex justify-between items-center">
-        <p className="text-muted-foreground">
-          {filteredAudioFiles.length} audio file{filteredAudioFiles.length !== 1 ? 's' : ''} found
-        </p>
-        <Button
-          onClick={fetchAudioFiles}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span>Refresh</span>
-        </Button>
-      </div>
-
-      {/* Audio Files Grid */}
-      {filteredAudioFiles.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-semibold mb-2">No audio files found</h3>
-          <p className="text-muted-foreground">
-            {searchQuery || selectedCategory !== 'all' || selectedLanguage !== 'all'
-              ? 'Try adjusting your search or filters'
-              : 'No audio files have been uploaded yet'}
-          </p>
-        </div>
+      {loading || error ? (
+        <ListeningState
+          loading={loading}
+          error={error}
+          retry={() => setAttempt((value) => value + 1)}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredAudioFiles.map((audio) => (
-            <div key={audio.id} className="bg-card rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
-              {/* Audio Thumbnail */}
-              <div className="h-40 sm:h-48 bg-gradient-to-br from-primary/10 via-primary/5 to-muted/50 flex items-center justify-center">
-                <svg className="w-12 h-12 sm:w-16 sm:h-16 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                </svg>
-              </div>
-
-              {/* Audio Info */}
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-semibold text-sm sm:text-base line-clamp-2 flex-1">
-                    {audio.title}
-                  </h3>
-                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
-                    {audio.duration || 'N/A'}
-                  </span>
-                </div>
-
-                <p className="text-xs sm:text-sm text-muted-foreground mb-3 line-clamp-2">
-                  {audio.description}
-                </p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                    {audio.category}
-                  </span>
-                  <span className="text-xs bg-accent/50 text-accent-foreground px-2 py-1 rounded-full">
-                    {audio.language}
-                  </span>
-                </div>
-
-                {/* Audio Player */}
-                <AudioPlayer audio={audio} />
-              </div>
+        <>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground" role="status">
+              {t("listen.recording_count", { count: results.length })}
+            </p>
+            {filtered && (
+              <button
+                type="button"
+                className="min-h-11 text-sm font-medium underline underline-offset-4"
+                onClick={clear}
+              >
+                {t("listen.clear_filters")}
+              </button>
+            )}
+          </div>
+          {results.length ? (
+            <div className="divide-y divide-border rounded-3xl border border-border bg-card p-2">
+              {results.map((track) => (
+                <AudioPlayer key={track.id} audio={track} />
+              ))}
             </div>
-          ))}
-        </div>
+          ) : (
+            <ListeningState
+              empty={filtered ? "listen.no_matches" : "listen.no_recordings"}
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
-
