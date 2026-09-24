@@ -13,6 +13,7 @@ import {
   savePracticePreferences,
 } from "@/lib/appPreferences";
 import { prepareBellSound, playBellSound } from "@/lib/audioUtils";
+import { PracticeNotificationNotice } from "./PracticeNotificationNotice";
 
 interface MeditationSetupProps {
   onStart: (
@@ -360,6 +361,7 @@ export function MeditationSetup({ onStart }: MeditationSetupProps) {
         >
           {t("practice.preview_bell")}
         </button>
+        {bell && <PracticeNotificationNotice />}
         <div className="mt-3 flex items-center justify-between gap-4 border-t border-border/60 pt-4">
           <label htmlFor="settling-time" className="text-sm">
             {t("practice.settling_time")}

@@ -27,6 +27,8 @@ The web sends the complete snapshot plus `protocolVersion: 2` and `deadlineMs = 
 
 Neither native binary is distributed by a Vercel deployment. Notification permission/system settings can suppress native alerts; force-stop and OS background restrictions must be tested on devices. Do not advertise reliable locked-screen operation from browser emulation alone.
 
+Android device testing exposed that denied notification permission silently suppressed the completion cue. The updated bridge exposes `getPracticeNotificationStatus` and `enablePracticeNotifications`; the setup and active clock now show a warning and a deliberate permission/settings action when notifications are blocked or the bell channel is silent. The status refreshes after returning from system settings. Android uses a bundled three-second bell matching the web preview, on the `practice_complete_bell_v2` notification channel. The phone's notification volume, silent mode and Do Not Disturb still apply. `scripts/generate-practice-bell.cjs` reproduces the WAV, which is included in the binary Android patch.
+
 ## Validation and rollout
 
 - 41 application tests and 23 Firestore emulator tests pass, including timestamp boundaries, pause/reload/resume, short sessions, terminal idempotency, native payload/fallback behavior, duplicate completion, event credit and rejected-save retry.

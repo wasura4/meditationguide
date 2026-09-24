@@ -984,6 +984,10 @@
     "save_reflection": "Save reflection",
     "reflection_saved": "Reflection saved",
     "reflection_error": "Your practice is saved. The reflection could not be saved; your text is still here. Try again.",
-    "native_update": "Keep this screen open for the completion bell. Lock-screen support needs the updated mobile app."
+    "native_update": "Keep this screen open for the completion bell. Lock-screen support needs the updated mobile app.",
+    "notifications_blocked": "Notifications are off for this app. Allow notifications to hear the completion bell while your screen is locked.",
+    "notifications_silent": "The completion notification is set to silent. Enable its sound in your phone settings to hear the bell.",
+    "enable_notifications": "Enable notifications",
+    "notification_settings": "Notification settings"
   }
 }

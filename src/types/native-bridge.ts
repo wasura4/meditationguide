@@ -92,7 +92,11 @@ export interface IOSBridgeMessage {
  */
 declare global {
   interface Window {
-    AndroidInterface?: { syncPractice?: (payload: string) => void };
+    AndroidInterface?: {
+      syncPractice?: (payload: string) => void;
+      getPracticeNotificationStatus?: () => string;
+      enablePracticeNotifications?: () => void;
+    };
     Android?: AndroidBridge;
     webkit?: IOSBridge;
   }

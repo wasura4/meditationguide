@@ -16,6 +16,7 @@ import {
   type PracticeClock,
 } from "@/lib/meditationClock";
 import { PracticeSheet } from "./PracticeSheet";
+import { PracticeNotificationNotice } from "./PracticeNotificationNotice";
 
 interface Props {
   nativeUnavailable?: boolean;
@@ -73,6 +74,7 @@ export function MeditationTimer({
           {t(clock.bell ? "practice.bell_on" : "practice.bell_off")}
         </span>
       </header>
+      {clock.bell && <PracticeNotificationNotice />}
       {nativeUnavailable && (
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           {t("practice.native_update")}
