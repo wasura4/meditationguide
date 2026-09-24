@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Follow the app selection from next-themes, including its resolved system mode. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* 
  * ⚠️ THEME COLORS - IMPORTANT ⚠️
  * 
