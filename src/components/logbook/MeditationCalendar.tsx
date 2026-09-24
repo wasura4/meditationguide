@@ -1,195 +1,140 @@
-'use client';
+"use client";
+import { useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { MeditationSession } from "@/types";
+import { localDateKey } from "@/lib/logbook";
+import { useLogbookFormat } from "./useLogbookFormat";
 
-import React, { useState, useMemo } from 'react';
-import { MeditationSession } from '@/types';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from 'date-fns';
-
-interface MeditationCalendarProps {
-  sessions: MeditationSession[];
-  selectedDate: Date | null;
-  onDateSelect: (date: Date) => void;
-  onMonthChange?: (date: Date) => void;
-}
-
-export const MeditationCalendar: React.FC<MeditationCalendarProps> = ({
+export function MeditationCalendar({
   sessions,
   selectedDate,
+  month,
   onDateSelect,
-  onMonthChange
-}) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-
-  // Group sessions by date for quick lookup
-  const sessionsByDate = useMemo(() => {
-    const grouped: Record<string, MeditationSession[]> = {};
-    sessions.forEach(session => {
-      const dateKey = format(session.createdAt, 'yyyy-MM-dd');
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = [];
-      }
-      grouped[dateKey].push(session);
+  onMonthChange,
+  onToday,
+  onLatest,
+}: {
+  sessions: MeditationSession[];
+  selectedDate: Date | null;
+  month: Date;
+  onDateSelect: (date: Date) => void;
+  onMonthChange: (date: Date) => void;
+  onToday: () => void;
+  onLatest: () => void;
+}) {
+  const { date: formatDate, month: formatMonth, t } = useLogbookFormat();
+  const counts = useMemo(() => {
+    const map = new Map<string, number>();
+    sessions.forEach((session) => {
+      const key = localDateKey(session.createdAt);
+      map.set(key, (map.get(key) || 0) + 1);
     });
-    return grouped;
+    return map;
   }, [sessions]);
-
-  // Generate calendar days
-  const calendarDays = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const calendarStart = startOfWeek(monthStart);
-    const calendarEnd = endOfWeek(monthEnd);
-
-    return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  }, [currentMonth]);
-
-  // Navigation functions
-  const goToPreviousMonth = () => {
-    const newMonth = subMonths(currentMonth, 1);
-    setCurrentMonth(newMonth);
-    onMonthChange?.(newMonth);
-  };
-
-  const goToNextMonth = () => {
-    const newMonth = addMonths(currentMonth, 1);
-    setCurrentMonth(newMonth);
-    onMonthChange?.(newMonth);
-  };
-
-  const goToToday = () => {
-    const today = new Date();
-    setCurrentMonth(today);
-    onMonthChange?.(today);
-  };
-
-  // Get sessions for a specific date
-  const getSessionsForDate = (date: Date) => {
-    const dateKey = format(date, 'yyyy-MM-dd');
-    return sessionsByDate[dateKey] || [];
-  };
-
-
-
-  // Check if date has sessions
-  const hasSessions = (date: Date) => {
-    const dateKey = format(date, 'yyyy-MM-dd');
-    return !!sessionsByDate[dateKey];
-  };
-
-  // Check if date is today
-  const isToday = (date: Date) => {
-    return isSameDay(date, new Date());
-  };
-
-  // Check if date is in current month
-  const isCurrentMonth = (date: Date) => {
-    return isSameMonth(date, currentMonth);
-  };
-
-  // Check if date is selected
-  const isSelected = (date: Date) => {
-    return selectedDate && isSameDay(date, selectedDate);
-  };
-
+  const first = new Date(month.getFullYear(), month.getMonth(), 1);
+  const count = new Date(
+    month.getFullYear(),
+    month.getMonth() + 1,
+    0,
+  ).getDate();
+  const cells = Math.ceil((first.getDay() + count) / 7) * 7;
+  const today = localDateKey(new Date());
+  const selected = selectedDate ? localDateKey(selectedDate) : "";
   return (
-    <div className="bg-background/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-xl">
-      {/* Calendar Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-          <span className="w-1 h-6 bg-primary rounded-full" />
-          Calendar
-        </h3>
-        <div className="flex items-center gap-1 bg-background/50 rounded-full p-1 border border-white/5">
-          <button
-            onClick={goToPreviousMonth}
-            className="p-2 text-muted-foreground hover:text-foreground hover:bg-white/10 rounded-full transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            onClick={goToToday}
-            className="px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-full transition-colors"
-          >
-            Today
-          </button>
-
-          <button
-            onClick={goToNextMonth}
-            className="p-2 text-muted-foreground hover:text-foreground hover:bg-white/10 rounded-full transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+    <section
+      className="app-card p-3 sm:p-5"
+      aria-label={t("logbook.calendar.title")}
+    >
+      <div className="mb-3 flex items-center justify-between gap-1">
+        <button
+          className="app-icon-button shrink-0"
+          aria-label={t("journal.previous_month")}
+          onClick={() =>
+            onMonthChange(
+              new Date(month.getFullYear(), month.getMonth() - 1, 1),
+            )
+          }
+        >
+          <ChevronLeft size={20} aria-hidden="true" />
+        </button>
+        <h2
+          aria-live="polite"
+          className="text-center text-sm font-semibold sm:text-lg"
+        >
+          {formatMonth(month)}
+        </h2>
+        <button
+          className="app-icon-button shrink-0"
+          aria-label={t("journal.next_month")}
+          onClick={() =>
+            onMonthChange(
+              new Date(month.getFullYear(), month.getMonth() + 1, 1),
+            )
+          }
+        >
+          <ChevronRight size={20} aria-hidden="true" />
+        </button>
       </div>
-
-      {/* Month/Year Display */}
-      <div className="text-center mb-8">
-        <h4 className="text-2xl font-bold text-foreground tracking-tight">
-          {format(currentMonth, 'MMMM yyyy')}
-        </h4>
+      <div className="mb-3 flex flex-wrap justify-center gap-2">
+        <button
+          className="min-h-11 rounded-xl bg-primary/10 px-3 text-xs font-medium"
+          onClick={onToday}
+        >
+          {t("common.today")}
+        </button>
+        <button
+          disabled={!sessions.length}
+          className="min-h-11 rounded-xl px-3 text-xs font-medium disabled:opacity-40"
+          onClick={onLatest}
+        >
+          {t("journal.latest_practice")}
+        </button>
       </div>
-
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2 mb-4">
-        {/* Day Headers */}
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-          <div
+      <div className="grid grid-cols-7" aria-hidden="true">
+        {["sun", "mon", "tue", "wed", "thu", "fri", "sat"].map((day) => (
+          <span
             key={day}
-            className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider py-2"
+            className="py-2 text-center text-[10px] text-muted-foreground sm:text-xs"
           >
-            {day}
-          </div>
+            {t(`activity.${day}`)}
+          </span>
         ))}
-
-        {/* Calendar Days */}
-        {calendarDays.map((day, index) => {
-          const daySessions = getSessionsForDate(day);
-          const isTodayDate = isToday(day);
-          const isCurrentMonthDate = isCurrentMonth(day);
-          const isSelectedDate = isSelected(day);
-
+      </div>
+      <div className="grid grid-cols-7 gap-y-1">
+        {Array.from({ length: cells }, (_, index) => {
+          const day = index - first.getDay() + 1;
+          if (day < 1 || day > count) return <span key={index} />;
+          const value = new Date(month.getFullYear(), month.getMonth(), day);
+          const key = localDateKey(value);
+          const total = counts.get(key) || 0;
           return (
             <button
               key={index}
-              onClick={() => onDateSelect(day)}
-              className={`
-                relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300
-                ${!isCurrentMonthDate ? 'opacity-30' : 'opacity-100'}
-                ${isSelectedDate
-                  ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10'
-                  : 'hover:bg-white/5'
-                }
-                ${isTodayDate && !isSelectedDate
-                  ? 'bg-primary/10 text-primary border border-primary/20'
-                  : ''
-                }
-              `}
+              onClick={() => onDateSelect(value)}
+              aria-pressed={key === selected}
+              aria-current={key === today ? "date" : undefined}
+              aria-label={t("journal.calendar_day", {
+                date: formatDate(value),
+                count: total,
+              })}
+              className={`flex min-h-11 min-w-0 flex-col items-center justify-center rounded-xl py-1 text-sm ${key === selected ? "bg-primary text-primary-foreground" : key === today ? "bg-primary/10 font-semibold ring-1 ring-inset ring-primary" : "hover:bg-primary/10"}`}
             >
-              <span className={`text-sm font-medium ${isSelectedDate ? 'text-primary-foreground' : 'text-foreground'}`}>
-                {format(day, 'd')}
-              </span>
-
-              {/* Dot Indicators */}
-              <div className="flex gap-0.5 mt-1 h-1.5">
-                {daySessions.slice(0, 3).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-1 h-1 rounded-full ${isSelectedDate ? 'bg-white/70' : 'bg-primary'}`}
-                  />
-                ))}
-                {daySessions.length > 3 && (
-                  <div className={`w-1 h-1 rounded-full ${isSelectedDate ? 'bg-white/70' : 'bg-primary'}`} />
-                )}
-              </div>
+              <span aria-hidden="true">{day}</span>
+              <span
+                aria-hidden="true"
+                className={`mt-1 h-1 w-1 rounded-full ${total ? (key === selected ? "bg-primary-foreground" : "bg-primary") : "bg-transparent"}`}
+              />
             </button>
           );
         })}
       </div>
-    </div>
+      <p className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+        <span
+          className="h-1.5 w-1.5 rounded-full bg-primary"
+          aria-hidden="true"
+        />
+        {t("journal.calendar_legend")}
+      </p>
+    </section>
   );
-};
-
+}

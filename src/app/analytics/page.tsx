@@ -1,37 +1,50 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
-import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from "next/link";
+import { BookOpen, Route, ChevronRight } from "lucide-react";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AnalyticsDashboard } from "@/components/dashboard/AnalyticsDashboard";
+import { AppPage } from "@/components/app/AppPage";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AnalyticsPage() {
-  const router = useRouter();
-
+  const { t } = useLanguage();
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background pb-32">
-        {/* Header */}
-        <header className="sticky top-0 z-40 bg-background/60 backdrop-blur-xl border-b border-white/5">
-          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="p-2 -ml-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-white/5 transition-colors"
+      <AppPage
+        title={t("interface.tabs.progress")}
+        subtitle={t("interface.progress_description")}
+      >
+        <div className="mb-7 grid grid-cols-2 gap-3">
+          {[
+            {
+              href: "/logbook",
+              icon: BookOpen,
+              label: t("navigation.logbook"),
+            },
+            {
+              href: "/mypath",
+              icon: Route,
+              label: t("dashboard.quick_actions_labels.my_path"),
+            },
+          ].map(({ href, icon: Icon, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="app-card flex min-h-16 items-center gap-3 px-4 py-3 text-sm font-semibold"
             >
-              <ArrowLeft size={20} />
-            </button>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              My Analytics
-            </h1>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 py-8">
-          <AnalyticsDashboard />
-        </main>
-      </div>
+              <Icon
+                size={21}
+                className="shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <span className="flex-1">{label}</span>
+              <ChevronRight size={16} className="shrink-0" aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+        <AnalyticsDashboard />
+      </AppPage>
     </ProtectedRoute>
   );
 }

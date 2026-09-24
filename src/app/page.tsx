@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { APP_CONFIG } from "@/constants";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -79,11 +80,11 @@ export default function Home() {
 
   // Mock data for display
   const topics = [
-    { title: "Stress Relief", color: "bg-blue-100 text-blue-700" },
-    { title: "Better Sleep", color: "bg-purple-100 text-purple-700" },
-    { title: "Focus", color: "bg-teal-100 text-teal-700" },
-    { title: "Anxiety", color: "bg-orange-100 text-orange-700" },
-    { title: "Self-Compassion", color: "bg-pink-100 text-pink-700" },
+    { title: t('home.intro.stress'), color: "bg-blue-100 text-blue-700" },
+    { title: t('home.intro.sleep'), color: "bg-purple-100 text-purple-700" },
+    { title: t('home.intro.focus'), color: "bg-teal-100 text-teal-700" },
+    { title: t('home.intro.anxiety'), color: "bg-orange-100 text-orange-700" },
+    { title: t('home.intro.compassion'), color: "bg-pink-100 text-pink-700" },
   ];
 
   return (
@@ -106,6 +107,7 @@ export default function Home() {
           </span>
         </div>
 
+        <LanguageSwitcher />
         <Link
           href="/auth"
           className="text-sm font-semibold text-slate-600 hover:text-indigo-600 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full shadow-sm hover:shadow-md transition-all"
@@ -126,14 +128,14 @@ export default function Home() {
         >
           <motion.div variants={fadeIn} className="inline-flex items-center justify-center mb-6">
             <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold tracking-widest uppercase border border-indigo-100 shadow-sm">
-              #1 Mindfulness App in Sri Lanka
+              {t('home.intro.audience')}
             </span>
           </motion.div>
 
-          <motion.h1 variants={fadeIn} className="text-5xl sm:text-6xl font-extrabold text-slate-900 leading-[1.05] mb-6 tracking-tight">
-            Find Your <br />
+          <motion.h1 variants={fadeIn} className="text-5xl sm:text-6xl font-extrabold text-slate-900 leading-[1.45] mb-6 tracking-tight">
+            {t('home.intro.find')} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient-x">
-              Inner Peace
+              {t('home.intro.peace')}
             </span>
           </motion.h1>
 
@@ -164,13 +166,13 @@ export default function Home() {
               <div className="flex-1 text-left min-w-0 flex flex-col justify-center">
                 <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  Featured Dhamma Talk
+                  {t('home.intro.featured')}
                 </div>
                 <div className="text-base sm:text-lg font-bold text-slate-900 truncate leading-tight mb-0.5">
                   භාවනාව බෞද්ධයන්ට පමණක් ද?
                 </div>
                 <div className="text-xs sm:text-sm text-slate-500 truncate font-medium">
-                  Most Ven. Na Uyane Ariyadhamma Maha Thero
+                  {t('home.intro.teacher')}
                 </div>
 
                 {/* Progress visual */}
@@ -199,37 +201,14 @@ export default function Home() {
 
         </motion.div>
 
-        {/* Social Proof Strip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="flex items-center justify-center gap-4 mb-12"
-        >
-          <div className="flex -space-x-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className={`w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500 bg-cover bg-center`} style={{ backgroundColor: `hsl(${i * 60}, 70%, 90%)` }}>
-                {/* Placeholder avatar colors */}
-              </div>
-            ))}
-          </div>
-
-          <div className="text-left">
-            <div className="flex text-amber-400 text-xs">
-              {'★★★★★'}
-            </div>
-            <p className="text-xs font-semibold text-slate-600">Loved by <span className="text-indigo-600">1,000+</span> people</p>
-          </div>
-        </motion.div>
-
-        {/* Explore Topics - Horizontal Scroll */}
+        {/* Explore topics */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           className="mb-10"
         >
-          <h3 className="text-sm font-bold text-slate-900 mb-3 px-1">Explore Topics</h3>
+          <h3 className="text-sm font-bold text-slate-900 mb-3 px-1">{t('home.intro.topics')}</h3>
           <div className="flex overflow-x-auto pb-4 gap-3 -mx-6 px-6 scrollbar-hide snap-x">
             {topics.map((topic, i) => (
               <div key={i} className={`snap-start shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold ${topic.color} whitespace-nowrap`}>
@@ -239,14 +218,14 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Daily Wisdom Card */}
+        {/* Reflection */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           className="mb-10"
         >
-          <h3 className="text-sm font-bold text-slate-900 mb-3 px-1">Daily Wisdom</h3>
+          <h3 className="text-sm font-bold text-slate-900 mb-3 px-1">{t('home.intro.reflection')}</h3>
           <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden">
 
             {/* Decorative circles */}
@@ -256,9 +235,8 @@ export default function Home() {
             <svg className="w-8 h-8 text-white/40 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11C14.017 11.5523 13.5693 12 13.017 12H12.017V5H22.017V15C22.017 18.3137 19.3307 21 16.017 21H14.017ZM5.0166 21L5.0166 18C5.0166 16.8954 5.91203 16 7.0166 16H10.0166C10.5689 16 11.0166 15.5523 11.0166 15V9C11.0166 8.44772 10.5689 8 10.0166 8H6.0166C5.46432 8 5.0166 8.44772 5.0166 9V11C5.0166 11.5523 4.56889 12 4.0166 12H3.0166V5H13.0166V15C13.0166 18.3137 10.3303 21 7.0166 21H5.0166Z" /></svg>
 
             <p className="text-lg font-medium leading-relaxed mb-4 relative z-10">
-              &quot;Peace comes from within. Do not seek it without.&quot;
+              {t('home.intro.reflection_text')}
             </p>
-            <div className="text-xs font-bold uppercase tracking-widest text-indigo-200">Buddha</div>
           </div>
         </motion.div>
 
@@ -278,7 +256,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-bold text-slate-900">{t('home.features.smart_timer.title')}</h3>
-                <p className="text-sm text-slate-500 leading-tight mt-1">Focus deeply with adaptive timers.</p>
+                <p className="text-sm text-slate-500 leading-tight mt-1">{t('home.intro.timer')}</p>
               </div>
             </div>
           </motion.div>
@@ -291,7 +269,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-bold text-slate-900">{t('home.features.progress_tracking.title')}</h3>
-                <p className="text-sm text-slate-500 leading-tight mt-1">Visualize your journey daily.</p>
+                <p className="text-sm text-slate-500 leading-tight mt-1">{t('home.intro.progress')}</p>
               </div>
             </div>
           </motion.div>

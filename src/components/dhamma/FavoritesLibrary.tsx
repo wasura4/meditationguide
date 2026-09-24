@@ -1,62 +1,88 @@
-'use client';
-
-import React, { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { DhammaPost } from '@/types/admin';
-import { getFavoritePosts } from '@/lib/favoritesService';
-import { DhammaPostCard } from './DhammaPostCard';
-import { Button } from '@/components/ui/button';
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Bookmark } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { DhammaPost } from "@/types/admin";
+import { getFavoritePosts } from "@/lib/favoritesService";
+import { DhammaPostCard } from "./DhammaPostCard";
+import { Button } from "@/components/ui/button";
 
 export function FavoritesLibrary() {
   const { user } = useAuth();
+  const { t } = useLanguage();
+  return user?.id ? (
+    <SavedPosts key={user.id} userId={user.id} />
+  ) : (
+    <Link href="/auth">{t("reader.sign_in_save")}</Link>
+  );
+}
+function SavedPosts({ userId }: { userId: string }) {
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<DhammaPost[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    if (!user?.id) return;
-    setLoading(true);
-    try {
-      const favs = await getFavoritePosts(user.id);
-      setPosts(favs);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => { load(); }, [load]);
-
-  if (!user?.id) {
-    return <div className="text-center text-muted-foreground">Sign in to see favorites.</div>;
-  }
-
-  if (loading) {
+  const [state, setState] = useState("loading");
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    setState("loading");
+    getFavoritePosts(userId)
+      .then((value) => {
+        if (!cancelled) {
+          setPosts(value);
+          setState("ready");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setState("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, attempt]);
+  if (state === "loading")
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--ring)]" />
+      <p role="status" className="app-card p-6">
+        {t("common.loading")}
+      </p>
+    );
+  if (state === "error")
+    return (
+      <div role="alert" className="app-card p-6">
+        <p>{t("reader.saved_error")}</p>
+        <Button
+          className="mt-4"
+          onClick={() => setAttempt((value) => value + 1)}
+        >
+          {t("common.retry")}
+        </Button>
       </div>
     );
-  }
-
-  if (posts.length === 0) {
+  if (!posts.length)
     return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </div>
-        <p className="text-muted-foreground">No favorites yet</p>
-        <Button onClick={load} variant="outline" size="sm" className="mt-3">Refresh</Button>
+      <div className="app-card px-6 py-10 text-center">
+        <Bookmark
+          size={30}
+          className="mx-auto mb-4 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <h2 className="text-lg font-semibold">{t("reader.saved_empty")}</h2>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {t("reader.saved_hint")}
+        </p>
+        <Link
+          href="/dhamma"
+          className="mt-5 inline-flex min-h-11 items-center font-medium underline underline-offset-4"
+        >
+          {t("reader.more_articles")}
+        </Link>
       </div>
     );
-  }
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {posts.map(p => (
-        <DhammaPostCard key={p.id} post={p} />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => (
+        <DhammaPostCard key={post.id} post={post} />
       ))}
     </div>
   );
 }
-

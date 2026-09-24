@@ -11,10 +11,13 @@ import { useToast } from '@/components/ui/toast';
 import { MeditationSession } from '@/types';
 import { MeditationService } from '@/lib/meditationService';
 import { MeditationTypeService } from '@/lib/meditationTypeService';
+import { AppPage } from '@/components/app/AppPage';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type MeditationMode = 'setup' | 'timer' | 'complete' | 'reflection';
 
 export default function MeditatePage() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const eventId = searchParams.get('eventId');
 
@@ -268,6 +271,10 @@ export default function MeditatePage() {
         return null;
     }
   };
+
+  if (mode === 'setup') {
+    return <ProtectedRoute><AppPage title={t('navigation.meditate')} subtitle={t('interface.setup_description')}>{renderContent()}</AppPage></ProtectedRoute>;
+  }
 
   return (
     <ProtectedRoute>

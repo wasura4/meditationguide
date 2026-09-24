@@ -1,294 +1,224 @@
-'use client';
+"use client";
+import { useEffect, useState } from "react";
+import { Sun, Moon, Monitor, Bell } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n/runtime";
+import {
+  readPracticePreferences,
+  savePracticePreferences,
+  type PracticePreferences,
+} from "@/lib/appPreferences";
 
-import React, { useState, useEffect } from 'react';
-import { Globe, Clock, Bell, Save, RotateCcw, Palette } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { useThemeSettings } from '@/contexts/ThemeSettingsContext';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-
-interface PreferencesSectionProps {
-  onSavePreferences: (preferences: AppPreferences) => void;
-}
-
-export interface AppPreferences {
-  theme: 'light' | 'dark' | 'auto';
-  timeFormat: '12h' | '24h';
-  defaultDuration: number;
-  language: 'en' | 'si';
-  notifications: boolean;
-  autoSave: boolean;
-}
-
-export const PreferencesSection: React.FC<PreferencesSectionProps> = ({ onSavePreferences }) => {
+export function PreferencesSection() {
   const { theme, setTheme } = useTheme();
-  const { accent, radius, setAccent, setRadius } = useThemeSettings();
-  const { language: currentLanguage, setLanguage } = useLanguage();
-  const [preferences, setPreferences] = useState<AppPreferences>({
-    theme: 'auto',
-    timeFormat: '12h',
+  const { language, setLanguage, t } = useLanguage();
+  const [preferences, setPreferences] = useState<PracticePreferences>({
     defaultDuration: 15,
-    language: currentLanguage,
-    notifications: true,
-    autoSave: true,
+    timeFormat: "12h",
   });
-
-  const [isDirty, setIsDirty] = useState(false);
-
+  const [bell, setBell] = useState(true);
+  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<"saved" | "error" | null>(null);
   useEffect(() => {
-    const savedPreferences = localStorage.getItem('nirvanaya-preferences');
-    if (savedPreferences) {
-      try {
-        const parsed = JSON.parse(savedPreferences);
-        setPreferences(parsed);
-      } catch (error) {
-        console.error('Failed to parse saved preferences:', error);
-      }
-    } else {
-      // Sync current theme from next-themes
-      const currentTheme = (theme === 'system' ? 'auto' : theme) as 'light' | 'dark' | 'auto';
-      setPreferences(prev => ({ ...prev, language: currentLanguage, theme: currentTheme || 'auto' }));
+    setPreferences(readPracticePreferences());
+    try {
+      setBell(localStorage.getItem("meditation_timer_sound") !== "false");
+    } catch {
+      /* Save reports unavailable storage. */
     }
-  }, [currentLanguage, theme]);
-
-  const handlePreferenceChange = (key: keyof AppPreferences, value: AppPreferences[keyof AppPreferences]) => {
-    setPreferences(prev => ({ ...prev, [key]: value }));
-    setIsDirty(true);
+    setReady(true);
+  }, []);
+  const apply = (action: () => void) => {
+    try {
+      action();
+      setStatus("saved");
+    } catch {
+      setStatus("error");
+    }
   };
-
-  const handleSave = () => {
-    localStorage.setItem('nirvanaya-preferences', JSON.stringify(preferences));
-    setLanguage(preferences.language);
-    // Apply theme directly via next-themes
-    setTheme(preferences.theme === 'auto' ? 'system' : preferences.theme);
-    onSavePreferences(preferences);
-    setIsDirty(false);
-  };
-
-  const handleReset = () => {
-    const defaultPreferences: AppPreferences = {
-      theme: 'auto',
-      timeFormat: '12h',
-      defaultDuration: 15,
-      language: 'en',
-      notifications: true,
-      autoSave: true,
-    };
-    setPreferences(defaultPreferences);
-    setAccent('blue');
-    setRadius(12);
-    setTheme('system');
-    setIsDirty(true);
-  };
-
-  const accentColors = [
-    { name: 'green', color: 'hsl(142, 76%, 36%)' },
-    { name: 'blue', color: 'hsl(221, 83%, 53%)' },
-    { name: 'violet', color: 'hsl(263, 70%, 50%)' },
-    { name: 'amber', color: 'hsl(38, 92%, 50%)' },
-    { name: 'rose', color: 'hsl(346, 77%, 50%)' },
-    { name: 'teal', color: 'hsl(173, 58%, 39%)' },
-  ] as const;
-
+  const update = (next: PracticePreferences) =>
+    apply(() => {
+      savePracticePreferences(next);
+      setPreferences(next);
+    });
+  const choice = (selected: boolean) =>
+    `min-h-12 rounded-xl border px-3 py-3 text-sm font-medium transition-colors ${selected ? "border-primary bg-primary/15" : "border-border hover:bg-muted/40"}`;
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Preferences</h2>
-          <p className="text-sm text-muted-foreground mt-1">Customize your app experience</p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleReset} variant="outline" size="sm" className="gap-2">
-            <RotateCcw className="w-4 h-4" />
-            Reset
-          </Button>
-          <Button onClick={handleSave} variant="default" size="sm" disabled={!isDirty} className="gap-2">
-            <Save className="w-4 h-4" />
-            Save Changes
-          </Button>
-        </div>
+      <div>
+        <h2 className="app-section-title">{t("settings.preferences")}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          {t("settings_ui.device_preferences")}
+        </p>
+        <p
+          role={status === "error" ? "alert" : "status"}
+          className="mt-2 min-h-5 text-sm"
+        >
+          {status &&
+            t(
+              status === "error"
+                ? "settings.storage_error"
+                : "settings_ui.saved",
+            )}
+        </p>
       </div>
-
-      {/* Meditation Settings Card */}
-      <div className="bg-card rounded-xl p-6 shadow-sm border space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
-            <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Meditation Settings</h3>
-            <p className="text-sm text-muted-foreground">Configure your practice defaults</p>
-          </div>
-        </div>
-
-        {/* Default Duration */}
-        <div>
-          <label className="text-sm font-medium text-foreground mb-3 block">Default Session Duration</label>
-          <div className="grid grid-cols-5 gap-2">
-            {[5, 10, 15, 20, 30].map((duration) => (
+      <fieldset
+        disabled={!ready}
+        className="app-card min-w-0 space-y-5 p-5 sm:p-6"
+      >
+        <legend className="sr-only">{t("settings_ui.appearance")}</legend>
+        <h3 className="font-semibold">{t("settings_ui.appearance")}</h3>
+        <fieldset className="min-w-0">
+          <legend className="mb-3 text-sm text-muted-foreground">
+            {t("settings.theme_mode")}
+          </legend>
+          <div className="grid grid-cols-3 gap-2">
+            {(
+              [
+                { value: "light", label: "settings.light", icon: Sun },
+                { value: "dark", label: "settings.dark", icon: Moon },
+                { value: "system", label: "settings.system", icon: Monitor },
+              ] as const
+            ).map(({ value, label, icon: Icon }) => (
               <button
-                key={duration}
-                onClick={() => handlePreferenceChange('defaultDuration', duration)}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  preferences.defaultDuration === duration
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-primary/30 hover:bg-muted/50'
-                }`}
+                key={value}
+                type="button"
+                aria-pressed={theme === value}
+                className={choice(theme === value)}
+                onClick={() =>
+                  apply(() => {
+                    localStorage.setItem("theme", value);
+                    setTheme(value);
+                  })
+                }
               >
-                <div className="text-center">
-                  <div className="text-lg font-bold text-foreground">{duration}</div>
-                  <div className="text-xs text-muted-foreground">min</div>
-                </div>
+                <Icon size={20} className="mx-auto mb-2" aria-hidden="true" />
+                <span className="break-words">{t(label)}</span>
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Time Format */}
-        <div>
-          <label className="text-sm font-medium text-foreground mb-3 block">Time Format</label>
-          <div className="grid grid-cols-2 gap-3">
-            {(['12h', '24h'] as const).map((format) => (
+        </fieldset>
+        <fieldset className="min-w-0">
+          <legend className="mb-3 text-sm text-muted-foreground">
+            {t("common.language")}
+          </legend>
+          <div className="grid grid-cols-2 gap-2">
+            {(["si", "en"] as const).map((code) => (
               <button
-                key={format}
-                onClick={() => handlePreferenceChange('timeFormat', format)}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  preferences.timeFormat === format
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-primary/30 hover:bg-muted/50'
-                }`}
+                type="button"
+                key={code}
+                lang={code}
+                aria-pressed={language === code}
+                className={choice(language === code)}
+                onClick={() =>
+                  apply(() => {
+                    localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
+                    setLanguage(code);
+                  })
+                }
               >
-                <div className="text-center">
-                  <div className="text-lg font-mono font-semibold text-foreground mb-1">
-                    {format === '12h' ? '1:30 PM' : '13:30'}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {format === '12h' ? '12-hour' : '24-hour'}
-                  </div>
-                </div>
+                {code === "si" ? "සිංහල" : "English"}
               </button>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* General Settings Card */}
-      <div className="bg-card rounded-xl p-6 shadow-sm border space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
-            <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">General Settings</h3>
-            <p className="text-sm text-muted-foreground">Theme, language and notifications</p>
-          </div>
-        </div>
-
-        {/* Theme Mode */}
+        </fieldset>
+      </fieldset>
+      <fieldset
+        disabled={!ready}
+        className="app-card min-w-0 space-y-5 p-5 sm:p-6"
+      >
+        <legend className="sr-only">{t("settings.meditation_heading")}</legend>
+        <h3 className="font-semibold">{t("settings.meditation_heading")}</h3>
         <div>
-          <label className="text-sm font-medium text-foreground mb-3 block">Theme Mode</label>
-          <div className="grid grid-cols-3 gap-3">
-            {([
-              { mode: 'light', label: 'Light', icon: '☀️' },
-              { mode: 'dark', label: 'Dark', icon: '🌙' },
-              { mode: 'auto', label: 'Auto', icon: '💫' }
-            ] as const).map((themeOption) => (
-              <button
-                key={themeOption.mode}
-                onClick={() => handlePreferenceChange('theme', themeOption.mode)}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  preferences.theme === themeOption.mode
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-primary/30 hover:bg-muted/50'
-                }`}
-              >
-                <div className="text-center">
-                  <div className="text-2xl mb-2">{themeOption.icon}</div>
-                  <div className="text-sm font-medium text-foreground">{themeOption.label}</div>
-                </div>
-              </button>
-            ))}
-          </div>
+          <label
+            htmlFor="default-duration"
+            className="mb-2 block text-sm text-muted-foreground"
+          >
+            {t("settings.meditation_settings.default_duration")}
+          </label>
+          <select
+            id="default-duration"
+            className="min-h-12 w-full rounded-xl border border-border bg-background px-3 text-sm"
+            value={preferences.defaultDuration}
+            onChange={(event) =>
+              update({
+                ...preferences,
+                defaultDuration: Number(event.target.value),
+              })
+            }
+          >
+            {Array.from(
+              new Set([5, 10, 15, 20, 30, 45, 60, preferences.defaultDuration]),
+            )
+              .sort((a, b) => a - b)
+              .map((value) => (
+                <option key={value} value={value}>
+                  {t("interface.minutes", { count: value })}
+                </option>
+              ))}
+          </select>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            {t("settings_ui.duration_help")}
+          </p>
         </div>
-
-        {/* Language */}
-        <div>
-          <label className="text-sm font-medium text-foreground mb-3 block">Language</label>
-          <div className="grid grid-cols-2 gap-3">
-            {([
-              { code: 'en', name: 'English', flag: '🇬🇧' },
-              { code: 'si', name: 'සිංහල', flag: '🇱🇰' }
-            ]).map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => {
-                  const langCode = lang.code as 'en' | 'si';
-                  handlePreferenceChange('language', langCode);
-                  setLanguage(langCode);
-                }}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  preferences.language === lang.code
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-primary/30 hover:bg-muted/50'
-                }`}
-              >
-                <div className="text-center">
-                  <div className="text-2xl mb-2">{lang.flag}</div>
-                  <div className="text-sm font-medium text-foreground">{lang.name}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Toggle Settings */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-xl border bg-muted/20">
-            <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-muted-foreground" />
-              <div>
-                <div className="text-sm font-medium text-foreground">Notifications</div>
-                <div className="text-xs text-muted-foreground">Meditation reminders and updates</div>
-              </div>
+        <div className="flex items-center justify-between gap-4 border-t border-border/60 pt-5">
+          <div className="flex min-w-0 items-start gap-3">
+            <Bell size={20} className="mt-1 shrink-0" aria-hidden="true" />
+            <div>
+              <p id="bell-label" className="text-sm font-medium">
+                {t("settings_ui.bell")}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {t("settings_ui.bell_help")}
+              </p>
             </div>
-            <button
-              onClick={() => handlePreferenceChange('notifications', !preferences.notifications)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                preferences.notifications ? 'bg-primary' : 'bg-muted'
-              }`}
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-labelledby="bell-label"
+            aria-checked={bell}
+            className="flex min-h-11 min-w-12 shrink-0 items-center"
+            onClick={() =>
+              apply(() => {
+                localStorage.setItem("meditation_timer_sound", String(!bell));
+                setBell(!bell);
+              })
+            }
+          >
+            <span
+              className={`flex h-7 w-12 items-center rounded-full p-1 ${bell ? "bg-primary" : "bg-muted-foreground/40"}`}
             >
               <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-background shadow-lg transition-transform ${
-                  preferences.notifications ? 'translate-x-6' : 'translate-x-1'
-                }`}
+                className={`h-5 w-5 rounded-full bg-background shadow-sm transition-transform ${bell ? "translate-x-5" : ""}`}
               />
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between p-4 rounded-xl border bg-muted/20">
-            <div className="flex items-center gap-3">
-              <Save className="w-5 h-5 text-muted-foreground" />
-              <div>
-                <div className="text-sm font-medium text-foreground">Auto-save Sessions</div>
-                <div className="text-xs text-muted-foreground">Save sessions to logbook automatically</div>
-              </div>
-            </div>
-            <button
-              onClick={() => handlePreferenceChange('autoSave', !preferences.autoSave)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                preferences.autoSave ? 'bg-primary' : 'bg-muted'
-              }`}
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-background shadow-lg transition-transform ${
-                  preferences.autoSave ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
+            </span>
+          </button>
         </div>
-      </div>
+        <fieldset className="min-w-0 border-t border-border/60 pt-5">
+          <legend className="sr-only">{t("settings_ui.logbook_time")}</legend>
+          <p className="mb-3 text-sm text-muted-foreground">
+            {t("settings_ui.logbook_time")}
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {(["12h", "24h"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={preferences.timeFormat === value}
+                className={choice(preferences.timeFormat === value)}
+                onClick={() => update({ ...preferences, timeFormat: value })}
+              >
+                {t(value === "12h" ? "settings.time_12h" : "settings.time_24h")}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <p className="border-t border-border/60 pt-4 text-xs leading-relaxed text-muted-foreground">
+          {t("settings_ui.autosave_info")}
+        </p>
+      </fieldset>
     </div>
   );
-};
+}

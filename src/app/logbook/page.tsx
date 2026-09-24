@@ -1,514 +1,550 @@
-﻿'use client';
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  Search,
+  CalendarDays,
+  List,
+  SlidersHorizontal,
+  RefreshCw,
+  Flower2,
+} from "lucide-react";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AppPage } from "@/components/app/AppPage";
+import { useAuth } from "@/contexts/AuthContext";
+import { MeditationService } from "@/lib/meditationService";
+import type { MeditationSession } from "@/types";
+import {
+  EMPTY_LOGBOOK_FILTERS,
+  filterLogbook,
+  localDateKey,
+  logbookSummary,
+  validDateRange,
+  type LogbookFilters,
+} from "@/lib/logbook";
+import { MeditationCalendar } from "@/components/logbook/MeditationCalendar";
+import { DateSessions } from "@/components/logbook/DateSessions";
+import { SessionDetails } from "@/components/logbook/SessionDetails";
+import { useLogbookFormat } from "@/components/logbook/useLogbookFormat";
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useAuth } from '@/contexts/AuthContext';
-import { MeditationService } from '@/lib/meditationService';
-import { MeditationSession } from '@/types';
-import { MeditationCalendar } from '@/components/logbook/MeditationCalendar';
-import { DateSessions } from '@/components/logbook/DateSessions';
-import { isSameDay } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Calendar as CalendarIcon, List as ListIcon, Trash2, Clock, Activity, Star, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
-
-export default function LogbookPage() {
-  const { user } = useAuth();
-  const router = useRouter();
+function Logbook({ userId }: { userId: string }) {
+  const { t, date, month: formatMonth, number } = useLogbookFormat();
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
   const [loading, setLoading] = useState(true);
-
-
-  // Filter states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [selectedMood, setSelectedMood] = useState<string>('all');
-  const [selectedRating, setSelectedRating] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<'all' | 'today' | 'week' | 'month' | 'custom'>('all');
-  const [customStartDate, setCustomStartDate] = useState<string>('');
-  const [customEndDate, setCustomEndDate] = useState<string>('');
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [filters, setFilters] = useState<LogbookFilters>({
+    ...EMPTY_LOGBOOK_FILTERS,
+  });
+  const [view, setView] = useState<"list" | "calendar">("list");
+  const [month, setMonth] = useState(
+    () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [visibleCount, setVisibleCount] = useState(20);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [notice, setNotice] = useState(false);
+  const [now, setNow] = useState(() => new Date());
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  const loadSessions = useCallback(async () => {
-    try {
-      setLoading(true);
-      const userSessions = await MeditationService.getUserSessions(user!.id, 1000);
-      setSessions(userSessions);
-    } catch (err) {
-      console.error('Error loading sessions:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  // Load sessions on component mount
   useEffect(() => {
-    if (user?.id) {
-      loadSessions();
-    }
-  }, [user?.id, loadSessions]);
-
-  // Removed auto-refresh and focus refresh to avoid jumps on mobile.
-
-  // Filter sessions based on current filters
-  const filteredSessions = useMemo(() => {
-    return sessions.filter(session => {
-      // Search query filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch =
-          session.typeName.toLowerCase().includes(query) ||
-          session.notes?.toLowerCase().includes(query) ||
-          session.distractions?.some(d => d.toLowerCase().includes(query)) ||
-          session.insights?.some(i => i.toLowerCase().includes(query));
-        if (!matchesSearch) return false;
-      }
-
-      // Type filter
-      if (selectedType !== 'all' && session.typeId !== selectedType) {
-        return false;
-      }
-
-      // Mood filter
-      if (selectedMood !== 'all' && session.mood !== selectedMood) {
-        return false;
-      }
-
-      // Rating filter
-      if (selectedRating !== 'all') {
-        const rating = parseInt(selectedRating);
-        if (session.rating !== rating) {
-          return false;
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    MeditationService.getAllUserSessions(userId)
+      .then((result) => {
+        if (!cancelled) {
+          setSessions(result);
+          setNow(new Date());
         }
-      }
-
-      // Date range filter
-      if (dateRange !== 'all') {
-        const sessionDate = new Date(session.createdAt);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        switch (dateRange) {
-          case 'today':
-            const sessionDay = new Date(sessionDate);
-            sessionDay.setHours(0, 0, 0, 0);
-            if (sessionDay.getTime() !== today.getTime()) return false;
-            break;
-          case 'week':
-            const weekAgo = new Date(today);
-            weekAgo.setDate(today.getDate() - 7);
-            if (sessionDate < weekAgo) return false;
-            break;
-          case 'month':
-            const monthAgo = new Date(today);
-            monthAgo.setMonth(today.getMonth() - 1);
-            if (sessionDate < monthAgo) return false;
-            break;
-          case 'custom':
-            if (customStartDate && customEndDate) {
-              const startDate = new Date(customStartDate);
-              const endDate = new Date(customEndDate);
-              endDate.setHours(23, 59, 59, 999);
-              if (sessionDate < startDate || sessionDate > endDate) return false;
-            }
-            break;
-        }
-      }
-
-      return true;
-    });
-  }, [sessions, searchQuery, selectedType, selectedMood, selectedRating, dateRange, customStartDate, customEndDate]);
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
-
-  // Reset to page 1 when filters change
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, attempt]);
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedType, selectedMood, selectedRating, dateRange, customStartDate, customEndDate]);
-
-  // Pagination handlers
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      handlePageChange(currentPage - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      handlePageChange(currentPage + 1);
-    }
-  };
-
-  // Get unique meditation types from sessions
-  const uniqueMeditationTypes = useMemo(() => {
-    const typesMap = new Map<string, { id: string; name: string }>();
-    sessions.forEach(session => {
-      if (!typesMap.has(session.typeId)) {
-        typesMap.set(session.typeId, {
-          id: session.typeId,
-          name: session.typeName
-        });
-      }
-    });
-    return Array.from(typesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [sessions]);
-
-  // Calculate statistics
-  const stats = useMemo(() => {
-    if (filteredSessions.length === 0) {
-      return {
-        totalSessions: 0,
-        totalMinutes: 0,
-        averageRating: 0,
-        averageDuration: 0,
-        moodDistribution: {},
-        typeDistribution: {},
-      };
-    }
-
-    const totalSessions = filteredSessions.length;
-    const totalMinutes = filteredSessions.reduce((sum, session) => sum + session.duration, 0);
-    const averageRating = filteredSessions
-      .filter(s => s.rating)
-      .reduce((sum, session) => sum + (session.rating || 0), 0) /
-      filteredSessions.filter(s => s.rating).length || 0;
-    const averageDuration = totalMinutes / totalSessions;
-
-    // Mood distribution
-    const moodDistribution: Record<string, number> = {};
-    filteredSessions.forEach(session => {
-      if (session.mood) {
-        moodDistribution[session.mood] = (moodDistribution[session.mood] || 0) + 1;
-      }
-    });
-
-    // Type distribution
-    const typeDistribution: Record<string, number> = {};
-    filteredSessions.forEach(session => {
-      typeDistribution[session.typeId] = (typeDistribution[session.typeId] || 0) + 1;
-    });
-
-    return {
-      totalSessions,
-      totalMinutes,
-      averageRating: Math.round(averageRating * 10) / 10,
-      averageDuration: Math.round(averageDuration),
-      moodDistribution,
-      typeDistribution,
+    const updateDate = () => setNow(new Date());
+    const timer = window.setInterval(updateDate, 60_000);
+    document.addEventListener("visibilitychange", updateDate);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", updateDate);
     };
-  }, [filteredSessions]);
-
-  const handleDeleteSession = async (sessionId: string) => {
-    if (confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
-      try {
-        await MeditationService.deleteSession(sessionId);
-        setSessions(sessions.filter(s => s.id !== sessionId));
-      } catch (err) {
-        console.error('Error deleting session:', err);
-        alert('Failed to delete session');
-      }
-    }
-  };
-
-
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
-  const getMoodEmoji = (mood: string) => {
-    const moodEmojis: Record<string, string> = {
-      excellent: '🌟',
-      good: '🙂',
-      neutral: '😐',
-      challenging: '😰',
-      difficult: '😫',
-    };
-    return moodEmojis[mood] || '😐';
-  };
-
-  // Get sessions for a specific date
-  const getSessionsForDate = (date: Date) => {
-    return sessions.filter(session => {
-      const sessionDate = new Date(session.createdAt);
-      return isSameDay(sessionDate, date);
-    });
-  };
-
-  if (loading) {
-    return (
-      <ProtectedRoute>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </ProtectedRoute>
+  }, []);
+  const filtered = useMemo(
+    () => filterLogbook(sessions, filters, now),
+    [sessions, filters, now],
+  );
+  const shown = useMemo(
+    () =>
+      view === "list"
+        ? filtered
+        : filtered.filter((session) =>
+            selectedDate
+              ? localDateKey(session.createdAt) === localDateKey(selectedDate)
+              : session.createdAt.getFullYear() === month.getFullYear() &&
+                session.createdAt.getMonth() === month.getMonth(),
+          ),
+    [view, filtered, selectedDate, month],
+  );
+  const summary = useMemo(() => logbookSummary(shown), [shown]);
+  const types = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          sessions.map((session) => [session.typeId, session.typeName]),
+        ).entries(),
+      ).sort((a, b) => a[1].localeCompare(b[1])),
+    [sessions],
+  );
+  const openSession = sessions.find((session) => session.id === openId);
+  const hasFilters = Object.entries(filters).some(
+    ([key, value]) =>
+      value !== EMPTY_LOGBOOK_FILTERS[key as keyof LogbookFilters],
+  );
+  const validRange = validDateRange(filters);
+  const input =
+    "min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-sm";
+  function change<K extends keyof LogbookFilters>(
+    key: K,
+    value: LogbookFilters[K],
+  ) {
+    setFilters((current) => ({ ...current, [key]: value }));
+    setVisibleCount(20);
+    setNotice(false);
+  }
+  function reset() {
+    setFilters({ ...EMPTY_LOGBOOK_FILTERS });
+    setSelectedDate(null);
+    setVisibleCount(20);
+  }
+  function selectMonth(value: Date) {
+    setMonth(value);
+    setSelectedDate(null);
+    setVisibleCount(20);
+  }
+  function jumpToDate(value: Date) {
+    setMonth(new Date(value.getFullYear(), value.getMonth(), 1));
+    setSelectedDate(value);
+    setVisibleCount(20);
+  }
+  async function saveNote(id: string, notes: string) {
+    await MeditationService.updateSession(id, { notes });
+    setSessions((current) =>
+      current.map((session) =>
+        session.id === id
+          ? { ...session, notes, updatedAt: new Date() }
+          : session,
+      ),
     );
   }
-
+  async function deleteSession(id: string) {
+    await MeditationService.deleteSession(id);
+    setOpenId(null);
+    setSessions((current) => current.filter((session) => session.id !== id));
+    setNotice(true);
+  }
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-background pb-32">
-        {/* Header */}
-        <header className="sticky top-0 z-40 bg-background/60 backdrop-blur-xl border-b border-white/5">
-          <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+    <AppPage
+      title={t("logbook.title")}
+      subtitle={t("journal.subtitle")}
+      backHref="/analytics"
+    >
+      <div className="space-y-6">
+        <div className="flex items-center justify-between gap-3">
+          <div
+            className="grid flex-1 grid-cols-2 rounded-2xl bg-muted/60 p-1 sm:max-w-xs"
+            role="group"
+            aria-label={t("journal.view")}
+          >
+            {[
+              { value: "list", label: t("journal.list"), icon: List },
+              {
+                value: "calendar",
+                label: t("journal.calendar"),
+                icon: CalendarDays,
+              },
+            ].map(({ value, label, icon: Icon }) => (
               <button
-                onClick={() => router.push('/dashboard')}
-                className="p-2 -ml-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-white/5 transition-colors"
+                key={value}
+                aria-pressed={view === value}
+                onClick={() => {
+                  setView(value as "list" | "calendar");
+                  setVisibleCount(20);
+                }}
+                className={`app-segment flex min-h-11 items-center justify-center gap-2 rounded-xl border px-2 text-sm ${view === value ? 'border-primary/50' : 'border-transparent text-muted-foreground'}`}
               >
-                <ArrowLeft size={20} />
+                <Icon size={17} className="shrink-0" aria-hidden="true" />
+                {label}
               </button>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Logbook
-              </h1>
-            </div>
-
-            <div className="flex bg-muted/50 p-1 rounded-full">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-full transition-all ${viewMode === 'list' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                <ListIcon size={18} />
-              </button>
-              <button
-                onClick={() => setViewMode('calendar')}
-                className={`p-2 rounded-full transition-all ${viewMode === 'calendar' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                <CalendarIcon size={18} />
-              </button>
-            </div>
+            ))}
           </div>
-        </header>
+          <button
+            onClick={() => {
+              setNotice(false);
+              setAttempt((value) => value + 1);
+            }}
+            disabled={loading}
+            aria-label={t("journal.refresh")}
+            className="app-icon-button shrink-0 disabled:opacity-40"
+          >
+            <RefreshCw size={19} aria-hidden="true" />
+          </button>
+        </div>
 
-        <main className="max-w-3xl mx-auto px-4 py-6 space-y-8">
-          {/* Stats Row */}
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide snap-x">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="min-w-[140px] bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 snap-start"
-            >
-              <div className="flex items-center gap-2 text-emerald-500 mb-2">
-                <Activity size={16} />
-                <span className="text-xs font-medium uppercase tracking-wider">Total</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">{stats.totalSessions}</p>
-              <p className="text-xs text-muted-foreground">Sessions</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="min-w-[140px] bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-2xl p-4 snap-start"
-            >
-              <div className="flex items-center gap-2 text-blue-500 mb-2">
-                <Clock size={16} />
-                <span className="text-xs font-medium uppercase tracking-wider">Time</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">{stats.totalMinutes}</p>
-              <p className="text-xs text-muted-foreground">Minutes</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="min-w-[140px] bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20 rounded-2xl p-4 snap-start"
-            >
-              <div className="flex items-center gap-2 text-amber-500 mb-2">
-                <Star size={16} />
-                <span className="text-xs font-medium uppercase tracking-wider">Rating</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">{stats.averageRating}</p>
-              <p className="text-xs text-muted-foreground">Average</p>
-            </motion.div>
+        <div className="app-card space-y-4 p-4 sm:p-5">
+          <div className="relative">
+            <Search
+              size={18}
+              aria-hidden="true"
+              className="absolute left-3 top-4 text-muted-foreground"
+            />
+            <input
+              type="search"
+              aria-label={t("journal.search")}
+              placeholder={t("journal.search")}
+              value={filters.search}
+              onChange={(event) => change("search", event.target.value)}
+              className={`${input} pl-10`}
+            />
           </div>
-
-          {/* Calendar View */}
-          {viewMode === 'calendar' && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <MeditationCalendar
-                sessions={sessions}
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-              />
-              {selectedDate && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Sessions on {formatDate(selectedDate)}
-                  </h3>
-                  <DateSessions
-                    date={selectedDate}
-                    sessions={getSessionsForDate(selectedDate)}
-                    onDeleteSession={handleDeleteSession}
-                  />
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* List View */}
-          {viewMode === 'list' && (
-            <div className="space-y-6">
-              {/* Filters */}
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide snap-x">
-                <button
-                  onClick={() => setSelectedType('all')}
-                  className={`px-5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 snap-start ${selectedType === 'all'
-                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                    }`}
+          <details>
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium">
+              <span className="flex items-center gap-2">
+                <SlidersHorizontal size={17} aria-hidden="true" />
+                {t("journal.filters")}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {t(
+                  hasFilters ? "journal.filters_active" : "journal.all_history",
+                )}
+              </span>
+            </summary>
+            <div className="mt-3 grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <label className="min-w-0 text-xs text-muted-foreground">
+                {t("journal.period")}
+                <select
+                  className={`${input} mt-2 text-foreground`}
+                  value={filters.period}
+                  onChange={(event) =>
+                    change(
+                      "period",
+                      event.target.value as LogbookFilters["period"],
+                    )
+                  }
                 >
-                  All Types
-                </button>
-                {uniqueMeditationTypes.map(type => (
-                  <button
-                    key={type.id}
-                    onClick={() => setSelectedType(type.id)}
-                    className={`px-5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 snap-start ${selectedType === type.id
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                      }`}
-                  >
-                    {type.name}
-                  </button>
-                ))}
-              </div>
-
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search sessions..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-muted/30 border-none rounded-xl pl-10 pr-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
-                />
-              </div>
-
-              {/* Session List */}
-              <div className="space-y-3">
-                <AnimatePresence mode='popLayout'>
-                  {paginatedSessions.map((session, index) => (
-                    <motion.div
-                      key={session.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="group bg-background/40 backdrop-blur-sm border border-white/5 rounded-2xl p-4 hover:bg-white/5 transition-all"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold text-foreground">{session.typeName}</h3>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <CalendarIcon size={12} />
-                            {formatDate(session.createdAt)}
-                            <span className="w-1 h-1 bg-muted-foreground/30 rounded-full mx-1" />
-                            <Clock size={12} />
-                            {session.duration} min
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {session.rating && (
-                            <div className="flex items-center gap-1 bg-amber-500/10 text-amber-500 px-2 py-1 rounded-lg text-xs font-medium">
-                              <Star size={12} fill="currentColor" />
-                              {session.rating}
-                            </div>
-                          )}
-                          <button
-                            onClick={() => handleDeleteSession(session.id)}
-                            className="p-2 text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {session.notes && (
-                        <p className="text-sm text-muted-foreground italic mb-3 line-clamp-2">
-                          &quot;{session.notes}&quot;
-                        </p>
-                      )}
-
-                      <div className="flex flex-wrap gap-2">
-                        {session.mood && (
-                          <span className="px-2 py-1 bg-primary/10 text-primary rounded-lg text-xs font-medium">
-                            {getMoodEmoji(session.mood)} {session.mood}
-                          </span>
-                        )}
-                        {session.insights?.map((insight, i) => (
-                          <span key={i} className="px-2 py-1 bg-blue-500/10 text-blue-500 rounded-lg text-xs font-medium">
-                            💡 {insight}
-                          </span>
-                        ))}
-                      </div>
-                    </motion.div>
+                  {(["all", "today", "7", "30", "custom"] as const).map(
+                    (value) => (
+                      <option key={value} value={value}>
+                        {t(`journal.period_${value}`)}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+              <label className="min-w-0 text-xs text-muted-foreground">
+                {t("logbook.session_details.type")}
+                <select
+                  className={`${input} mt-2 text-foreground`}
+                  value={filters.type}
+                  onChange={(event) => change("type", event.target.value)}
+                >
+                  <option value="all">{t("common.all")}</option>
+                  {types.map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {name}
+                    </option>
                   ))}
-                </AnimatePresence>
+                </select>
+              </label>
+              <label className="min-w-0 text-xs text-muted-foreground">
+                {t("journal.status")}
+                <select
+                  className={`${input} mt-2 text-foreground`}
+                  value={filters.status}
+                  onChange={(event) => change("status", event.target.value)}
+                >
+                  <option value="all">{t("common.all")}</option>
+                  {["completed", "abandoned", "active", "paused"].map(
+                    (value) => (
+                      <option key={value} value={value}>
+                        {t(`journal.status_${value}`)}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+              <label className="min-w-0 text-xs text-muted-foreground">
+                {t("journal.mood")}
+                <select
+                  className={`${input} mt-2 text-foreground`}
+                  value={filters.mood}
+                  onChange={(event) => change("mood", event.target.value)}
+                >
+                  <option value="all">{t("common.all")}</option>
+                  {[
+                    "excellent",
+                    "good",
+                    "neutral",
+                    "challenging",
+                    "difficult",
+                  ].map((value) => (
+                    <option key={value} value={value}>
+                      {t(`journal.mood_${value}`)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="min-w-0 text-xs text-muted-foreground">
+                {t("journal.rating")}
+                <select
+                  className={`${input} mt-2 text-foreground`}
+                  value={filters.rating}
+                  onChange={(event) => change("rating", event.target.value)}
+                >
+                  <option value="all">{t("common.all")}</option>
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <option key={value} value={value}>
+                      {value} / 5
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {filters.period === "custom" && (
+                <>
+                  <label className="min-w-0 text-xs text-muted-foreground">
+                    {t("journal.from")}
+                    <input
+                      type="date"
+                      className={`${input} mt-2 text-foreground`}
+                      value={filters.from}
+                      max={filters.to || undefined}
+                      onChange={(event) => change("from", event.target.value)}
+                      aria-invalid={!validRange}
+                    />
+                  </label>
+                  <label className="min-w-0 text-xs text-muted-foreground">
+                    {t("journal.to")}
+                    <input
+                      type="date"
+                      className={`${input} mt-2 text-foreground`}
+                      value={filters.to}
+                      min={filters.from || undefined}
+                      onChange={(event) => change("to", event.target.value)}
+                      aria-invalid={!validRange}
+                    />
+                  </label>
+                </>
+              )}
+            </div>
+          </details>
+          {hasFilters && (
+            <button
+              onClick={reset}
+              className="min-h-11 text-sm font-medium underline"
+            >
+              {t("journal.clear_filters")}
+            </button>
+          )}
+          {!validRange && (
+            <p role="alert" className="text-sm">
+              {t("journal.invalid_range")}
+            </p>
+          )}
+        </div>
 
-                {filteredSessions.length === 0 && (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <ListIcon className="text-muted-foreground" size={24} />
-                    </div>
-                    <p className="text-muted-foreground">No sessions found</p>
+        {loading ? (
+          <div
+            className="app-card p-8 text-center text-sm text-muted-foreground"
+            role="status"
+          >
+            {t("common.loading")}
+          </div>
+        ) : error ? (
+          <div className="app-card p-6" role="alert">
+            <h2 className="font-semibold">{t("journal.load_error")}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("journal.load_error_help")}
+            </p>
+            <button
+              onClick={() => setAttempt((value) => value + 1)}
+              className="mt-3 min-h-11 text-sm font-semibold underline"
+            >
+              {t("common.retry")}
+            </button>
+          </div>
+        ) : sessions.length === 0 ? (
+          <div className="app-card space-y-3 p-8 text-center">
+            <Flower2
+              className="mx-auto text-primary"
+              size={36}
+              aria-hidden="true"
+            />
+            <h2 className="font-semibold">
+              {t("logbook.empty_states.no_sessions_title")}
+            </h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {t("logbook.empty_states.no_sessions_message")}
+            </p>
+            <Link
+              href="/meditate"
+              className="inline-flex min-h-12 items-center rounded-xl bg-primary/15 px-4 text-sm font-semibold"
+            >
+              {t("logbook.empty_states.start_meditating")}
+            </Link>
+          </div>
+        ) : (
+          <>
+            {view === "calendar" && (
+              <MeditationCalendar
+                sessions={filtered}
+                month={month}
+                selectedDate={selectedDate}
+                onMonthChange={selectMonth}
+                onDateSelect={(value) => {
+                  setSelectedDate(value);
+                  setVisibleCount(20);
+                }}
+                onToday={() => jumpToDate(new Date())}
+                onLatest={() => {
+                  if (filtered[0]) jumpToDate(filtered[0].createdAt);
+                }}
+              />
+            )}
+            {validRange && (
+              <>
+                <section
+                  aria-labelledby="logbook-summary"
+                  className="app-card p-4 sm:p-5"
+                >
+                  <h2 id="logbook-summary" className="text-sm font-semibold">
+                    {view === "calendar"
+                      ? selectedDate
+                        ? date(selectedDate)
+                        : formatMonth(month)
+                      : t(
+                          hasFilters
+                            ? "journal.filtered_summary"
+                            : "journal.your_journey",
+                        )}
+                  </h2>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {t("journal.summary_help")}
+                  </p>
+                  <dl className="mt-4 grid grid-cols-3 gap-3">
+                    {[
+                      [t("journal.completed"), summary.completed],
+                      [t("journal.minutes"), summary.minutes],
+                      [t("journal.practice_days"), summary.days],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex flex-col">
+                        <dt className="order-2 mt-2 text-xs leading-relaxed text-muted-foreground">
+                          {label}
+                        </dt>
+                        <dd className="order-1 text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl">
+                          {number(Number(value))}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="app-section-title">
+                    {t("journal.entries", { count: shown.length })}
+                  </h2>
+                  {view === "calendar" && selectedDate && (
+                    <button
+                      className="min-h-11 text-sm font-medium underline"
+                      onClick={() => {
+                        setSelectedDate(null);
+                        setVisibleCount(20);
+                      }}
+                    >
+                      {t("journal.whole_month")}
+                    </button>
+                  )}
+                </div>
+                {notice && (
+                  <p role="status" className="text-sm">
+                    {t("journal.deleted")}
+                  </p>
+                )}
+                {shown.length ? (
+                  <>
+                    <DateSessions
+                      sessions={shown.slice(0, visibleCount)}
+                      onOpen={(session) => setOpenId(session.id)}
+                    />
+                    <p
+                      className="text-center text-xs text-muted-foreground"
+                      role="status"
+                    >
+                      {t("journal.showing", {
+                        shown: Math.min(visibleCount, shown.length),
+                        total: shown.length,
+                      })}
+                    </p>
+                    {shown.length > visibleCount && (
+                      <button
+                        onClick={() => setVisibleCount((value) => value + 20)}
+                        className="app-card min-h-12 w-full px-4 py-3 text-sm font-semibold"
+                      >
+                        {t("journal.load_more")}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="app-card space-y-3 p-7 text-center">
+                    <Flower2
+                      size={28}
+                      className="mx-auto text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <h3 className="font-semibold">{t("journal.no_matches")}</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {t(
+                        view === "calendar"
+                          ? "journal.empty_calendar"
+                          : "journal.empty_filter",
+                      )}
+                    </p>
+                    {hasFilters && (
+                      <button
+                        onClick={reset}
+                        className="min-h-11 text-sm font-semibold underline"
+                      >
+                        {t("journal.clear_filters")}
+                      </button>
+                    )}
                   </div>
                 )}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4 pt-4">
-                  <button
-                    onClick={handlePreviousPage}
-                    disabled={currentPage === 1}
-                    className="p-2 rounded-full hover:bg-white/5 disabled:opacity-30 transition-colors"
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {currentPage} / {totalPages}
-                  </span>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages}
-                    className="p-2 rounded-full hover:bg-white/5 disabled:opacity-30 transition-colors"
-                  >
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </main>
+              </>
+            )}
+          </>
+        )}
       </div>
+      {openSession && (
+        <SessionDetails
+          key={openSession.id}
+          session={openSession}
+          onClose={() => setOpenId(null)}
+          onSaveNote={saveNote}
+          onDelete={deleteSession}
+        />
+      )}
+    </AppPage>
+  );
+}
+export default function LogbookPage() {
+  const { user } = useAuth();
+  return (
+    <ProtectedRoute>
+      {user && <Logbook key={user.id} userId={user.id} />}
     </ProtectedRoute>
   );
 }

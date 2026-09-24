@@ -39,13 +39,16 @@ const AudioLibrary: React.FC<AudioLibraryProps> = ({ onRefresh }) => {
   const loadAudioFiles = async () => {
     try {
       setLoading(true);
+      setError(null);
       const querySnapshot = await getDocs(collection(db, 'kamatahan_audio'));
       const audioData: KamatahanAudio[] = [];
       
       querySnapshot.forEach((doc) => {
         audioData.push({
+          ...doc.data(),
           id: doc.id,
-          ...doc.data()
+          createdAt: doc.data().createdAt?.toDate?.() || new Date(0),
+          updatedAt: doc.data().updatedAt?.toDate?.() || new Date(0),
         } as KamatahanAudio);
       });
 
@@ -259,14 +262,14 @@ const AudioLibrary: React.FC<AudioLibraryProps> = ({ onRefresh }) => {
                   src={audio.fileUrl}
                   onLoadedMetadata={(e) => {
                     const target = e.target as HTMLAudioElement;
-                    if (target.duration && !audio.duration) {
+                    if (hasPermission('audio', 'update') && Number.isFinite(target.duration) && target.duration > 0 && !audio.duration) {
                       // Update duration if not set
                       const durationInSeconds = Math.floor(target.duration);
                       updateDoc(doc(db, 'kamatahan_audio', audio.id), {
                         duration: durationInSeconds,
                         durationFormatted: formatDuration(durationInSeconds),
                         updatedAt: serverTimestamp()
-                      });
+                      }).catch(() => setError('Audio duration could not be updated. Please retry later.'));
                     }
                   }}
                 >

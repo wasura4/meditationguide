@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -24,9 +24,12 @@ export default function TiptapEditor({ value, onChange, placeholder = 'Write you
   const [isInsertMenuOpen, setIsInsertMenuOpen] = useState(false);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
+        link: false,
+        underline: false,
       }),
       Underline,
       Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: 'noopener noreferrer nofollow' } }),
@@ -48,6 +51,10 @@ export default function TiptapEditor({ value, onChange, placeholder = 'Write you
       }
     }
   });
+
+  useEffect(() => {
+    if (editor && editor.getHTML() !== value) editor.commands.setContent(value || '<p></p>', { emitUpdate: false });
+  }, [editor, value]);
 
   const promptForLink = useCallback(() => {
     if (!editor) return;
@@ -103,28 +110,28 @@ export default function TiptapEditor({ value, onChange, placeholder = 'Write you
     <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900">
       <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-gray-50 dark:bg-gray-800">
         {/* Headings */}
-        <button className="px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>H1</button>
-        <button className="px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button>
-        <button className="px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>H3</button>
+        <button type="button" className="px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>H1</button>
+        <button type="button" className="px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button>
+        <button type="button" className="px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>H3</button>
         <span className="mx-1 h-5 w-px bg-gray-300" />
         {/* Inline */}
-        <button className="px-2 py-1 text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
-        <button className="px-2 py-1 text-sm italic hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleItalic().run()}>I</button>
-        <button className="px-2 py-1 text-sm underline hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleUnderline().run()}>U</button>
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={promptForLink}>Link</button>
+        <button type="button" className="px-2 py-1 text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
+        <button type="button" className="px-2 py-1 text-sm italic hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleItalic().run()}>I</button>
+        <button type="button" className="px-2 py-1 text-sm underline hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleUnderline().run()}>U</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={promptForLink}>Link</button>
         <span className="mx-1 h-5 w-px bg-gray-300" />
         {/* Lists */}
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleBulletList().run()}>• List</button>
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleOrderedList().run()}>1. List</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleBulletList().run()}>• List</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().toggleOrderedList().run()}>1. List</button>
         <span className="mx-1 h-5 w-px bg-gray-300" />
         {/* Align */}
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().setTextAlign('left').run()}>Left</button>
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().setTextAlign('center').run()}>Center</button>
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().setTextAlign('right').run()}>Right</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().setTextAlign('left').run()}>Left</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().setTextAlign('center').run()}>Center</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().setTextAlign('right').run()}>Right</button>
         <span className="mx-1 h-5 w-px bg-gray-300" />
         {/* Undo/Redo */}
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().undo().run()}>Undo</button>
-        <button className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().redo().run()}>Redo</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().undo().run()}>Undo</button>
+        <button type="button" className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => editor.chain().focus().redo().run()}>Redo</button>
         <span className="mx-1 h-5 w-px bg-gray-300" />
         {/* Insert menu */}
         <div
@@ -132,7 +139,7 @@ export default function TiptapEditor({ value, onChange, placeholder = 'Write you
           onMouseEnter={() => setIsInsertMenuOpen(true)}
           onMouseLeave={() => setIsInsertMenuOpen(false)}
         >
-          <button
+          <button type="button"
             className="px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={() => setIsInsertMenuOpen(!isInsertMenuOpen)}
           >
@@ -140,37 +147,37 @@ export default function TiptapEditor({ value, onChange, placeholder = 'Write you
           </button>
           {isInsertMenuOpen && (
             <div className="absolute z-50 mt-0 min-w-[180px] rounded border bg-white dark:bg-gray-800 shadow-lg">
-              <button
+              <button type="button"
                 className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-t"
                 onClick={() => { insertTable(); setIsInsertMenuOpen(false); }}
               >
                 Table
               </button>
-              <button
+              <button type="button"
                 className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
                 onClick={() => { editor.chain().focus().setHorizontalRule().run(); setIsInsertMenuOpen(false); }}
               >
                 Horizontal Rule
               </button>
-              <button
+              <button type="button"
                 className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
                 onClick={() => { insertCollapsible(); setIsInsertMenuOpen(false); }}
               >
                 Collapsible
               </button>
-              <button
+              <button type="button"
                 className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
                 onClick={() => { insertSticky(); setIsInsertMenuOpen(false); }}
               >
                 Sticky Note
               </button>
-              <button
+              <button type="button"
                 className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
                 onClick={() => { insertPoll(); setIsInsertMenuOpen(false); }}
               >
                 Poll
               </button>
-              <button
+              <button type="button"
                 className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-b"
                 onClick={() => { insertYouTube(); setIsInsertMenuOpen(false); }}
               >

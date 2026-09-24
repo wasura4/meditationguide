@@ -83,9 +83,10 @@ const AudioManagementPage: React.FC = () => {
 
           {/* Tab Content */}
           <div className="min-h-[600px]">
-            {activeTab === 'upload' ? (
+            <div hidden={activeTab !== 'upload'}>
               <AudioUploadForm onUploadSuccess={handleUploadSuccess} />
-            ) : (
+            </div>
+            {activeTab === 'library' && (
               <AudioLibrary key={refreshKey} onRefresh={handleRefresh} />
             )}
           </div>

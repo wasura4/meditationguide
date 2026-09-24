@@ -94,6 +94,7 @@ export class LanguageService {
       };
 
       await setDoc(translationRef, translationData, { merge: true });
+      this.clearCache();
       return translationRef.id;
     } catch (error: unknown) {
       // Surface Firebase error details
@@ -240,7 +241,7 @@ export class LanguageService {
   static clearCache(): void {
     // This is a helper for the LanguageContext cache
     // Implementation depends on how you expose cache clearing
-    console.log('Translation cache should be cleared');
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('nirvanaya-translations-updated'));
   }
 }
 

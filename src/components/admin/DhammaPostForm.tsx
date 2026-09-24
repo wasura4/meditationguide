@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { DhammaPost, DhammaPostFormData } from '@/types/admin';
@@ -25,7 +25,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
     featuredImage: '',
     category: 'meditation',
     tags: [],
-    language: 'en',
+    language: 'si',
     status: 'draft',
     featured: false,
     seoTitle: '',
@@ -34,6 +34,34 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
   const [newTag, setNewTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [recovery, setRecovery] = useState<DhammaPostFormData | null>(null);
+  const [draftStatus, setDraftStatus] = useState('');
+  const [preview, setPreview] = useState(false);
+  const savingRef = useRef(false);
+  const draftKey = `nirvanaya-dhamma-draft-v1:${adminUser?.id || 'guest'}:${post?.id || 'new'}`;
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(draftKey) || 'null');
+      if (saved?.version === 1 && typeof saved.data?.title === 'string' && typeof saved.data?.content === 'string' && Array.isArray(saved.data?.tags)) setRecovery(saved.data);
+    } catch { setDraftStatus('Draft recovery is unavailable in this browser.'); }
+  }, [draftKey]);
+
+  useEffect(() => {
+    if (!dirty || recovery || !adminUser) return;
+    try {
+      localStorage.setItem(draftKey, JSON.stringify({ version: 1, data: formData }));
+      setDraftStatus('Recovery copy saved on this device. Use Save to store it in your account.');
+    } catch { setDraftStatus('Recovery copy could not be saved. Keep this page open until you save.'); }
+  }, [formData, dirty, recovery, draftKey, adminUser]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
 
   useEffect(() => {
     if (post) {
@@ -54,10 +82,12 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
   }, [post]);
 
   const handleInputChange = (field: keyof DhammaPostFormData, value: DhammaPostFormData[keyof DhammaPostFormData]) => {
+    setDirty(true);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const addTag = () => {
+    setDirty(true);
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
       setFormData(prev => ({ ...prev, tags: [...prev.tags, newTag.trim()] }));
       setNewTag('');
@@ -65,16 +95,28 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
   };
 
   const removeTag = (tagToRemove: string) => {
+    setDirty(true);
     setFormData(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (savingRef.current) return;
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const status = (submitter?.value || formData.status) as DhammaPostFormData['status'];
+    const text = new DOMParser().parseFromString(formData.content, 'text/html').body.textContent?.replace(/\u00a0/g, ' ').trim();
+    if (!formData.title.trim() || (status === 'published' && !text)) {
+      setError('Add a title and article text before publishing. Drafts only need a title.');
+      return;
+    }
+    savingRef.current = true;
     setLoading(true);
     setError(null);
 
     try {
-      await onSave(formData);
+      await onSave({ ...formData, title: formData.title.trim(), status });
+      setDirty(false);
+      try { localStorage.removeItem(draftKey); } catch { /* Save already succeeded. */ }
       showToast({
         type: 'success',
         title: isEditing ? 'Post Updated!' : 'Post Created!',
@@ -91,6 +133,7 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
         duration: 6000
       });
     } finally {
+      savingRef.current = false;
       setLoading(false);
     }
   };
@@ -131,8 +174,21 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <fieldset disabled={loading} className="space-y-6 min-w-0">
+      <div className="rounded-xl border bg-white dark:bg-gray-800 p-5 space-y-3">
+        <h2 className="text-xl font-semibold">{isEditing ? 'Edit Dhamma article' : 'Write a Dhamma article'}</h2>
+        <p className="text-sm text-gray-500">Write, review the phone preview, then publish when your article is ready.</p>
+        <p role="status" className="text-sm">{loading ? 'Saving to your account…' : draftStatus}</p>
+        {recovery && <div className="flex flex-wrap gap-3 items-center">
+          <span>An unfinished draft is available on this device.</span>
+          <Button type="button" onClick={() => { setFormData(recovery); setRecovery(null); setDirty(true); }}>Restore draft</Button>
+          <Button type="button" variant="outline" onClick={() => { try { localStorage.removeItem(draftKey); } catch {} setRecovery(null); }}>Discard recovery copy</Button>
+        </div>}
+        <Button type="button" variant="outline" onClick={() => setPreview(value => !value)}>{preview ? 'Hide preview' : 'Preview on phone'}</Button>
+        {preview && <iframe title="Article phone preview" sandbox="" className="mx-auto w-full max-w-[390px] h-[600px] border rounded-2xl bg-white" srcDoc={`<!doctype html><html lang="${formData.language}"><head><meta name="viewport" content="width=device-width"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src https: data:;"><style>body{font-family:Arial,sans-serif;line-height:1.9;padding:20px;color:#24332b;overflow-wrap:anywhere}img,iframe,table{max-width:100%}h1{font-size:24px;line-height:1.5}blockquote{border-left:3px solid #789b82;margin:16px 0;padding-left:16px}</style></head><body><h1>${formData.title.replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!))}</h1>${formData.content}</body></html>`} />}
+      </div>
       {error && (
-        <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
+        <div role="alert" className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
           <p className="text-[var(--color-status-error)]">{error}</p>
         </div>
       )}
@@ -335,8 +391,8 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
       </div>
 
       {/* SEO */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">SEO (Optional)</h3>
+      <details className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <summary className="text-lg font-semibold text-gray-900 dark:text-white mb-4 cursor-pointer">Advanced: search engine metadata</summary>
         
         <div className="space-y-4">
           <div>
@@ -365,26 +421,29 @@ export default function DhammaPostForm({ post, onSave, onCancel, isEditing = fal
             />
           </div>
         </div>
-      </div>
+      </details>
 
       {/* Actions */}
-      <div className="flex justify-end space-x-4">
+      <div className="sticky bottom-0 flex flex-wrap justify-end gap-3 bg-white dark:bg-gray-800 border-t p-4">
         <Button
           type="button"
-          onClick={onCancel}
+          onClick={() => { if (!dirty || window.confirm('Leave this article? Your recovery copy will remain on this device.')) onCancel(); }}
           variant="outline"
           disabled={loading}
         >
           Cancel
         </Button>
+        {formData.status !== 'published' && <Button type="submit" value="draft" variant="outline">Save draft</Button>}
         <Button
           type="submit"
+          value={formData.status === 'archived' ? 'archived' : 'published'}
           variant="meditation"
           disabled={loading}
         >
-          {loading ? 'Saving...' : isEditing ? 'Update Post' : 'Create Post'}
+          {loading ? 'Saving…' : formData.status === 'published' ? 'Save changes' : formData.status === 'archived' ? 'Save as archived' : 'Publish article'}
         </Button>
       </div>
+      </fieldset>
     </form>
   );
 }

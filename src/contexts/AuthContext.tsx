@@ -136,6 +136,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...updates,
       updatedAt: new Date(),
     });
+
+    // Firebase Auth is preferred when rebuilding the user after sign-in.
+    // Keep it in sync so a saved display name does not revert on reload.
+    if (updates.displayName !== undefined && auth.currentUser?.uid === user.id) {
+      await updateProfile(auth.currentUser, { displayName: updates.displayName });
+    }
     
     setUser(updatedUser);
   };

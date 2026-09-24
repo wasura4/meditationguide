@@ -1,59 +1,87 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { DhammaService } from "@/lib/dhammaService";
 import { DhammaPostReader } from "@/components/dhamma/DhammaPostReader";
+import { AppPage } from "@/components/app/AppPage";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { DhammaPost } from "@/types/admin";
 
 export default function DhammaPostPage() {
-  const params = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
+  return <ArticleLoader key={id} id={id} />;
+}
+function ArticleLoader({ id }: { id: string }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
+  const [state, setState] = useState<"loading" | "missing" | "error" | "ready">(
+    "loading",
+  );
   const [post, setPost] = useState<DhammaPost | null>(null);
-
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    const run = async () => {
-      try {
-        if (!params?.id) return;
-        const p = await DhammaService.getPostById(params.id);
-        if (!p) {
-          setError("Post not found");
-        } else {
-          setPost(p);
+    let cancelled = false;
+    setState("loading");
+    DhammaService.getPostById(id)
+      .then((value) => {
+        if (cancelled) return;
+        if (!value || value.status !== "published") {
+          setState("missing");
+          return;
         }
-      } catch (e) {
-        setError("Failed to load post");
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+        setPost(value);
+        setState("ready");
+      })
+      .catch(() => {
+        if (!cancelled) setState("error");
+      });
+    return () => {
+      cancelled = true;
     };
-    run();
-  }, [params?.id]);
-
-  if (loading) {
+  }, [id, attempt]);
+  if (state === "ready" && post)
     return (
-      <div className="max-w-screen-md mx-auto px-4 py-12">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
-
-  if (error || !post) {
-    return (
-      <div className="max-w-screen-md mx-auto px-4 py-12 space-y-4">
-        <p className="text-destructive">{error || "Post not found."}</p>
-        <Button variant="outline" onClick={() => router.push("/dhamma")}>Back to Library</Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-screen-md mx-auto px-4 py-6 pb-24">
       <DhammaPostReader post={post} onClose={() => router.push("/dhamma")} />
-    </div>
+    );
+  return (
+    <AppPage
+      title={t("reader.article")}
+      backHref="/dhamma"
+      showSettings={false}
+    >
+      <div
+        className="app-card p-6"
+        role={state === "loading" ? "status" : "alert"}
+      >
+        <p className="leading-relaxed text-muted-foreground">
+          {t(
+            state === "loading"
+              ? "common.loading"
+              : state === "missing"
+                ? "reader.unavailable"
+                : "reader.load_error",
+          )}
+        </p>
+        {state === "loading" && (
+          <div
+            aria-hidden="true"
+            className="mt-6 space-y-4 motion-safe:animate-pulse"
+          >
+            <div className="h-7 w-3/4 rounded-lg bg-muted" />
+            <div className="h-4 rounded-lg bg-muted" />
+            <div className="h-4 w-5/6 rounded-lg bg-muted" />
+          </div>
+        )}
+        {state === "error" && (
+          <Button
+            className="mt-4"
+            onClick={() => setAttempt((value) => value + 1)}
+          >
+            {t("common.retry")}
+          </Button>
+        )}
+      </div>
+    </AppPage>
   );
 }

@@ -4,6 +4,14 @@ import { MeditationSession } from '@/types';
 import { EventService } from './eventService';
 
 export class MeditationService {
+  // Exports must not silently truncate an account's history.
+  static async getAllUserSessions(userId: string): Promise<MeditationSession[]> {
+    const snapshot = await getDocs(query(collection(db, 'meditation_sessions'), where('userId', '==', userId)));
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return { ...data, id: doc.id, startTime: data.startTime.toDate(), endTime: data.endTime?.toDate(), createdAt: data.createdAt.toDate(), updatedAt: data.updatedAt.toDate() } as MeditationSession;
+    }).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
   // Save a new meditation session
   static async saveSession(session: Omit<MeditationSession, 'id'>): Promise<string> {
     try {
@@ -154,22 +162,34 @@ export class MeditationService {
         orderBy('createdAt', 'desc')
       );
 
-      const querySnapshot = await getDocs(sessionsQuery);
+      let querySnapshot;
+      try {
+        querySnapshot = await getDocs(sessionsQuery);
+      } catch (error) {
+        // Older deployments may lack the composite index. Never truncate the
+        // fallback before filtering: that silently undercounts activity.
+        if ((error as { code?: string }).code !== 'failed-precondition') throw error;
+        querySnapshot = await getDocs(query(
+          collection(db, 'meditation_sessions'), where('userId', '==', userId)
+        ));
+      }
       const sessions: MeditationSession[] = [];
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
+        const createdAt = data.createdAt.toDate();
+        if (createdAt < startDate || createdAt > endDate) return;
         sessions.push({
           ...data,
           id: doc.id,
           startTime: data.startTime.toDate(),
           endTime: data.endTime?.toDate(),
-          createdAt: data.createdAt.toDate(),
+          createdAt,
           updatedAt: data.updatedAt.toDate(),
         } as MeditationSession);
       });
 
-      return sessions;
+      return sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     } catch (error) {
       console.error('Error getting sessions by date range:', error);
       throw new Error('Failed to get sessions by date range');

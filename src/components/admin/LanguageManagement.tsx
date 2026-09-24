@@ -8,6 +8,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import enTranslations from '@/i18n/locales/en/common.json';
+import siTranslations from '@/i18n/locales/si/common.json';
 
 
 export const LanguageManagement: React.FC = () => {
@@ -35,7 +36,7 @@ export const LanguageManagement: React.FC = () => {
         id: '',
         key,
         english: getNestedValue(enTranslations as Record<string, unknown>, key) || key,
-        sinhala: '',
+        sinhala: getNestedValue(siTranslations as Record<string, unknown>, key) || '',
         category: getCategoryFromKey(key),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -56,7 +57,10 @@ export const LanguageManagement: React.FC = () => {
       }
 
       const dbMap = new Map(dbTranslations.map(t => [t.key, t] as const));
-      const merged = baseRows.map(row => dbMap.get(row.key) ?? row);
+      const merged = baseRows.map(row => {
+        const remote = dbMap.get(row.key);
+        return remote ? { ...remote, sinhala: remote.sinhala?.trim() ? remote.sinhala : row.sinhala } : row;
+      });
       setTranslations(merged);
     } catch (error) {
       console.error('Error building translations list:', error);
@@ -495,5 +499,4 @@ function getCategoryFromKey(key: string): string {
   const parts = key.split('.');
   return parts[0] || 'common';
 }
-
 

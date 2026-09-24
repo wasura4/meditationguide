@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { APP_CONFIG } from "@/constants";
 import { ThemeProvider } from "next-themes";
@@ -11,16 +10,7 @@ import { ThemeSettingsProvider } from "@/contexts/ThemeSettingsContext";
 import { GlobalThemeProvider } from "@/contexts/GlobalThemeProvider";
 import { AppChrome } from "@/components/app/AppChrome";
 import { PlayerProvider } from "@/contexts/PlayerContext";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { isLanguage } from '@/i18n/runtime';
 
 export const metadata: Metadata = {
   title: APP_CONFIG.name,
@@ -45,9 +35,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const initialLang = (cookieStore.get("lang")?.value as "en" | "si") || "en";
+  const savedLang = cookieStore.get("lang")?.value;
+  const initialLang = isLanguage(savedLang) ? savedLang : undefined;
   return (
-    <html lang={initialLang} className="scroll-smooth" suppressHydrationWarning>
+    <html lang={initialLang || 'si'} className="scroll-smooth" suppressHydrationWarning>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -63,7 +54,7 @@ export default async function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased touch-manipulation`}>
+      <body className="antialiased touch-manipulation">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
           <LanguageProvider initialLanguage={initialLang}>

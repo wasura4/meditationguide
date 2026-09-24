@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { storage, db } from '@/lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL, type UploadTask } from 'firebase/storage';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { validateAudioFile, parseAudioDuration } from '@/lib/audioValidation';
 import { KamatahanAudio } from '@/types/admin';
 import { useToast } from '@/components/ui/toast';
 
@@ -14,7 +15,7 @@ interface AudioUploadFormProps {
 }
 
 const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) => {
-  const { hasPermission } = useAdminAuth();
+  const { hasPermission, adminUser } = useAdminAuth();
   const { showToast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -26,9 +27,50 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<'meditation' | 'dhamma_talk' | 'chanting' | 'guided_meditation' | 'background'>('meditation');
   const [duration, setDuration] = useState('');
-  const [language, setLanguage] = useState<'en' | 'si' | 'pa'>('en');
+  const [language, setLanguage] = useState<'en' | 'si' | 'pa'>('si');
   const [isPublic, setIsPublic] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [phase, setPhase] = useState('');
+  const taskRef = useRef<UploadTask | null>(null);
+  const busyRef = useRef(false);
+  const attemptRef = useRef<{ id: string; filename: string; url?: string } | null>(null);
+  const [awaitingSave, setAwaitingSave] = useState(false);
+
+  useEffect(() => {
+    if (!selectedFile) { setPreviewUrl(''); return; }
+    const url = URL.createObjectURL(selectedFile);
+    setPreviewUrl(url);
+    const audio = new Audio();
+    let active = true;
+    audio.preload = 'metadata';
+    audio.onloadedmetadata = () => {
+      if (!active || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+      const seconds = Math.max(1, Math.round(audio.duration));
+      setDuration(`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`);
+    };
+    audio.src = url;
+    return () => { active = false; audio.onloadedmetadata = null; audio.removeAttribute('src'); audio.load(); URL.revokeObjectURL(url); };
+  }, [selectedFile]);
+
+  useEffect(() => () => { taskRef.current?.cancel(); }, []);
+  useEffect(() => {
+    if (!selectedFile) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [selectedFile]);
+
+  const selectFile = (file: File) => {
+    if (busyRef.current || awaitingSave) return;
+    const problem = validateAudioFile(file);
+    if (problem) { setError(problem); return; }
+    setSelectedFile(file);
+    setDuration('');
+    attemptRef.current = null;
+    setError(null);
+    setSuccess(null);
+  };
 
   const categories = [
     { value: 'meditation', label: 'Meditation' },
@@ -44,174 +86,88 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
     { value: 'pa', label: 'Pali' }
   ];
 
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('audio/')) {
-        setError('Please select an audio file');
-        showToast({
-          type: 'error',
-          title: 'Invalid File Type',
-          message: 'Please select an audio file.',
-          duration: 5000
-        });
-        return;
-      }
-      
-      // Validate file size (max 50MB)
-      if (file.size > 50 * 1024 * 1024) {
-        setError('File size must be less than 50MB');
-        showToast({
-          type: 'error',
-          title: 'File Too Large',
-          message: 'File size must be less than 50MB.',
-          duration: 5000
-        });
-        return;
-      }
-
-      setSelectedFile(file);
-      setError(null);
-      
-      // Auto-extract duration if possible
-      if (duration === '') {
-        const audio = new Audio();
-        audio.src = URL.createObjectURL(file);
-        audio.addEventListener('loadedmetadata', () => {
-          const minutes = Math.floor(audio.duration / 60);
-          const seconds = Math.floor(audio.duration % 60);
-          setDuration(`${minutes}:${seconds.toString().padStart(2, '0')}`);
-        });
-      }
-    }
-  }, [duration, showToast]);
+    if (file) selectFile(file);
+    event.target.value = '';
+  };
 
   const handleUpload = async () => {
-    if (!selectedFile || !title.trim()) {
-      setError('Please select a file and enter a title');
-      return;
-    }
-
-    if (!hasPermission('audio', 'create')) {
-      setError('You do not have permission to upload audio');
-      return;
-    }
-
+    if (busyRef.current) return;
+    if (!selectedFile || !title.trim()) { setError('Choose a file and enter a title.'); return; }
+    const fileProblem = validateAudioFile(selectedFile);
+    const seconds = parseAudioDuration(duration);
+    if (fileProblem || seconds === null) { setError(fileProblem || 'Enter a valid duration, such as 45:30.'); return; }
+    if (!adminUser || !hasPermission('audio', 'create')) { setError('You do not have permission to upload audio.'); return; }
+    busyRef.current = true;
     setIsUploading(true);
     setError(null);
     setSuccess(null);
-    setUploadProgress(0);
-
+    let completed = false;
     try {
-      // Create unique filename
-      const timestamp = Date.now();
-      const filename = `${timestamp}_${selectedFile.name}`;
-      const storageRef = ref(storage, `audio/${filename}`);
-
-      // Upload file
-      const snapshot = await uploadBytes(storageRef, selectedFile);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      // Parse duration
-      const [minutes, seconds] = duration.split(':').map(Number);
-      const durationInSeconds = (minutes * 60) + seconds;
-
-      // Save to Firestore
+      if (!attemptRef.current) {
+        const id = doc(collection(db, 'kamatahan_audio')).id;
+        attemptRef.current = { id, filename: id + '_' + selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_') };
+      }
+      const attempt = attemptRef.current;
+      if (!attempt.url) {
+        setPhase('Uploading audio');
+        setUploadProgress(0);
+        const task = uploadBytesResumable(ref(storage, 'audio/' + attempt.filename), selectedFile);
+        taskRef.current = task;
+        await new Promise<void>((resolve, reject) => task.on('state_changed', snapshot => {
+          setUploadProgress(Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100));
+        }, reject, resolve));
+        taskRef.current = null;
+        attempt.url = await getDownloadURL(ref(storage, 'audio/' + attempt.filename));
+      }
+      setAwaitingSave(true);
+      setPhase('File uploaded. Saving audio details');
       const audioData: Omit<KamatahanAudio, 'id' | 'createdAt' | 'updatedAt'> = {
-        title: title.trim(),
-        description: description.trim(),
-        category,
-        duration: durationInSeconds,
-        durationFormatted: duration,
-        language,
-        isPublic,
-        fileUrl: downloadURL,
-        fileName: filename,
-        fileSize: selectedFile.size,
-        fileType: selectedFile.type,
-        uploadedBy: 'admin', // Will be updated with actual admin ID
-        status: 'active'
+        title: title.trim(), description: description.trim(), category,
+        duration: seconds, durationFormatted: duration.trim(), language, isPublic,
+        fileUrl: attempt.url, fileName: attempt.filename,
+        fileSize: selectedFile.size, fileType: selectedFile.type,
+        uploadedBy: adminUser.id, status: isPublic ? 'active' : 'draft'
       };
-
-      await addDoc(collection(db, 'kamatahan_audio'), {
-        ...audioData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+      // Retries use the same record and Storage path instead of creating duplicates.
+      await setDoc(doc(db, 'kamatahan_audio', attempt.id), {
+        ...audioData, createdAt: serverTimestamp(), updatedAt: serverTimestamp()
       });
-
-      setSuccess('Audio uploaded successfully!');
-      setUploadProgress(100);
-      
-      showToast({
-        type: 'success',
-        title: 'Audio Uploaded!',
-        message: 'Your audio file has been uploaded successfully.',
-        duration: 4000
-      });
-      
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setCategory('meditation');
-      setDuration('');
-      setLanguage('en');
-      setIsPublic(true);
-      setSelectedFile(null);
-      
-      // Clear file input
-      const fileInput = document.getElementById('audio-file') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
-
-      onUploadSuccess();
-      
-    } catch (err) {
-      console.error('Upload error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to upload audio';
-      setError(errorMessage);
-      showToast({
-        type: 'error',
-        title: 'Upload Failed',
-        message: errorMessage,
-        duration: 6000
-      });
+      completed = true;
+      attemptRef.current = null;
+      setAwaitingSave(false);
+      setTitle(''); setDescription(''); setDuration(''); setSelectedFile(null);
+      setCategory('meditation'); setLanguage('si'); setIsPublic(true);
+      setSuccess('Audio and details saved successfully.');
+      showToast({ type: 'success', title: 'Audio saved', message: 'Your audio and its details have been saved.', duration: 4000 });
+    } catch (error) {
+      const canceled = (error as { code?: string }).code === 'storage/canceled';
+      setError(canceled ? 'Upload canceled. Your details are still here.' : attemptRef.current?.url
+        ? 'The file is uploaded, but its details could not be saved. Keep this page open and retry saving.'
+        : 'Upload failed. Your file and details are still here. Check your connection and retry.');
     } finally {
+      taskRef.current = null;
+      busyRef.current = false;
       setIsUploading(false);
     }
+    if (completed) onUploadSuccess();
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type.startsWith('audio/')) {
-        setSelectedFile(file);
-        setError(null);
-      } else {
-        setError('Please drop an audio file');
-      }
-    }
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    if (event.dataTransfer.files[0]) selectFile(event.dataTransfer.files[0]);
   };
 
-  // Debug permissions
-  const { adminUser } = useAdminAuth();
-  console.log('Admin user:', adminUser);
-  console.log('Has audio create permission:', hasPermission('audio', 'create'));
-  
   if (!hasPermission('audio', 'create')) {
     return (
       <div className="bg-[var(--color-status-error)]/10 border border-[var(--color-status-error)] rounded-lg p-4">
         <p className="text-[var(--color-status-error)]">
-          You do not have permission to upload audio files. 
-          <br />
-          <small>Debug: Admin user exists: {adminUser ? 'Yes' : 'No'}</small>
-          <br />
-          <small>Debug: Permissions: {JSON.stringify(adminUser?.permissions)}</small>
+          You do not have permission to upload audio files.
         </p>
       </div>
     );
@@ -233,7 +189,7 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
         </div>
       )}
 
-      <div className="space-y-4">
+      <fieldset disabled={isUploading} className="space-y-4 min-w-0">
         {/* File Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -264,7 +220,8 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedFile(null)}
+                  disabled={awaitingSave}
+                  onClick={() => { setSelectedFile(null); setDuration(''); }}
                   className="mt-2"
                 >
                   Change File
@@ -285,6 +242,7 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
           </div>
         </div>
 
+        {previewUrl && <audio controls preload="metadata" src={previewUrl} className="w-full" aria-label="Preview selected audio" />}
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -380,7 +338,7 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
         {isUploading && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-gray-600">
-              <span>Uploading...</span>
+              <span role="status">{phase}…</span>
               <span>{uploadProgress}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -398,9 +356,10 @@ const AudioUploadForm: React.FC<AudioUploadFormProps> = ({ onUploadSuccess }) =>
           disabled={isUploading || !selectedFile || !title.trim()}
           className="w-full"
         >
-          {isUploading ? 'Uploading...' : 'Upload Audio'}
+          {isUploading ? 'Saving…' : awaitingSave ? 'Retry saving details' : 'Upload and save audio'}
         </Button>
-      </div>
+      </fieldset>
+      {isUploading && <Button type="button" variant="outline" className="mt-3" disabled={!taskRef.current} onClick={() => taskRef.current?.cancel()}>Cancel upload</Button>}
     </div>
   );
 };
