@@ -56,6 +56,21 @@ const defaultPreferences: UserPreferences = {
   },
 };
 
+// Authentication survives a profile-service outage. This provisional identity
+// never grants an elevated role and is never written over the stored profile.
+const identityUser = (identity: FirebaseUser): User => ({
+  id: identity.uid,
+  email: identity.email || '',
+  displayName: identity.displayName || 'Anonymous User',
+  photoURL: identity.photoURL || null,
+  role: 'user',
+  createdAt: new Date(identity.metadata.creationTime || Date.now()),
+  updatedAt: new Date(),
+  lastLoginAt: new Date(identity.metadata.lastSignInTime || Date.now()),
+  preferences: defaultPreferences,
+  isAnonymous: identity.isAnonymous,
+});
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -251,23 +266,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          const userData = await createUserFromFirebase(firebaseUser);
-          setUser(userData);
-          setFirebaseUser(firebaseUser);
-        } catch (error) {
-          console.error('Error creating user from Firebase:', error);
-        }
-      } else {
-        setUser(null);
-        setFirebaseUser(null);
+    let disposed = false;
+    let revision = 0;
+    const hydrate = async (identity: FirebaseUser, request: number) => {
+      try {
+        const profile = await createUserFromFirebase(identity);
+        if (!disposed && request === revision && auth.currentUser?.uid === identity.uid)
+          setUser(profile);
+      } catch (error) {
+        // Keep the authenticated identity so an existing local clock remains
+        // available offline. Rules still authorize every server operation.
+        console.error('Unable to load user profile:', error);
       }
+    };
+    const unsubscribe = onAuthStateChanged(auth, (identity) => {
+      const request = ++revision;
+      setFirebaseUser(identity);
+      setUser(identity ? identityUser(identity) : null);
       setLoading(false);
+      if (identity) void hydrate(identity, request);
     });
-
-    return () => unsubscribe();
+    const retryProfile = () => {
+      if (auth.currentUser) void hydrate(auth.currentUser, ++revision);
+    };
+    window.addEventListener('online', retryProfile);
+    return () => {
+      disposed = true;
+      unsubscribe();
+      window.removeEventListener('online', retryProfile);
+    };
   }, []);
 
   // Keep a lightweight auth cookie for server-side redirects (middleware)
