@@ -5,6 +5,7 @@ import { Search, Check, Play, Bell } from "lucide-react";
 import { TIMER_SETTINGS } from "@/constants";
 import { MeditationTypeService } from "@/lib/meditationTypeService";
 import { MeditationCategoryService } from "@/lib/meditationCategoryService";
+import { EventService } from "@/lib/eventService";
 import type { MeditationType } from "@/types";
 import type { MeditationCategory } from "@/types/admin";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -16,6 +17,7 @@ import { prepareBellSound, playBellSound } from "@/lib/audioUtils";
 import { PracticeNotificationNotice } from "./PracticeNotificationNotice";
 
 interface MeditationSetupProps {
+  eventId?: string;
   onStart: (
     type: string,
     duration: number,
@@ -26,7 +28,7 @@ interface MeditationSetupProps {
   onCancel: () => void;
 }
 
-export function MeditationSetup({ onStart }: MeditationSetupProps) {
+export function MeditationSetup({ onStart, eventId }: MeditationSetupProps) {
   const { t } = useLanguage();
   const [selectedType, setSelectedType] = useState("");
   const [durationInput, setDurationInput] = useState("15");
@@ -41,6 +43,7 @@ export function MeditationSetup({ onStart }: MeditationSetupProps) {
   const [starting, setStarting] = useState(false);
   const [bell, setBell] = useState(true);
   const [settling, setSettling] = useState(5);
+  const [unmatchedPractice, setUnmatchedPractice] = useState(false);
 
   useEffect(() => {
     try {
@@ -57,8 +60,9 @@ export function MeditationSetup({ onStart }: MeditationSetupProps) {
     Promise.all([
       MeditationTypeService.getActiveTypes(),
       MeditationCategoryService.getActiveCategories(),
+      eventId ? EventService.getEvent(eventId) : Promise.resolve(null),
     ])
-      .then(([available, groups]) => {
+      .then(([available, groups, event]) => {
         if (cancelled) return;
         setTypes(available);
         setCategories(groups);
@@ -75,7 +79,13 @@ export function MeditationSetup({ onStart }: MeditationSetupProps) {
           } catch {
             /* Use defaults. */
           }
-          setSelectedType(
+          // Events currently store a practice name; also accept a stable type ID.
+          const normalize = (value: string) => value.normalize('NFC').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+          const recommended = event?.meditationTypeId || event?.meditationType?.trim();
+          const matches = recommended && !event?.meditationTypeId ? available.filter(type => normalize(type.name) === normalize(recommended)) : [];
+          const eventType = available.find(type => type.id === recommended) || (matches.length === 1 ? matches[0] : undefined);
+          setUnmatchedPractice(!!recommended && !eventType);
+          setSelectedType(recommended ? eventType?.id || '' :
             available.some((type) => type.id === previous.type)
               ? previous.type!
               : available[0].id,
@@ -97,7 +107,7 @@ export function MeditationSetup({ onStart }: MeditationSetupProps) {
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [attempt, eventId]);
 
   const filtered = useMemo(
     () =>
@@ -168,6 +178,7 @@ export function MeditationSetup({ onStart }: MeditationSetupProps) {
 
   return (
     <div className="space-y-6">
+      {unmatchedPractice && <p role="status" className="app-card p-4 text-sm text-muted-foreground">{t('eventInvite.practiceUnavailable')}</p>}
       <details className="app-card p-5">
         <summary className="cursor-pointer list-none space-y-2">
           <span className="block text-xs font-medium text-muted-foreground">

@@ -44,6 +44,7 @@ export class EventService {
       if (eventData.titleEn) cleanedData.titleEn = eventData.titleEn;
       if (eventData.descriptionEn) cleanedData.descriptionEn = eventData.descriptionEn;
       if (eventData.meditationType) cleanedData.meditationType = eventData.meditationType;
+      if (eventData.meditationTypeId) cleanedData.meditationTypeId = eventData.meditationTypeId;
       if (eventData.bannerImageUrl) cleanedData.bannerImageUrl = eventData.bannerImageUrl;
       if (eventData.goalMinutes !== undefined) cleanedData.goalMinutes = eventData.goalMinutes;
 
@@ -73,6 +74,7 @@ export class EventService {
       if (updates.description !== undefined) updateData.description = updates.description;
       if (updates.descriptionEn !== undefined) updateData.descriptionEn = updates.descriptionEn;
       if (updates.meditationType !== undefined) updateData.meditationType = updates.meditationType;
+      if (updates.meditationTypeId !== undefined) updateData.meditationTypeId = updates.meditationTypeId;
       if (updates.isActive !== undefined) updateData.isActive = updates.isActive;
       if (updates.bannerImageUrl !== undefined) updateData.bannerImageUrl = updates.bannerImageUrl;
       if (updates.goalMinutes !== undefined) updateData.goalMinutes = updates.goalMinutes;

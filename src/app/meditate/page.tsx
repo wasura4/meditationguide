@@ -156,6 +156,8 @@ export default function MeditatePage() {
           {checkingEvent && <p role="status">Checking event availability…</p>}
           {eventError && <div role="alert" className="app-card p-4 text-sm"><p>{eventError}</p><Link href="/meditate" className="inline-flex min-h-11 items-center underline">Continue without an event</Link></div>}
           <MeditationSetup
+            key={(user?.id || 'signed-out') + ':' + (requestedEvent || 'regular')}
+            eventId={requestedEvent}
             onCancel={() => {}}
             onStart={async (type, duration, name, bell, settling) => {
               if (starting.current) return;

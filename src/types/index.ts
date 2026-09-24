@@ -87,6 +87,7 @@ export interface MeditationEvent {
   description: string;
   descriptionEn?: string;
   meditationType?: string; // Optional specific meditation type for the event
+  meditationTypeId?: string; // Stable link; meditationType retains its display name.
   startDate: Date;
   endDate: Date;
   isActive: boolean;

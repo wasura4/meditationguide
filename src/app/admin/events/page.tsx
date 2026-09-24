@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
-import { MeditationEvent } from '@/types';
+import { MeditationEvent, MeditationType } from '@/types';
+import { MeditationTypeService } from '@/lib/meditationTypeService';
 import { EventService } from '@/lib/eventService';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useToast } from '@/components/ui/toast';
@@ -18,6 +19,36 @@ export default function AdminEventsPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState<MeditationEvent | null>(null);
   const { showToast } = useToast();
+  const [practiceTypes, setPracticeTypes] = useState<MeditationType[]>([]);
+  const [typesLoading, setTypesLoading] = useState(true);
+  const [typesError, setTypesError] = useState(false);
+  const [typesAttempt, setTypesAttempt] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    setTypesLoading(true);
+    setTypesError(false);
+    void MeditationTypeService.getActiveTypes().then(types => {
+      if (!cancelled) setPracticeTypes(types);
+    }).catch(() => { if (!cancelled) setTypesError(true); })
+      .finally(() => { if (!cancelled) setTypesLoading(false); });
+    return () => { cancelled = true; };
+  }, [typesAttempt]);
+  const legacyMatches = editingEvent?.meditationTypeId ? [] : practiceTypes.filter(type => type.name.trim() === editingEvent?.meditationType?.trim());
+  const currentTypeId = editingEvent?.meditationTypeId || (legacyMatches.length === 1 ? legacyMatches[0].id : '');
+  const knownCurrentType = practiceTypes.some(type => type.id === currentTypeId);
+  const preserveExistingType = !!(editingEvent?.meditationType || editingEvent?.meditationTypeId) && !knownCurrentType;
+  function selectedPractice(form: FormData) {
+    if (typesLoading || typesError) throw new Error('Meditation types are unavailable. Please retry loading them.');
+    const id = String(form.get('meditationTypeId') || '');
+    if (id === '__keep_existing__' && editingEvent) return {
+      meditationTypeId: editingEvent.meditationTypeId || '',
+      meditationType: editingEvent.meditationType || '',
+    };
+    if (!id) return { meditationTypeId: '', meditationType: '' };
+    const selected = practiceTypes.find(type => type.id === id);
+    if (!selected) throw new Error('Please select an available meditation type.');
+    return { meditationTypeId: selected.id, meditationType: selected.name };
+  }
 
   const loadEvents = useCallback(async () => {
     try {
@@ -63,7 +94,7 @@ export default function AdminEventsPage() {
         titleEn: (formData.get('titleEn') as string) || '',
         description: formData.get('description') as string,
         descriptionEn: (formData.get('descriptionEn') as string) || '',
-        meditationType: (formData.get('meditationType') as string) || undefined,
+        ...selectedPractice(formData),
         startDate: new Date(formData.get('startDate') as string),
         endDate: new Date(formData.get('endDate') as string),
         isActive: formData.get('isActive') === 'on',
@@ -109,7 +140,7 @@ export default function AdminEventsPage() {
         titleEn: formData.get('titleEn') as string,
         description: formData.get('description') as string,
         descriptionEn: formData.get('descriptionEn') as string,
-        meditationType: (formData.get('meditationType') as string) || undefined,
+        ...selectedPractice(formData),
         startDate: new Date(formData.get('startDate') as string),
         endDate: new Date(formData.get('endDate') as string),
         isActive: formData.get('isActive') === 'on',
@@ -268,16 +299,24 @@ export default function AdminEventsPage() {
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-card-foreground">
+                    <label htmlFor="event-meditation-type" className="mb-1 block text-sm font-medium text-card-foreground">
                       Meditation Type (Optional)
                     </label>
-                    <input
-                      type="text"
-                      name="meditationType"
-                      defaultValue={editingEvent?.meditationType}
+                    <select
+                      key={(editingEvent?.id || 'new') + ':' + typesLoading}
+                      id="event-meditation-type"
+                      name="meditationTypeId"
+                      disabled={typesLoading || typesError}
+                      defaultValue={preserveExistingType ? '__keep_existing__' : currentTypeId}
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground"
-                      placeholder="e.g., මෛත්‍රී භාවනාව"
-                    />
+                      aria-describedby="event-meditation-help"
+                    >
+                      <option value="">{typesLoading ? 'Loading meditation types…' : 'No specific meditation type'}</option>
+                      {preserveExistingType && <option value="__keep_existing__">Keep current: {editingEvent?.meditationType || 'Unavailable type'}</option>}
+                      {practiceTypes.map(type => <option key={type.id} value={type.id}>{type.name}</option>)}
+                    </select>
+                    <p id="event-meditation-help" className="mt-2 text-xs text-muted-foreground">This practice will be selected automatically when someone meditates for the event.</p>
+                    {typesError && <p role="alert" className="mt-2 text-sm text-destructive">Unable to load meditation types. <button type="button" onClick={() => setTypesAttempt(value => value + 1)} className="min-h-11 underline">Retry</button></p>}
                   </div>
 
                   <div>

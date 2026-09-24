@@ -1,5 +1,6 @@
 {
   "eventInvite": {
+    "practiceUnavailable": "The event’s recommended practice is unavailable. Please choose a practice before starting.",
     "section": "Happening in our community",
     "live": "Happening now",
     "lastDay": "Last day to join",
