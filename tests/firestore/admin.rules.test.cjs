@@ -83,3 +83,13 @@ test('analytics and legacy playlist queries retain their explicit read permissio
   await assertFails(getDocs(collection(db('reader'),'users')));
   await assertFails(getDocs(collection(db('inactive'),'meditation_sessions')));
 });
+
+test('event statistics retain signed-in access without exposing private meditation sessions', async () => {
+  const member = db('member'), visitor = env.unauthenticatedContext().firestore();
+  await assertSucceeds(getDocs(collection(member,'meditation_events')));
+  await assertSucceeds(getDocs(query(collection(member,'event_participation'),where('eventId','==','event'))));
+  await assertFails(getDocs(collection(visitor,'meditation_events')));
+  await assertFails(getDocs(collection(visitor,'event_participation')));
+  await assertFails(getDocs(query(collection(member,'meditation_sessions'),where('eventId','==','event'))));
+  await assertSucceeds(getDocs(query(collection(member,'meditation_sessions'),where('userId','==','member'))));
+});

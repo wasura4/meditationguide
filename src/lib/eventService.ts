@@ -398,43 +398,6 @@ export class EventService {
         })
       );
 
-      // Get event sessions for daily progress
-      const sessionsRef = collection(db, 'meditation_sessions');
-      const sessionsQuery = query(sessionsRef, where('eventId', '==', eventId));
-      const sessionsSnap = await getDocs(sessionsQuery);
-
-      const dailyProgressMap = new Map<
-        string,
-        { minutes: number; participants: Set<string>; sessions: number }
-      >();
-
-      sessionsSnap.forEach((doc) => {
-        const data = doc.data();
-        const dateKey = data.startTime.toDate().toISOString().split('T')[0];
-
-        if (!dailyProgressMap.has(dateKey)) {
-          dailyProgressMap.set(dateKey, {
-            minutes: 0,
-            participants: new Set(),
-            sessions: 0,
-          });
-        }
-
-        const dayData = dailyProgressMap.get(dateKey)!;
-        dayData.minutes += data.duration;
-        dayData.participants.add(data.userId);
-        dayData.sessions += 1;
-      });
-
-      const dailyProgress = Array.from(dailyProgressMap.entries())
-        .map(([date, data]) => ({
-          date,
-          minutes: data.minutes,
-          participants: data.participants.size,
-          sessions: data.sessions,
-        }))
-        .sort((a, b) => a.date.localeCompare(b.date));
-
       return {
         eventId,
         totalParticipants: participants.length,
@@ -443,7 +406,6 @@ export class EventService {
         averageMinutesPerUser:
           participants.length > 0 ? totalMinutes / participants.length : 0,
         topContributors,
-        dailyProgress,
         updatedAt: new Date(),
       };
     } catch (error) {

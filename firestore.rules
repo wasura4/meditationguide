@@ -201,9 +201,9 @@ service cloud.firestore {
       allow delete: if permitted('settings', 'delete');
     }
 
-    // Meditation Events — public read, admin write
+    // Meditation Events — signed-in readers, admin writes (preserves deployed visibility).
     match /meditation_events/{eventId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow create: if permitted('content', 'create') && validEvent();
       allow update: if permitted('content', 'update') && validEvent();
       allow delete: if permitted('content', 'delete');
@@ -215,9 +215,9 @@ service cloud.firestore {
       }
     }
 
-    // Event Participation — user manage own, public read (for leaderboards)
+    // Event Participation — owner writes, signed-in reads for event statistics.
     match /event_participation/{participationId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update: if isSignedIn() && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId
