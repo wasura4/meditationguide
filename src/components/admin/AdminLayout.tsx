@@ -31,6 +31,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage 
     { name: 'Audio', href: '/admin/audio', icon: Headphones, permission: 'audio:read' },
     { name: 'Dhamma', href: '/admin/dhamma', icon: BookOpen, permission: 'dhamma:read' },
     { name: 'Learning', href: '/admin/learning', icon: BookOpen, permission: 'content:read' },
+    { name: 'Daily check-ins', href: '/admin/checkins', icon: CalendarDays, permission: 'content:read' },
     { name: 'Users', href: '/admin/users', icon: Users, permission: 'users:read' },
     { name: 'Analytics', href: '/admin/analytics', icon: ChartNoAxesCombined, permission: 'analytics:read' },
     { name: 'Settings', href: '/admin/settings', icon: Settings, permission: 'settings:read' },

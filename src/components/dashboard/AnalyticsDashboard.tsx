@@ -1,4 +1,5 @@
 "use client";
+import { CheckinProgress } from "@/components/checkins/CheckinCards";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -618,6 +619,7 @@ function ProgressContent({ userId }: { userId: string }) {
           </section>
         </div>
       </div>
+      <CheckinProgress />
       <nav
         aria-label={t("progress.explore")}
         className="grid gap-3 sm:grid-cols-3"

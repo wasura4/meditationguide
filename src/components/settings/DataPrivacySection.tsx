@@ -34,6 +34,7 @@ export function DataPrivacySection() {
     try {
       const sessions = await MeditationService.getAllUserSessions(user.id);
       let learningProgress: unknown[] = [];
+      let dailyCheckins: unknown[] = [];
       if (kind === "json") {
         const { db } = await import("@/lib/firebase");
         const { collection, getDocs } = await import("firebase/firestore");
@@ -42,6 +43,13 @@ export function DataPrivacySection() {
         );
         learningProgress = progress.docs.map((item) => ({
           pathId: item.id,
+          ...item.data(),
+        }));
+        const checkins = await getDocs(
+          collection(db, "users", user.id, "daily_checkins"),
+        );
+        dailyCheckins = checkins.docs.map((item) => ({
+          id: item.id,
           ...item.data(),
         }));
       }
@@ -59,6 +67,7 @@ export function DataPrivacySection() {
                 },
                 sessions,
                 learningProgress,
+                dailyCheckins,
                 exportDate: new Date().toISOString(),
                 totalSessions: sessions.length,
                 totalMinutes: sessions.reduce(
@@ -141,20 +150,19 @@ export function DataPrivacySection() {
         },
         removeProfile: async () => {
           // Firestore does not cascade deletion into subcollections.
-          while (true) {
-            const progress = await getDocs(
-              query(
-                collection(db, "users", user.id, "learning_progress"),
-                limit(400),
-              ),
-            );
-            if (auth.currentUser?.uid !== user.id)
-              throw new Error("recent-login");
-            if (progress.empty) break;
-            const batch = writeBatch(db);
-            progress.docs.forEach((item) => batch.delete(item.ref));
-            started = true;
-            await batch.commit();
+          for (const name of ["learning_progress", "daily_checkins"]) {
+            while (true) {
+              const progress = await getDocs(
+                query(collection(db, "users", user.id, name), limit(400)),
+              );
+              if (auth.currentUser?.uid !== user.id)
+                throw new Error("recent-login");
+              if (progress.empty) break;
+              const batch = writeBatch(db);
+              progress.docs.forEach((item) => batch.delete(item.ref));
+              started = true;
+              await batch.commit();
+            }
           }
           started = true;
           await deleteDoc(doc(db, "users", user.id));
