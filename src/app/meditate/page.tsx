@@ -150,6 +150,7 @@ export default function MeditatePage() {
       <AppPage
         title={t("navigation.meditate")}
         subtitle={t("interface.setup_description")}
+        artwork="meditate"
       >
         <div className="mx-auto max-w-xl space-y-4">
           {storageNotice}

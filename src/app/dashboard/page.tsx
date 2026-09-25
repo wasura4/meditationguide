@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import { ArtworkHeader } from "@/components/app/ArtworkHeader";
 import Link from "next/link";
 import { BookOpen, Headphones, ChevronRight, Flower2, BookMarked, Library, MessageCircle, Route, UserRound, Leaf } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -91,21 +91,18 @@ function DashboardContent() {
   const locale = language === "si" ? "si-LK" : "en-GB";
   const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
   return <div className="home-dashboard">
-    <div className="home-backdrop" aria-hidden="true">
-      <Image src="/images/dashboard-sanctuary.png" alt="" fill priority unoptimized={false} sizes="(max-width: 768px) 100vw, 1200px" className="home-scenery" />
-      <div className="home-image-veil" />
-    </div>
     <div className="relative mx-auto max-w-5xl px-5 sm:px-8">
       <header className="home-header flex items-center justify-between gap-3">
         <Link href="/dashboard" className="flex min-h-11 items-center gap-2.5 text-base font-semibold tracking-tight"><Leaf size={25} strokeWidth={1.5} aria-hidden="true" />{t("app.name")}</Link>
         <Link href="/settings" aria-label={t("navigation.settings")} className="home-profile flex h-11 w-11 shrink-0 items-center justify-center rounded-full border"><UserRound size={23} strokeWidth={1.6} aria-hidden="true" /></Link>
       </header>
       <main>
-        <section className="home-welcome" aria-labelledby="home-title">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("home.eyebrow")}</p>
-          <h1 id="home-title" className="home-title max-w-[12ch] font-medium tracking-tight">{t("home.headline")}</h1>
-          <p className="mt-4 max-w-[28ch] text-base leading-relaxed sm:text-lg">{t("home.welcome", { name: user?.displayName || t("interface.practitioner") })}</p>
-        </section>
+        <ArtworkHeader
+          artwork="home"
+          eyebrow={t("home.eyebrow")}
+          title={t("home.headline")}
+          subtitle={t("home.welcome", { name: user?.displayName || t("interface.practitioner") })}
+        />
         <div className="home-content space-y-6 pb-8">
           <EventBanner />
           <DashboardPractice sessions={sessions} loading={sessionsLoading} error={sessionsError} retry={() => setAttempt(value => value + 1)} now={now} />

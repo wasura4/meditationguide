@@ -11,7 +11,7 @@ export default function DhammaPage() {
   const { t } = useLanguage();
   return (
     <ProtectedRoute>
-      <AppPage title={t("navigation.dhamma")} subtitle={t("dhamma.subtitle")}>
+      <AppPage artwork="dhamma" title={t("navigation.dhamma")} subtitle={t("dhamma.subtitle")}>
         <div className="mb-7 grid grid-cols-2 gap-3">
           {[
             {

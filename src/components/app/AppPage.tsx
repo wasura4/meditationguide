@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { ChevronLeft, Settings } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ArtworkHeader, type PageArtwork } from "./ArtworkHeader";
 
 /** Shared large-title screen for the web app and both native WebViews. */
 export function AppPage({
   title,
   subtitle,
+  artwork,
   backHref,
   showSettings = true,
   children,
 }: {
   title: string;
   subtitle?: string;
+  artwork?: PageArtwork;
   backHref?: string;
   showSettings?: boolean;
   children: React.ReactNode;
@@ -51,7 +54,7 @@ export function AppPage({
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-5 pb-8 pt-6 sm:px-8 sm:pt-8">
-        <div className="mb-7 space-y-2">
+        {artwork ? <ArtworkHeader artwork={artwork} title={title} subtitle={subtitle} /> : <div className="mb-7 space-y-2">
           <h1 className="text-[2rem] font-bold leading-snug tracking-tight sm:text-4xl">
             {title}
           </h1>
@@ -60,7 +63,7 @@ export function AppPage({
               {subtitle}
             </p>
           )}
-        </div>
+        </div>}
         {children}
       </main>
     </div>

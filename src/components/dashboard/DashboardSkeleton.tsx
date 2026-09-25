@@ -50,7 +50,10 @@ export function DashboardSkeleton() {
     <div className="relative mx-auto max-w-5xl px-5 sm:px-8">
       <SkeletonStatus label={t("common.loading")}>
         <div className="home-header flex items-center justify-between gap-3"><Skeleton className="h-6 w-32" /><Skeleton className="h-11 w-11 !rounded-full" /></div>
-        <div className="home-welcome space-y-4"><Skeleton className="h-3 w-32" /><Skeleton className="h-24 w-64 max-w-full sm:h-36 sm:w-96" /><Skeleton className="h-5 w-56 max-w-full" /></div>
+        <div className="artwork-header artwork-header-home">
+          <div className="min-w-0 space-y-4"><Skeleton className="h-3 w-24 max-w-full" /><Skeleton className="h-24 w-64 max-w-full" /><Skeleton className="h-5 w-56 max-w-full" /></div>
+          <Skeleton className="aspect-square w-full !rounded-2xl" />
+        </div>
       </SkeletonStatus>
       <div className="home-content space-y-6 pb-8">
         <PracticeSkeleton />

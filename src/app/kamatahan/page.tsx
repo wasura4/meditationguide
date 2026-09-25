@@ -16,6 +16,7 @@ export default function KamatahanPage() {
   return (
     <ProtectedRoute>
       <AppPage
+        artwork="listen"
         title={t("interface.tabs.listen")}
         subtitle={t("interface.audio_description")}
       >

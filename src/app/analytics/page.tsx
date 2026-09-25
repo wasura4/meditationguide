@@ -8,6 +8,7 @@ export default function AnalyticsPage() {
   return (
     <ProtectedRoute>
       <AppPage
+        artwork="progress"
         title={t("interface.tabs.progress")}
         subtitle={t("progress.subtitle")}
       >

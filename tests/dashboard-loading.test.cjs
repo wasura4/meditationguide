@@ -22,6 +22,7 @@ test('dashboard sections settle independently and background refresh keeps conte
   loaded.filename = filename;
   loaded.paths = module.paths;
   loaded.require = name => {
+    if (name === '@/components/app/ArtworkHeader') return { ArtworkHeader: ({ title }) => React.createElement('h1', null, title) };
     if (name === 'next/image') return { __esModule: true, default: () => null };
     if (name === 'next/link') return { __esModule: true, default: ({ children, ...props }) => React.createElement('a', props, children) };
     if (name === '@/contexts/AuthContext') return { useAuth: () => ({ user: { id: 'reader' } }) };
