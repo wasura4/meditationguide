@@ -28,7 +28,7 @@ export function ArtworkHeader({
           fill
           priority
           unoptimized={false}
-          sizes={artwork === "home" ? "(max-width: 639px) 44vw, 320px" : "(max-width: 639px) 40vw, 240px"}
+          sizes={artwork === "home" ? "(max-width: 639px) 100vw, (max-width: 1023px) 65vw, 640px" : "(max-width: 639px) 40vw, 240px"}
           className="object-contain"
         />
       </div>
