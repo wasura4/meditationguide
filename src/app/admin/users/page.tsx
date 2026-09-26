@@ -1,360 +1,404 @@
-﻿'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { QueryDocumentSnapshot } from 'firebase/firestore';
-import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
-import { AdminLayout } from '@/components/admin/AdminLayout';
-import { AdminService } from '@/lib/adminService';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { useToast } from '@/components/ui/toast';
-import { Button } from '@/components/ui/button';
-import { User } from '@/types';
-import { MeditationSession } from '@/types';
-import { PATH_STAGES } from '@/constants/path';
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { QueryDocumentSnapshot } from "firebase/firestore";
+import {
+  ArrowRight,
+  Flower2,
+  RefreshCw,
+  Search,
+  Users,
+  UserRound,
+  Route,
+  X,
+} from "lucide-react";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { AdminService } from "@/lib/adminService";
+import type { User } from "@/types";
+import { UserProfileDrawer } from "@/components/admin/UserProfileDrawer";
+import ui from "../analytics/analytics.module.css";
+import styles from "./users.module.css";
+
+const formatDate = (date?: Date) =>
+  date && Number.isFinite(date.getTime())
+    ? date.toLocaleDateString("en", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "Not recorded";
+const name = (user: User) =>
+  (user.displayName && user.displayName !== "Anonymous User"
+    ? user.displayName
+    : user.email?.split("@")[0]) || "Unnamed member";
 
 export default function AdminUsersPage() {
   const { hasPermission } = useAdminAuth();
+  const canRead = hasPermission("users", "read");
   const [users, setUsers] = useState<User[]>([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("newest");
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [stats, setStats] = useState<{
-    totalSessions: number;
-    totalMinutes: number;
-    averageSession: number;
-    topMeditation?: { typeId: string; typeName: string; count: number; minutes: number };
-    lastSessionAt?: Date;
-  }>({ totalSessions: 0, totalMinutes: 0, averageSession: 0 });
-  const [loadingSessions, setLoadingSessions] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
+  const [moreError, setMoreError] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const [selected, setSelected] = useState<User | null>(null);
   const cursor = useRef<QueryDocumentSnapshot | undefined>(undefined);
-  const selectedRequest = useRef(0);
-  const canRead = hasPermission('users', 'read');
-  const { showToast } = useToast();
-
-  const pageSize = 20;
-
+  const request = useRef(0);
+  const fetchingMore = useRef(false);
+  const closeProfile = useCallback(() => setSelected(null), []);
   useEffect(() => {
     if (!canRead) return;
-    let cancelled = false;
+    const id = ++request.current;
     setLoading(true);
-    const timer = setTimeout(async () => {
-      try {
-        if (searchTerm.trim()) {
-          const results = await AdminService.searchUsers(searchTerm.trim());
-          if (cancelled) return;
-          setUsers(results); setHasMore(false);
-        } else {
-          const result = await AdminService.getUsers(pageSize, currentPage > 1 ? cursor.current : undefined);
-          if (cancelled) return;
-          setUsers(previous => currentPage === 1 ? result.users : [...previous,...result.users]);
-          cursor.current = result.lastDoc; setHasMore(result.users.length === pageSize);
+    setError(false);
+    setMoreError(false);
+    setLoadingMore(false);
+    fetchingMore.current = false;
+    const timer = setTimeout(
+      async () => {
+        try {
+          if (search.trim()) {
+            const result = await AdminService.searchUsers(search.trim());
+            if (id !== request.current) return;
+            setUsers(result);
+            setHasMore(false);
+            cursor.current = undefined;
+          } else {
+            const result = await AdminService.getUsers(20);
+            if (id !== request.current) return;
+            setUsers(result.users);
+            setHasMore(result.users.length === 20);
+            cursor.current = result.lastDoc;
+          }
+        } catch {
+          if (id === request.current) setError(true);
+        } finally {
+          if (id === request.current) setLoading(false);
         }
-      } catch {
-        if (!cancelled) showToast({type:'error',title:'Unable to load users',message:'Check your connection and try again.'});
-      } finally { if (!cancelled) setLoading(false); }
-    }, searchTerm.trim() ? 300 : 0);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [currentPage,searchTerm,canRead,showToast]);
-
-  const loadUserSessions = async (userId: string) => {
-    const request = ++selectedRequest.current;
-    try {
-      setLoadingSessions(true);
-      setStats({totalSessions:0,totalMinutes:0,averageSession:0});
-      const recent: MeditationSession[] = await AdminService.getUserSessions(userId, 50);
-      if (request !== selectedRequest.current) return;
-      const sessions = recent.filter(session => session.status === 'completed' && Number.isFinite(session.duration) && session.duration > 0);
-            // Compute quick stats for the right panel
-      const totalSessions = sessions.length;
-      const totalMinutes = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
-      const averageSession = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
-      type ByType = Record<string, { typeId: string; typeName: string; count: number; minutes: number }>;
-      const byType: ByType = {};
-      sessions.forEach((s) => {
-        const key = s.typeId || s.typeName || 'unknown';
-        if (!byType[key]) byType[key] = { typeId: s.typeId || key, typeName: s.typeName || 'Unknown', count: 0, minutes: 0 } ;
-        byType[key].count += 1;
-        byType[key].minutes += s.duration || 0;
-      });
-      const topMeditation = Object.values(byType).sort((a, b) => b.count - a.count || b.minutes - a.minutes)[0] ;
-      const lastSessionAt = sessions.length ? sessions.slice().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0].createdAt : undefined;
-      setStats({ totalSessions, totalMinutes, averageSession, topMeditation, lastSessionAt });
-    } catch (error) {
-      if (request !== selectedRequest.current) return;
-      console.error('Error loading user sessions:', error);
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message: 'Failed to load user sessions',
-        duration: 5000,
-      });
-    } finally {
-      if (request === selectedRequest.current) setLoadingSessions(false);
-    }
-  };
-
-  const handleUserClick = (user: User) => {
-    setSelectedUser(user);
-    loadUserSessions(user.id);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  if (!hasPermission('users', 'read')) {
-    return (
-      <AdminProtectedRoute>
-        <AdminLayout currentPage="/admin/users">
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">You don&apos;t have permission to view users.</p>
-          </div>
-        </AdminLayout>
-      </AdminProtectedRoute>
+      },
+      search.trim() ? 300 : 0,
     );
+    return () => {
+      clearTimeout(timer);
+      request.current = id + 1;
+    };
+  }, [canRead, search, retry]);
+  async function loadMore() {
+    if (loading || fetchingMore.current || !hasMore || search.trim()) return;
+    const id = request.current;
+    fetchingMore.current = true;
+    setLoadingMore(true);
+    setMoreError(false);
+    try {
+      const result = await AdminService.getUsers(20, cursor.current);
+      if (id !== request.current) return;
+      setUsers((previous) => [
+        ...previous,
+        ...result.users.filter(
+          (user) => !previous.some((existing) => existing.id === user.id),
+        ),
+      ]);
+      cursor.current = result.lastDoc;
+      setHasMore(result.users.length === 20);
+    } catch {
+      if (id === request.current) setMoreError(true);
+    } finally {
+      if (id === request.current) {
+        setLoadingMore(false);
+        fetchingMore.current = false;
+      }
+    }
   }
-
+  const visible = users
+    .filter(
+      (user) =>
+        filter === "all" ||
+        (filter === "path"
+          ? !!user.pathProgress
+          : filter === "guest"
+            ? user.isAnonymous
+            : !user.isAnonymous),
+    )
+    .sort((a, b) =>
+      sort === "name"
+        ? name(a).localeCompare(name(b))
+        : (Number.isFinite(b.createdAt.getTime()) ? b.createdAt.getTime() : 0) -
+          (Number.isFinite(a.createdAt.getTime()) ? a.createdAt.getTime() : 0),
+    );
   return (
-    <AdminProtectedRoute>
-      <AdminLayout currentPage="/admin/users">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">User Management</h1>
-              <p className="text-muted-foreground mt-1">Manage and monitor all platform users</p>
-            </div>
+    <AdminLayout currentPage="/admin/users">
+      <div className={ui.dashboard}>
+        <header className={ui.header}>
+          <div>
+            <p className={ui.eyebrow}>
+              <Users size={14} /> PEOPLE BEHIND THE PRACTICE
+            </p>
+            <h1>
+              Your community<span>.</span>
+            </h1>
+            <p className={ui.subtitle}>
+              Every member has a story. Get to know the practice behind the
+              profile.
+            </p>
           </div>
-
-          {/* Search Bar */}
-          <div className="bg-card rounded-xl p-4 shadow-lg border border-border">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+          <button
+            className={ui.button}
+            disabled={loading || !canRead}
+            onClick={() => setRetry((value) => value + 1)}
+          >
+            <RefreshCw size={15} className={loading ? ui.spin : ""} />
+            Refresh members
+          </button>
+        </header>
+        {!canRead ? (
+          <p role="alert">You don&apos;t have permission to view members.</p>
+        ) : (
+          <>
+            <section className={styles.intro}>
+              <div className={styles.introIcon}>
+                <Flower2 size={30} />
               </div>
-              <input
-                type="text"
-                placeholder="Search users by name or email..."
-                value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                className="block w-full pl-10 pr-3 py-2 border border-input rounded-lg leading-5 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Users List */}
-            <div className="lg:col-span-2">
-              <div className="bg-card rounded-xl shadow-lg border border-border">
-                <div className="px-6 py-4 border-b border-border">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Users ({users.length})
-                  </h2>
+              <div>
+                <h2>A closer look at each journey</h2>
+                <p>
+                  Select a member to explore their practice history, milestones,
+                  preferences, and account details.
+                </p>
+              </div>
+              <span className={ui.badge}>Member directory</span>
+            </section>
+            <div className={styles.summary}>
+              {[
+                {
+                  label: search.trim() ? "Search matches" : "Members loaded",
+                  value: users.length,
+                  icon: Users,
+                },
+                {
+                  label: "Registered accounts in this list",
+                  value: users.filter((user) => !user.isAnonymous).length,
+                  icon: UserRound,
+                },
+                {
+                  label: "With a recorded path stage",
+                  value: users.filter((user) => user.pathProgress).length,
+                  icon: Route,
+                },
+              ].map(({ label, value, icon: Icon }) => (
+                <div key={label}>
+                  <Icon size={19} />
+                  <div>
+                    <strong>
+                      {loading || error ? "—" : value.toLocaleString()}
+                    </strong>
+                    <span>{label}</span>
+                  </div>
                 </div>
-
-                {loading ? (
-                  <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6b9e7a] mx-auto"></div>
-                    <p className="mt-2 text-muted-foreground">Loading users...</p>
-                  </div>
-                ) : users.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">No users found</p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-200">
-                    {users.map((user) => (
-                      <div
-                        key={user.id}
-                        onClick={() => handleUserClick(user)}
-                        className={`px-6 py-4 hover:bg-muted cursor-pointer transition-colors ${
-                          selectedUser?.id === user.id ? 'bg-[#f0f7f4]' : ''
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-[#6b9e7a] rounded-full flex items-center justify-center">
-                              <span className="text-white text-sm font-semibold">
-                                {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
-                              </span>
-                            </div>
-                            <div className="ml-4">
-                              <p className="text-sm font-medium text-foreground">
-                                {user.displayName || 'No Name'}
-                              </p>
-                              <p className="text-sm text-muted-foreground">{user.email}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {user.pathProgress && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200">
-                                Stage {user.pathProgress.currentStage}/8
-                              </span>
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              Joined {formatDate(user.createdAt)}
-                            </span>
-                            {hasPermission('users', 'delete') && (
-                              <Button
-                                disabled title="Account suspension must be managed in Firebase Authentication until a trusted backend workflow is connected."
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700 hover:bg-[var(--color-status-error)]/10"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {!searchTerm && hasMore && (
-                  <div className="px-6 py-4 border-t border-border">
-                    <Button
-                      onClick={() => setCurrentPage(prev => prev + 1)}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Load More
-                    </Button>
-                  </div>
-                )}
-              </div>
+              ))}
             </div>
-
-            {/* User Details */}
-            <div className="lg:col-span-1">
-              {selectedUser ? (
-                <div className="bg-card rounded-xl shadow-lg border border-border">
-                  <div className="px-6 py-4 border-b border-border">
-                    <h2 className="text-lg font-semibold text-foreground">User Details</h2>
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-[#6b9e7a] rounded-full flex items-center justify-center mx-auto mb-3">
-                        <span className="text-white text-xl font-semibold">
-                          {((selectedUser.displayName && selectedUser.displayName !== 'Anonymous User' ? selectedUser.displayName : (selectedUser.email || 'U'))).charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <p className="text-lg font-semibold text-foreground">
-                        {selectedUser.displayName && selectedUser.displayName !== 'Anonymous User' ? selectedUser.displayName : (selectedUser.email?.split('@')[0] || 'User')}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
-                    </div>
-
-                    <div className="space-y-3 pt-4 border-t border-border">
-                      <div>
-                        <p className="text-xs text-muted-foreground">User ID</p>
-                        <p className="text-sm font-mono text-foreground">{selectedUser.id}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Joined</p>
-                        <p className="text-sm text-foreground">{formatDate(selectedUser.createdAt)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Last Updated</p>
-                        <p className="text-sm text-foreground">{formatDate(selectedUser.updatedAt)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Theme</p>
-                        <p className="text-sm text-foreground capitalize">{selectedUser.preferences?.theme || 'light'}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Language</p>
-                        <p className="text-sm text-foreground uppercase">{selectedUser.preferences?.language || 'en'}</p>
-                      </div>
-                    </div>
-
-                    {/* Path Progress Section */}
-                    {selectedUser.pathProgress && (
-                      <div className="pt-4 border-t border-border">
-                        <h3 className="text-sm font-semibold text-foreground mb-3">Seven Purifications Path</h3>
-                        <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg p-4 border border-violet-200">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-violet-600 font-medium">Current Stage</span>
-                            <span className="text-xs text-violet-600 font-semibold">
-                              {selectedUser.pathProgress.currentStage} of 8
-                            </span>
-                          </div>
-                          <div className="mb-3">
-                            <p className="text-sm font-bold text-violet-900">
-                              {PATH_STAGES.find(s => s.order === selectedUser.pathProgress!.currentStage)?.name || '-'}
-                            </p>
-                            <p className="text-xs text-violet-700 mt-1">
-                              {PATH_STAGES.find(s => s.order === selectedUser.pathProgress!.currentStage)?.nameEn || '-'}
-                            </p>
-                          </div>
-                          <div className="h-2 bg-violet-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
-                              style={{ width: `${((selectedUser.pathProgress.currentStage - 1) / 7) * 100}%` }}
-                            />
-                          </div>
-                          <p className="text-xs text-violet-600 mt-2">
-                            Last updated: {formatDate(selectedUser.pathProgress.updatedAt)}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="pt-4 border-t border-border">
-                      <h3 className="text-sm font-semibold text-foreground mb-3">Recent practice · latest 50 records</h3>
-                      {loadingSessions ? (
-                        <div className="text-center py-4">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6b9e7a] mx-auto"></div>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div className="bg-muted rounded p-3">
-                            <p className="text-muted-foreground">Completed sessions</p>
-                            <p className="text-lg font-semibold text-foreground">{stats.totalSessions}</p>
-                          </div>
-                          <div className="bg-muted rounded p-3">
-                            <p className="text-muted-foreground">Completed minutes</p>
-                            <p className="text-lg font-semibold text-foreground">{stats.totalMinutes}</p>
-                          </div>
-                          <div className="bg-muted rounded p-3">
-                            <p className="text-muted-foreground">Avg. Session</p>
-                            <p className="text-lg font-semibold text-foreground">{stats.averageSession} min</p>
-                          </div>
-                          <div className="bg-muted rounded p-3">
-                            <p className="text-muted-foreground">Top Meditation</p>
-                            <p className="text-sm font-semibold text-foreground">{stats.topMeditation?.typeName || '-'}</p>
-                          </div>
-                          <div className="bg-muted rounded p-3 col-span-2">
-                            <p className="text-muted-foreground">Last Session</p>
-                            <p className="text-sm font-semibold text-foreground">{stats.lastSessionAt ? formatDate(stats.lastSessionAt) : '-'}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+            <section className={`${ui.panel} ${styles.directory}`}>
+              <div className={styles.controls}>
+                <label className={styles.search}>
+                  <Search size={18} />
+                  <input
+                    aria-label="Search members by name, email, or user ID"
+                    placeholder="Search by name, email, or user ID…"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                  />
+                  {search && (
+                    <button
+                      aria-label="Clear search"
+                      onClick={() => setSearch("")}
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </label>
+                <label className={styles.select}>
+                  Show
+                  <select
+                    value={filter}
+                    onChange={(event) => setFilter(event.target.value)}
+                  >
+                    <option value="all">All members</option>
+                    <option value="registered">Registered accounts</option>
+                    <option value="guest">Guest accounts</option>
+                    <option value="path">With path progress</option>
+                  </select>
+                </label>
+                <label className={styles.select}>
+                  Sort
+                  <select
+                    value={sort}
+                    onChange={(event) => setSort(event.target.value)}
+                  >
+                    <option value="newest">Newest first</option>
+                    <option value="name">Name A–Z</option>
+                  </select>
+                </label>
+              </div>
+              <div className={styles.listHeading}>
+                <h2>Member directory</h2>
+                <span>
+                  {search.trim()
+                    ? "Search covers the full directory"
+                    : "Filters and sorting apply to loaded members"}
+                </span>
+              </div>
+              {loading ? (
+                <div className={styles.loading} role="status">
+                  Loading members…
+                  {[0, 1, 2, 3, 4].map((value) => (
+                    <div key={value} />
+                  ))}
+                </div>
+              ) : error ? (
+                <div className={ui.empty} role="alert">
+                  <h3>We couldn&apos;t load your members</h3>
+                  <p>Check your connection and try again.</p>
+                  <button
+                    className={ui.button}
+                    onClick={() => setRetry((value) => value + 1)}
+                  >
+                    Try again
+                  </button>
                 </div>
               ) : (
-                <div className="bg-card rounded-xl shadow-lg border border-border p-6 text-center">
-                  <p className="text-muted-foreground">Select a user to view details</p>
-                </div>
+                <>
+                  <div className={ui.tableScroll}>
+                    <table className={styles.table}>
+                      <thead>
+                        <tr>
+                          <th scope="col">Member</th>
+                          <th scope="col">Account</th>
+                          <th scope="col">Path stage</th>
+                          <th scope="col">Joined</th>
+                          <th scope="col">Last recorded login</th>
+                          <th scope="col">
+                            <span className="sr-only">View profile</span>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {visible.map((user) => (
+                          <tr key={user.id} onClick={() => setSelected(user)}>
+                            <td>
+                              <button
+                                className={styles.memberButton}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setSelected(user);
+                                }}
+                                aria-label={`View ${name(user)}'s profile`}
+                              >
+                                <span className={styles.avatar}>
+                                  {name(user).slice(0, 1).toUpperCase()}
+                                </span>
+                                <span>
+                                  <strong>{name(user)}</strong>
+                                  <small>
+                                    {user.email || "No email recorded"}
+                                  </small>
+                                </span>
+                              </button>
+                            </td>
+                            <td>
+                              <span className={styles.pill}>
+                                {user.isAnonymous ? "Guest" : "Registered"}
+                              </span>
+                            </td>
+                            <td>
+                              {user.pathProgress ? (
+                                <span className={styles.pathPill}>
+                                  Stage {user.pathProgress.currentStage} / 8
+                                </span>
+                              ) : (
+                                <span className={ui.muted}>Not recorded</span>
+                              )}
+                            </td>
+                            <td>{formatDate(user.createdAt)}</td>
+                            <td>{formatDate(user.lastLoginAt)}</td>
+                            <td>
+                              <ArrowRight size={16} aria-hidden="true" />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {!visible.length && (
+                    <div className={ui.empty}>
+                      <Users size={28} />
+                      <h3>No members found</h3>
+                      <p>
+                        {filter !== "all"
+                          ? "Try another filter, or load more members below."
+                          : search.trim()
+                            ? "Try a different name, email, or user ID."
+                            : "New members will appear here when they join."}
+                      </p>
+                      {(search || filter !== "all") && (
+                        <button
+                          className={ui.button}
+                          onClick={() => {
+                            setSearch("");
+                            setFilter("all");
+                          }}
+                        >
+                          Clear filters
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <div className={styles.listFooter}>
+                    <span>
+                      Showing {visible.length} of {users.length}{" "}
+                      {search.trim() ? "matching" : "loaded"} members
+                    </span>
+                    {hasMore && !search.trim() && (
+                      <button
+                        className={ui.button}
+                        disabled={loadingMore}
+                        onClick={loadMore}
+                      >
+                        {loadingMore
+                          ? "Loading…"
+                          : moreError
+                            ? "Retry loading more"
+                            : "Load more members"}
+                        <ArrowRight size={14} />
+                      </button>
+                    )}
+                  </div>
+                  {moreError && (
+                    <p role="alert" className={styles.error}>
+                      More members couldn&apos;t load. Your current list is
+                      still available.
+                    </p>
+                  )}
+                </>
               )}
-            </div>
-          </div>
-        </div>
-      </AdminLayout>
-    </AdminProtectedRoute>
+            </section>
+            <p className={styles.footnote}>
+              Member profiles are read-only. Practice totals are calculated from
+              recorded sessions; path stages are self-reported.
+            </p>
+            {selected && (
+              <UserProfileDrawer
+                key={selected.id}
+                user={selected}
+                onClose={closeProfile}
+              />
+            )}
+          </>
+        )}
+      </div>
+    </AdminLayout>
   );
 }
-
-
-

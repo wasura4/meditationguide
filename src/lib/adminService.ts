@@ -1,5 +1,6 @@
 import { collection, query, getDocs, getDoc, doc, updateDoc, orderBy, limit, startAfter, Timestamp, QueryDocumentSnapshot, getCountFromServer, where } from 'firebase/firestore';
 import { db } from './firebase';
+import { normalizeAdminProfile } from './adminUserProfile';
 import { analyticsStart, buildAdminAnalytics, type AdminTimeRange } from './adminAnalytics';
 import { User } from '@/types';
 import { AdminStats } from '@/types/admin';
@@ -30,22 +31,7 @@ export class AdminService {
 
       querySnapshot.forEach((docSnapshot) => {
         const data = docSnapshot.data();
-        users.push({
-          id: docSnapshot.id,
-          email: data.email || '',
-          displayName: data.displayName || '',
-          photoURL: data.photoURL || null,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          preferences: data.preferences || {
-            theme: 'light',
-            language: 'en',
-            notifications: {
-              email: true,
-              push: true,
-            },
-          },
-        } as User);
+        users.push(normalizeAdminProfile(docSnapshot.id, data));
       });
 
       const lastDocument = querySnapshot.docs.length > 0
@@ -61,7 +47,7 @@ export class AdminService {
   // Search users
   static async searchUsers(searchTerm: string): Promise<User[]> {
     try {
-      const q = query(collection(db, 'users'), orderBy('displayName', 'asc'));
+      const q = query(collection(db, 'users'));
       const querySnapshot = await getDocs(q);
       const users: User[] = [];
 
@@ -71,23 +57,8 @@ export class AdminService {
         const email = (data.email || '').toLowerCase();
         const search = searchTerm.toLowerCase();
 
-        if (displayName.includes(search) || email.includes(search)) {
-          users.push({
-            id: docSnapshot.id,
-            email: data.email || '',
-            displayName: data.displayName || '',
-            photoURL: data.photoURL || null,
-            createdAt: data.createdAt?.toDate() || new Date(),
-            updatedAt: data.updatedAt?.toDate() || new Date(),
-            preferences: data.preferences || {
-              theme: 'light',
-              language: 'en',
-              notifications: {
-                email: true,
-                push: true,
-              },
-            },
-          } as User);
+        if (displayName.includes(search) || email.includes(search) || docSnapshot.id.toLowerCase().includes(search)) {
+          users.push(normalizeAdminProfile(docSnapshot.id, data));
         }
       });
 
@@ -104,28 +75,18 @@ export class AdminService {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
         const data = userDoc.data();
-        return {
-          id: userDoc.id,
-          email: data.email || '',
-          displayName: data.displayName || '',
-          photoURL: data.photoURL || null,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          preferences: data.preferences || {
-            theme: 'light',
-            language: 'en',
-            notifications: {
-              email: true,
-              push: true,
-            },
-          },
-        } as User;
+        return normalizeAdminProfile(userDoc.id, data);
       }
       return null;
     } catch (error) {
       console.error('Error fetching user:', error);
       throw new Error('Failed to fetch user');
     }
+  }
+
+  // Full history for profile totals; do not silently cap lifetime figures.
+  static async getUserPracticeHistory(userId: string): Promise<MeditationSession[]> {
+    return MeditationService.getAllUserSessions(userId);
   }
 
   // Get user sessions
