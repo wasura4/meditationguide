@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/toast';
-import { ERROR_MESSAGES } from '@/constants';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/toast";
+import { ERROR_MESSAGES } from "@/constants";
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -24,12 +25,13 @@ interface LoginFormProps {
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSwitchToRegister,
-  onSwitchToAnonymous
+  onSwitchToAnonymous,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string>("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmail, setResetEmail] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const router = useRouter();
   const { login, loginWithGoogle, resetPassword } = useAuth();
@@ -45,33 +47,38 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       await login(data.email, data.password);
-      
+
       showToast({
-        type: 'success',
-        title: 'Login Successful',
-        message: 'Welcome back! Redirecting to dashboard...',
-        duration: 3000
+        type: "success",
+        title: "Login Successful",
+        message: "Welcome back! Redirecting to dashboard...",
+        duration: 3000,
       });
-      
-      setTimeout(() => router.push('/dashboard'), 1000);
+
+      setTimeout(() => router.push("/dashboard"), 1000);
     } catch (error: unknown) {
-      console.error('Login error:', error);
-      
+      console.error("Login error:", error);
+
       // Handle specific Firebase auth errors
-      if (error && typeof error === 'object' && 'code' in error) {
+      if (error && typeof error === "object" && "code" in error) {
         const authError = error as { code: string; message?: string };
-        if (authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password') {
+        if (
+          authError.code === "auth/user-not-found" ||
+          authError.code === "auth/wrong-password"
+        ) {
           setError(ERROR_MESSAGES.auth.invalidCredentials);
-        } else if (authError.code === 'auth/too-many-requests') {
-          setError('Too many failed attempts. Please try again later.');
-        } else if (authError.code === 'auth/network-request-failed') {
+        } else if (authError.code === "auth/too-many-requests") {
+          setError("Too many failed attempts. Please try again later.");
+        } else if (authError.code === "auth/network-request-failed") {
           setError(ERROR_MESSAGES.auth.networkError);
         } else {
-          setError(authError.message || ERROR_MESSAGES.general.somethingWentWrong);
+          setError(
+            authError.message || ERROR_MESSAGES.general.somethingWentWrong,
+          );
         }
       } else {
         setError(ERROR_MESSAGES.general.somethingWentWrong);
@@ -83,30 +90,30 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       await loginWithGoogle();
 
       showToast({
-        type: 'success',
-        title: 'Google Login Successful',
-        message: 'Welcome! Redirecting to dashboard...',
-        duration: 3000
+        type: "success",
+        title: "Google Login Successful",
+        message: "Welcome! Redirecting to dashboard...",
+        duration: 3000,
       });
 
-      setTimeout(() => router.push('/dashboard'), 1000);
+      setTimeout(() => router.push("/dashboard"), 1000);
     } catch (error: unknown) {
-      console.error('Google login error:', error);
-      if (error && typeof error === 'object' && 'code' in error) {
+      console.error("Google login error:", error);
+      if (error && typeof error === "object" && "code" in error) {
         const authError = error as { code: string; message?: string };
-        if (authError.code === 'auth/popup-closed-by-user') {
-          setError('Login popup was closed. Please try again.');
+        if (authError.code === "auth/popup-closed-by-user") {
+          setError("Login popup was closed. Please try again.");
         } else {
-          setError(authError.message || 'Failed to login with Google');
+          setError(authError.message || "Failed to login with Google");
         }
       } else {
-        setError('Failed to login with Google');
+        setError("Failed to login with Google");
       }
     } finally {
       setIsLoading(false);
@@ -116,40 +123,40 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const handleResetPassword = async () => {
     if (!resetEmail.trim()) {
       showToast({
-        type: 'error',
-        title: 'Email Required',
-        message: 'Please enter your email address.',
-        duration: 3000
+        type: "error",
+        title: "Email Required",
+        message: "Please enter your email address.",
+        duration: 3000,
       });
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       await resetPassword(resetEmail);
       setResetEmailSent(true);
 
       showToast({
-        type: 'success',
-        title: 'Email Sent',
-        message: 'Password reset link has been sent to your email.',
-        duration: 5000
+        type: "success",
+        title: "Email Sent",
+        message: "Password reset link has been sent to your email.",
+        duration: 5000,
       });
     } catch (error: unknown) {
-      console.error('Password reset error:', error);
-      if (error && typeof error === 'object' && 'code' in error) {
+      console.error("Password reset error:", error);
+      if (error && typeof error === "object" && "code" in error) {
         const authError = error as { code: string; message?: string };
-        if (authError.code === 'auth/user-not-found') {
-          setError('No account found with this email address.');
-        } else if (authError.code === 'auth/invalid-email') {
-          setError('Please enter a valid email address.');
+        if (authError.code === "auth/user-not-found") {
+          setError("No account found with this email address.");
+        } else if (authError.code === "auth/invalid-email") {
+          setError("Please enter a valid email address.");
         } else {
-          setError(authError.message || 'Failed to send reset email.');
+          setError(authError.message || "Failed to send reset email.");
         }
       } else {
-        setError('Failed to send reset email. Please try again.');
+        setError("Failed to send reset email. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -172,12 +179,26 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         {resetEmailSent ? (
           <div className="space-y-6">
             <div className="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-center">
-              <svg className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
-              <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-2">Email Sent!</h3>
+              <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-2">
+                Email Sent!
+              </h3>
               <p className="text-sm text-green-600 dark:text-green-300">
-                We&apos;ve sent a password reset link to <strong>{resetEmail}</strong>. Please check your inbox and follow the instructions.
+                We&apos;ve sent a password reset link to{" "}
+                <strong>{resetEmail}</strong>. Please check your inbox and
+                follow the instructions.
               </p>
             </div>
 
@@ -188,8 +209,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               onClick={() => {
                 setShowForgotPassword(false);
                 setResetEmailSent(false);
-                setResetEmail('');
-                setError('');
+                setResetEmail("");
+                setError("");
               }}
             >
               Back to Login
@@ -198,7 +219,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         ) : (
           <div className="space-y-5">
             <div>
-              <label htmlFor="reset-email" className="block text-sm font-medium text-foreground mb-2">
+              <label
+                htmlFor="reset-email"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -214,7 +238,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
             {error && (
               <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+                <p className="text-sm text-red-700 dark:text-red-400">
+                  {error}
+                </p>
               </div>
             )}
 
@@ -225,7 +251,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               loading={isLoading}
               disabled={isLoading}
             >
-              {isLoading ? 'Sending...' : 'Send Reset Link'}
+              {isLoading ? "Sending..." : "Send Reset Link"}
             </Button>
 
             <Button
@@ -234,8 +260,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               className="w-full"
               onClick={() => {
                 setShowForgotPassword(false);
-                setResetEmail('');
-                setError('');
+                setResetEmail("");
+                setError("");
               }}
               disabled={isLoading}
             >
@@ -261,19 +287,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Email Field */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-foreground mb-2"
+          >
             Email Address
           </label>
           <input
-            {...register('email')}
+            {...register("email")}
             type="email"
             id="email"
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "login-email-error" : undefined}
             className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
             placeholder="Enter your email"
             disabled={isLoading}
           />
           {errors.email && (
-            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+            <p
+              id="login-email-error"
+              role="alert"
+              className="mt-2 text-sm text-red-600 dark:text-red-400"
+            >
               {errors.email.message}
             </p>
           )}
@@ -282,7 +318,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         {/* Password Field */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label htmlFor="password" className="block text-sm font-medium text-foreground">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-foreground"
+            >
               Password
             </label>
             <button
@@ -293,19 +332,41 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               Forgot Password?
             </button>
           </div>
-          <input
-            {...register('password')}
-            type="password"
-            id="password"
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
-            placeholder="Enter your password"
-            disabled={isLoading}
-          />
-          {errors.password && (
-            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-              {errors.password.message}
-            </p>
-          )}
+          <div className="auth-password">
+            <input
+              {...register("password")}
+              type={showPassword ? "text" : "password"}
+              id="password"
+              autoComplete="current-password"
+              aria-invalid={!!errors.password}
+              aria-describedby={
+                errors.password ? "login-password-error" : undefined
+              }
+              className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-foreground placeholder:text-muted-foreground transition-all"
+              placeholder="Enter your password"
+              disabled={isLoading}
+            />
+            {errors.password && (
+              <p
+                id="login-password-error"
+                role="alert"
+                className="mt-2 text-sm text-red-600 dark:text-red-400"
+              >
+                {errors.password.message}
+              </p>
+            )}
+            <button
+              type="button"
+              className="auth-password-toggle"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              title={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              disabled={isLoading}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         {/* Error Message */}
@@ -322,7 +383,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           loading={isLoading}
           disabled={isLoading}
         >
-          {isLoading ? 'Signing In...' : 'Sign In'}
+          {isLoading ? "Signing In..." : "Sign In"}
+          {!isLoading && (
+            <ArrowRight size={16} className="ml-2" aria-hidden="true" />
+          )}
         </Button>
 
         {/* TEMPORARILY HIDDEN - Google Login */}
@@ -335,7 +399,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white dark:bg-gray-800 text-muted-foreground">Or continue with</span>
+                <span className="px-3 bg-white dark:bg-gray-800 text-muted-foreground">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -380,7 +446,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white dark:bg-gray-800 text-muted-foreground">Or try as guest</span>
+                <span className="px-3 bg-white dark:bg-gray-800 text-muted-foreground">
+                  Or try as guest
+                </span>
               </div>
             </div>
 
@@ -392,8 +460,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               onClick={onSwitchToAnonymous}
               disabled={isLoading}
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
               </svg>
               Try as Guest
             </Button>
@@ -404,7 +482,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       {/* Switch to Register */}
       <div className="mt-6 text-center">
         <p className="text-muted-foreground text-sm">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <button
             type="button"
             onClick={onSwitchToRegister}
@@ -417,4 +495,3 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     </div>
   );
 };
-
