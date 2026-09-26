@@ -1,0 +1,65 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function permissionAt(permissions, index, name, action) {
+      return permissions.size() > index && permissions[index].resource == name
+        && permissions[index].actions is list && action in permissions[index].actions;
+    }
+    function permitted(name, action) {
+      let admin = firestore.get(/databases/(default)/documents/admin_users/$(request.auth.uid)).data;
+      return request.auth != null && admin.isActive == true
+        && admin.role in ['admin','super_admin','content_admin','moderator']
+        && (admin.role == 'super_admin' || (admin.permissions is list && (
+          permissionAt(admin.permissions,0,name,action) || permissionAt(admin.permissions,1,name,action)
+          || permissionAt(admin.permissions,2,name,action) || permissionAt(admin.permissions,3,name,action)
+          || permissionAt(admin.permissions,4,name,action) || permissionAt(admin.permissions,5,name,action))));
+    }
+    match /presentations/{presentationId}/{fileName} {
+      function presentation() { return firestore.get(/databases/(default)/documents/learning_presentations/$(presentationId)).data; }
+      allow read: if request.auth != null && (permitted('content','read')
+        || (presentation().status == 'published' && presentation().storagePath == 'presentations/' + presentationId + '/' + fileName));
+      allow create: if resource == null && request.auth != null && permitted('content','update')
+        && presentation().status != 'published' && fileName.matches('^[A-Za-z0-9_-]+[.]pdf$')
+        && request.resource.size > 0 && request.resource.size <= 26214400
+        && request.resource.contentType == 'application/pdf';
+      // Replacements use a new immutable file; old versions cannot be overwritten.
+      allow update: if false;
+      allow delete: if request.auth != null && permitted('content','update')
+        && presentation().storagePath != 'presentations/' + presentationId + '/' + fileName;
+    }
+    // Existing production media access retained unchanged during the PDF rollout.
+    function isSignedIn() { return request.auth != null }
+    
+    // Quick fix: allowlisted admin UIDs
+    function isAdmin() {
+      return isSignedIn() && request.auth.uid in [
+        '79UeGIKULwVFDGMn5b2IdKm5v5L2' // your UID
+      ];
+    }
+
+    match /dhamma_posts/{imageFile} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /audio/{audioFile} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // ADD THIS - for kamatahan audio files
+    match /kamatahan_audio/{audioFile} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /playlist_covers/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

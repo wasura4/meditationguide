@@ -11,7 +11,7 @@ import {
   startAfter,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
-import { lessonsFromIds } from "./learning";
+import { lessonsFromIds, lessonCollection } from "./learning";
 import { db } from "./firebase";
 import {
   saveTeacher,
@@ -110,16 +110,12 @@ export class LearningService {
   static async lesson(lesson: Lesson): Promise<LessonContent | null> {
     try {
       const result = await getDoc(
-        doc(
-          db,
-          lesson.kind === "article" ? "dhamma_posts" : "kamatahan_audio",
-          lesson.contentId,
-        ),
+        doc(db, lessonCollection(lesson.kind), lesson.contentId),
       );
       if (!result.exists()) return null;
       const data = result.data();
       if (
-        lesson.kind === "article"
+        lesson.kind !== "audio"
           ? data.status !== "published"
           : !isPublishedAudio(data)
       )
@@ -146,8 +142,8 @@ export class LearningService {
   ) {
     const result = await getDocs(
       query(
-        collection(db, kind === "article" ? "dhamma_posts" : "kamatahan_audio"),
-        where("status", "==", kind === "article" ? "published" : "active"),
+        collection(db, lessonCollection(kind)),
+        where("status", "==", kind !== "audio" ? "published" : "active"),
         orderBy(documentId()),
         ...(cursor ? [startAfter(cursor)] : []),
         limit(30),
@@ -155,7 +151,7 @@ export class LearningService {
     );
     return {
       items: result.docs
-        .filter((item) => kind === "article" || isPublishedAudio(item.data()))
+        .filter((item) => kind !== "audio" || isPublishedAudio(item.data()))
         .map((item) => ({
           id: item.id,
           kind,

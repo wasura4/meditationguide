@@ -2,7 +2,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Check, BookOpen, Headphones, Play, Users } from "lucide-react";
+import {
+  Check,
+  BookOpen,
+  Headphones,
+  Play,
+  Users,
+  FileText,
+} from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppPage } from "@/components/app/AppPage";
 import { Button } from "@/components/ui/button";
@@ -208,15 +215,19 @@ function PathContent({ id }: { id: string }) {
                     </span>
                     <div className="min-w-0">
                       <p className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        {lesson.kind === "article" ? (
+                        {lesson.kind === "pdf" ? (
+                          <FileText size={14} />
+                        ) : lesson.kind === "article" ? (
                           <BookOpen size={14} />
                         ) : (
                           <Headphones size={14} />
                         )}{" "}
                         {t(
-                          lesson.kind === "article"
-                            ? "learning.article"
-                            : "learning.recording",
+                          lesson.kind === "pdf"
+                            ? "presentation.format"
+                            : lesson.kind === "article"
+                              ? "learning.article"
+                              : "learning.recording",
                         )}
                       </p>
                       <h2 className="font-semibold leading-relaxed">
@@ -226,7 +237,14 @@ function PathContent({ id }: { id: string }) {
                   </div>
                   {teaching ? (
                     <div className="flex flex-wrap gap-3 sm:pl-13">
-                      {lesson.kind === "article" ? (
+                      {lesson.kind === "pdf" ? (
+                        <Link
+                          href={`/learn/${id}/presentation/${lesson.contentId}`}
+                          className="inline-flex min-h-11 items-center rounded-xl border border-input px-4 text-sm font-medium"
+                        >
+                          {t("presentation.view")}
+                        </Link>
+                      ) : lesson.kind === "article" ? (
                         <Link
                           href={`/dhamma/${lesson.contentId}?learningPath=${encodeURIComponent(id)}`}
                           className="inline-flex min-h-11 items-center rounded-xl border border-input px-4 text-sm font-medium"

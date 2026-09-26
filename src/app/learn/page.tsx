@@ -5,6 +5,7 @@ import { Route, Users, ChevronRight, BookOpen } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppPage } from "@/components/app/AppPage";
 import { Button } from "@/components/ui/button";
+import { ContinueLearning } from "@/components/learning/ContinueLearning";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdminLibrary } from "@/hooks/useAdminLibrary";
 import {
@@ -24,6 +25,7 @@ export default function LearningPage() {
         subtitle={t("learning.subtitle")}
         backHref="/dhamma"
       >
+        <ContinueLearning />
         <div
           role="group"
           aria-label={t("learning.browse")}

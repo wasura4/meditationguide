@@ -18,7 +18,12 @@ import { db } from "@/lib/firebase";
 export type LibraryRecord = DocumentData & { id: string };
 /** Stable document-ID pagination needs no new composite indexes. Search is explicitly over loaded rows. */
 export function useAdminLibrary(
-  name: "dhamma_posts" | "kamatahan_audio" | "teachers" | "learning_paths",
+  name:
+    | "dhamma_posts"
+    | "kamatahan_audio"
+    | "teachers"
+    | "learning_paths"
+    | "learning_presentations",
   status: string,
 ) {
   const [records, setRecords] = useState<LibraryRecord[]>([]);

@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://meditationguide.vercel.app", "https://meditationguide.com", "https://www.meditationguide.com"],
+    "method": ["GET"],
+    "responseHeader": ["Content-Type", "Content-Length", "Content-Range"],
+    "maxAgeSeconds": 3600
+  }
+]

@@ -5,6 +5,7 @@ import { Route, Users, Plus, FilePenLine } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { LearningEditor } from "@/components/admin/LearningEditor";
+import { PresentationLibrary } from "@/components/admin/PresentationLibrary";
 import {
   LibraryToolbar,
   LibraryFooter,
@@ -14,7 +15,7 @@ import { useAdminLibrary } from "@/hooks/useAdminLibrary";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import type { Teacher, LearningPath } from "@/lib/learning";
 export default function LearningAdminPage() {
-  const [kind, setKind] = useState<"teacher" | "path">("path");
+  const [kind, setKind] = useState<"teacher" | "path" | "pdf">("path");
   return (
     <AdminProtectedRoute>
       <AdminLayout currentPage="/admin/learning">
@@ -24,7 +25,7 @@ export default function LearningAdminPage() {
               Learning studio
             </p>
             <h1 className="mt-2 text-3xl font-bold">
-              Teachers & learning paths
+              Lessons, teachers & learning paths
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Connect your teachings into clear, thoughtful sequences. Publish a
@@ -37,6 +38,13 @@ export default function LearningAdminPage() {
             role="group"
             aria-label="Learning collection"
           >
+            <Button
+              variant={kind === "pdf" ? "default" : "outline"}
+              aria-pressed={kind === "pdf"}
+              onClick={() => setKind("pdf")}
+            >
+              Presentations
+            </Button>
             <Button
               variant={kind === "path" ? "default" : "outline"}
               aria-pressed={kind === "path"}
@@ -60,7 +68,11 @@ export default function LearningAdminPage() {
               View learner library
             </Link>
           </div>
-          <LearningCollection key={kind} kind={kind} />
+          {kind === "pdf" ? (
+            <PresentationLibrary />
+          ) : (
+            <LearningCollection key={kind} kind={kind} />
+          )}
         </div>
       </AdminLayout>
     </AdminProtectedRoute>

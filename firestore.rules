@@ -251,7 +251,7 @@ service cloud.firestore {
         && learningString(data.bioEn, 0, 5000) && learningMetadata(data);
     }
     function lessonAt(ids, index) {
-      return ids.size() <= index || (ids[index] is string && ids[index].matches('^(article|audio)_[A-Za-z0-9_-]{1,128}$'));
+      return ids.size() <= index || (ids[index] is string && ids[index].matches('^(article|audio|pdf)_[A-Za-z0-9_-]{1,128}$'));
     }
     function validLearningPath(data) {
       return data.keys().hasOnly(['title','titleEn','description','descriptionEn','teacherId','topic','level','language','status','lessonIds','version','createdAt','createdBy','updatedAt','updatedBy'])
@@ -277,6 +277,42 @@ service cloud.firestore {
         && lessonAt(data.lessonIds, 9)
         && lessonAt(data.lessonIds, 10)
         && lessonAt(data.lessonIds, 11);
+    }
+    function validPresentation(data, presentationId) {
+      return data.keys().hasOnly(['title','titleEn','description','descriptionEn','objectives','objectivesEn','teacherId','language','minutes','allowDownload','status','storagePath','fileName','fileSize','pageCount','version','createdAt','createdBy','updatedAt','updatedBy'])
+        && learningMetadata(data)
+        && learningString(data.title, 1, 180) && learningString(data.titleEn, 0, 180)
+        && learningString(data.description, data.status == 'published' ? 1 : 0, 3000)
+        && learningString(data.descriptionEn, 0, 3000)
+        && learningString(data.objectives, 0, 3000) && learningString(data.objectivesEn, 0, 3000)
+        && data.teacherId is string && (data.teacherId == '' || data.teacherId.matches('^[A-Za-z0-9_-]{1,128}$'))
+        && data.language in ['si','en','mixed']
+        && data.minutes is int && data.minutes >= 1 && data.minutes <= 600
+        && data.allowDownload is bool && learningString(data.fileName, 0, 255)
+        && data.pageCount is int && data.fileSize is int && data.storagePath is string
+        && ((data.storagePath == '' && data.status != 'published' && data.fileSize == 0 && data.pageCount == 0 && data.fileName == '')
+          || (data.storagePath.matches('^presentations/' + presentationId + '/[A-Za-z0-9_-]+[.]pdf$')
+            && data.fileSize > 0 && data.fileSize <= 26214400 && data.pageCount > 0 && data.pageCount <= 2000 && data.fileName.size() > 0));
+    }
+    match /learning_presentations/{presentationId} {
+      allow read: if (isSignedIn() && resource.data.status == 'published') || permitted('content', 'read');
+      allow create: if permitted('content', 'create') && validPresentation(request.resource.data, presentationId) && learningCreate(request.resource.data);
+      allow update: if permitted('content', 'update') && validPresentation(request.resource.data, presentationId) && learningUpdate(request.resource.data);
+      allow delete: if false;
+    }
+    match /users/{userId}/learning_reading/{presentationId} {
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+      allow create, update: if isSignedIn() && request.auth.uid == userId && validReading(request.resource.data);
+      function validReading(data) {
+        let presentation = get(/databases/$(database)/documents/learning_presentations/$(presentationId)).data;
+        let path = get(/databases/$(database)/documents/learning_paths/$(data.pathId)).data;
+        return data.keys().hasOnly(['page','storagePath','pathId','updatedAt'])
+          && presentation.status == 'published' && path.status == 'published'
+          && ('pdf_' + presentationId) in path.lessonIds
+          && data.storagePath == presentation.storagePath
+          && data.page is int && data.page >= 1 && data.page <= presentation.pageCount
+          && data.updatedAt == request.time;
+      }
     }
     match /teachers/{teacherId} {
       allow read: if (isSignedIn() && resource.data.status == 'published') || permitted('content', 'read');

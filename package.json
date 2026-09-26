@@ -12,7 +12,9 @@
     "i18n:check": "node scripts/i18n/validate.cjs",
     "test": "node --test --experimental-test-isolation=none tests/*.test.cjs",
     "test:rules": "node --test tests/firestore/*.test.cjs",
-    "i18n:write": "node scripts/i18n/collect-keys.mjs --write"
+    "i18n:write": "node scripts/i18n/collect-keys.mjs --write",
+    "predev": "node scripts/copy-pdf-assets.cjs",
+    "prebuild": "node scripts/copy-pdf-assets.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -49,6 +51,7 @@
     "lucide-react": "^0.539.0",
     "next": "15.4.8",
     "next-themes": "^0.4.6",
+    "pdfjs-dist": "^6.3.289",
     "react": "19.1.2",
     "react-dom": "19.1.2",
     "react-hook-form": "^7.62.0",

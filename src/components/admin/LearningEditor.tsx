@@ -355,7 +355,7 @@ export function LearningEditor({
     </AdminDialog>
   );
 }
-function TeacherPicker({
+export function TeacherPicker({
   value,
   onChange,
 }: {
@@ -547,7 +547,11 @@ function LessonPicker({
             </p>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {lesson.kind === "audio" ? "Listen" : "Read"}
+                {lesson.kind === "audio"
+                  ? "Listen"
+                  : lesson.kind === "pdf"
+                    ? "Presentation"
+                    : "Read"}
               </span>
               <div className="flex">
                 <button
@@ -590,6 +594,14 @@ function LessonPicker({
         </p>
       )}
       <div className="flex gap-2" role="group" aria-label="Teaching format">
+        <Button
+          type="button"
+          variant={kind === "pdf" ? "default" : "outline"}
+          aria-pressed={kind === "pdf"}
+          onClick={() => setKind("pdf")}
+        >
+          Presentations
+        </Button>
         <Button
           type="button"
           variant={kind === "article" ? "default" : "outline"}

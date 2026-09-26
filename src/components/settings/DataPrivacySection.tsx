@@ -34,6 +34,7 @@ export function DataPrivacySection() {
     try {
       const sessions = await MeditationService.getAllUserSessions(user.id);
       let learningProgress: unknown[] = [];
+      let learningReading: unknown[] = [];
       let dailyCheckins: unknown[] = [];
       if (kind === "json") {
         const { db } = await import("@/lib/firebase");
@@ -43,6 +44,13 @@ export function DataPrivacySection() {
         );
         learningProgress = progress.docs.map((item) => ({
           pathId: item.id,
+          ...item.data(),
+        }));
+        const reading = await getDocs(
+          collection(db, "users", user.id, "learning_reading"),
+        );
+        learningReading = reading.docs.map((item) => ({
+          presentationId: item.id,
           ...item.data(),
         }));
         const checkins = await getDocs(
@@ -67,6 +75,7 @@ export function DataPrivacySection() {
                 },
                 sessions,
                 learningProgress,
+                learningReading,
                 dailyCheckins,
                 exportDate: new Date().toISOString(),
                 totalSessions: sessions.length,
@@ -150,7 +159,11 @@ export function DataPrivacySection() {
         },
         removeProfile: async () => {
           // Firestore does not cascade deletion into subcollections.
-          for (const name of ["learning_progress", "daily_checkins"]) {
+          for (const name of [
+            "learning_progress",
+            "learning_reading",
+            "daily_checkins",
+          ]) {
             while (true) {
               const progress = await getDocs(
                 query(collection(db, "users", user.id, name), limit(400)),

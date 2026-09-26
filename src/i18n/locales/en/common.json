@@ -1168,5 +1168,29 @@
   "quotes": {
     "title": "Motivation Quotes",
     "rotation": "A new reflection every four hours"
+  },
+  "presentation": {
+    "format": "Presentation",
+    "view": "View presentation",
+    "controls": "Presentation controls",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "zoom_out": "Zoom out",
+    "zoom_in": "Zoom in",
+    "fit": "Fit width",
+    "fullscreen": "Fullscreen",
+    "download": "Download PDF",
+    "page_text": "Read page text",
+    "no_text": "No text is available for this page. It may contain scanned images.",
+    "render_error": "This page could not be displayed. Retry or download the PDF if available.",
+    "load_error": "This presentation is unavailable or could not load. Check your connection and try again.",
+    "details": "{pages} pages · {minutes} min",
+    "objectives": "What you will learn",
+    "next_lesson": "Next lesson",
+    "position_error": "Your reading position could not be saved. Retry to sync your progress.",
+    "recent_error": "Your recent learning could not load.",
+    "continue": "Continue learning",
+    "resume_page": "Continue from page {page}"
   }
 }

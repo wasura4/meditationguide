@@ -11,6 +11,7 @@ import {
   teacherFields,
   pathFields,
   lessonsFromIds,
+  lessonCollection,
   type TeacherFields,
   type LearningPathFields,
 } from "./learning";
@@ -66,11 +67,7 @@ export async function saveLearningPath(
     const content = await Promise.all(
       lessonsFromIds(values.lessonIds).map((lesson) =>
         getDocFromServer(
-          doc(
-            store,
-            lesson.kind === "article" ? "dhamma_posts" : "kamatahan_audio",
-            lesson.contentId,
-          ),
+          doc(store, lessonCollection(lesson.kind), lesson.contentId),
         ),
       ),
     );
@@ -78,7 +75,7 @@ export async function saveLearningPath(
       content.some(
         (item, index) =>
           !item.exists() ||
-          (lessonsFromIds(values.lessonIds)[index].kind === "article"
+          (lessonsFromIds(values.lessonIds)[index].kind !== "audio"
             ? item.data()!.status !== "published"
             : !isPublishedAudio(item.data()!)),
       )

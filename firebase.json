@@ -1,5 +1,6 @@
 {
   "emulators": {
+    "storage": { "port": 9199 },
     "firestore": {
       "port": 8185
     },
@@ -10,6 +11,7 @@
       "port": 9099
     }
   },
+  "storage": { "rules": "storage.rules" },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"

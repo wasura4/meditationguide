@@ -13,7 +13,7 @@ export const LEARNING_LEVELS = [
 export type EditorialStatus = "draft" | "published" | "archived";
 export type Lesson = {
   id: string;
-  kind: "article" | "audio";
+  kind: "article" | "audio" | "pdf";
   contentId: string;
 };
 export interface TeacherFields {
@@ -106,12 +106,14 @@ export function pathFields(
   const lessons = data.lessons.map((lesson) => {
     if (
       !lesson ||
-      !["audio", "article"].includes(lesson.kind) ||
+      !["audio", "article", "pdf"].includes(lesson.kind) ||
       typeof lesson.contentId !== "string" ||
       !/^[A-Za-z0-9_-]{1,128}$/.test(lesson.contentId) ||
       lesson.id !== `${lesson.kind}_${lesson.contentId}`
     )
-      throw new Error("Choose a valid article or recording for each lesson.");
+      throw new Error(
+        "Choose a valid article, recording or presentation for each lesson.",
+      );
     return { id: lesson.id, kind: lesson.kind, contentId: lesson.contentId };
   });
   const lessonIds = lessons.map((lesson) => lesson.id);
@@ -157,7 +159,19 @@ export function learningProgress(lessons: Lesson[], completedIds: string[]) {
 /** A single ordered ID list is stored; kind and content ID are derived, never duplicated. */
 export function lessonsFromIds(ids: string[]): Lesson[] {
   return ids.map((id) => {
-    const kind = id.startsWith("article_") ? "article" : "audio";
+    const kind: Lesson["kind"] = id.startsWith("article_")
+      ? "article"
+      : id.startsWith("pdf_")
+        ? "pdf"
+        : "audio";
     return { id, kind, contentId: id.slice(kind.length + 1) };
   });
+}
+
+export function lessonCollection(kind: Lesson["kind"]) {
+  return kind === "article"
+    ? "dhamma_posts"
+    : kind === "pdf"
+      ? "learning_presentations"
+      : "kamatahan_audio";
 }
